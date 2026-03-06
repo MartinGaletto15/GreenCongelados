@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\Martin Galetto\\OneDrive - frro.utn.edu.ar\\Escritorio\\UTN\\Extras\\GC\\gc-backend\\src\\Domain\\Domain.csproj": {}
+    "C:\\dev\\GC\\GC-backend\\src\\Domain\\Domain.csproj": {}
   },
   "projects": {
-    "C:\\Users\\Martin Galetto\\OneDrive - frro.utn.edu.ar\\Escritorio\\UTN\\Extras\\GC\\gc-backend\\src\\Domain\\Domain.csproj": {
+    "C:\\dev\\GC\\GC-backend\\src\\Domain\\Domain.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\Martin Galetto\\OneDrive - frro.utn.edu.ar\\Escritorio\\UTN\\Extras\\GC\\gc-backend\\src\\Domain\\Domain.csproj",
+        "projectUniqueName": "C:\\dev\\GC\\GC-backend\\src\\Domain\\Domain.csproj",
         "projectName": "Domain",
-        "projectPath": "C:\\Users\\Martin Galetto\\OneDrive - frro.utn.edu.ar\\Escritorio\\UTN\\Extras\\GC\\gc-backend\\src\\Domain\\Domain.csproj",
+        "projectPath": "C:\\dev\\GC\\GC-backend\\src\\Domain\\Domain.csproj",
         "packagesPath": "C:\\Users\\Martin Galetto\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\Martin Galetto\\OneDrive - frro.utn.edu.ar\\Escritorio\\UTN\\Extras\\GC\\gc-backend\\src\\Domain\\obj\\",
+        "outputPath": "C:\\dev\\GC\\GC-backend\\src\\Domain\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\Martin Galetto\\AppData\\Roaming\\NuGet\\NuGet.Config"

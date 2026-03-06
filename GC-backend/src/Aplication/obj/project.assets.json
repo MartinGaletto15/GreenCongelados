@@ -13,11 +13,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\Martin Galetto\\OneDrive - frro.utn.edu.ar\\Escritorio\\UTN\\Extras\\GC\\GC-backend\\src\\Aplication\\Aplication.csproj",
+      "projectUniqueName": "C:\\dev\\GC\\gc-backend\\src\\Aplication\\Aplication.csproj",
       "projectName": "Aplication",
-      "projectPath": "C:\\Users\\Martin Galetto\\OneDrive - frro.utn.edu.ar\\Escritorio\\UTN\\Extras\\GC\\GC-backend\\src\\Aplication\\Aplication.csproj",
+      "projectPath": "C:\\dev\\GC\\gc-backend\\src\\Aplication\\Aplication.csproj",
       "packagesPath": "C:\\Users\\Martin Galetto\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\Martin Galetto\\OneDrive - frro.utn.edu.ar\\Escritorio\\UTN\\Extras\\GC\\GC-backend\\src\\Aplication\\obj\\",
+      "outputPath": "C:\\dev\\GC\\gc-backend\\src\\Aplication\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
         "C:\\Users\\Martin Galetto\\AppData\\Roaming\\NuGet\\NuGet.Config"

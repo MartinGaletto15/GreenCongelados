@@ -9,3 +9,15 @@ C:\Users\Martin Galetto\OneDrive - frro.utn.edu.ar\Escritorio\UTN\Extras\GC\GC-b
 C:\Users\Martin Galetto\OneDrive - frro.utn.edu.ar\Escritorio\UTN\Extras\GC\GC-backend\src\Domain\obj\Debug\net8.0\refint\Domain.dll
 C:\Users\Martin Galetto\OneDrive - frro.utn.edu.ar\Escritorio\UTN\Extras\GC\GC-backend\src\Domain\obj\Debug\net8.0\Domain.pdb
 C:\Users\Martin Galetto\OneDrive - frro.utn.edu.ar\Escritorio\UTN\Extras\GC\GC-backend\src\Domain\obj\Debug\net8.0\ref\Domain.dll
+C:\dev\GC\gc-backend\src\domain\obj\Debug\net8.0\Domain.GeneratedMSBuildEditorConfig.editorconfig
+C:\dev\GC\gc-backend\src\domain\obj\Debug\net8.0\Domain.AssemblyInfoInputs.cache
+C:\dev\GC\gc-backend\src\domain\obj\Debug\net8.0\Domain.AssemblyInfo.cs
+C:\dev\GC\gc-backend\src\domain\obj\Debug\net8.0\Domain.csproj.CoreCompileInputs.cache
+C:\dev\GC\gc-backend\src\domain\obj\Debug\net8.0\Domain.sourcelink.json
+C:\dev\GC\GC-backend\src\Domain\bin\Debug\net8.0\Domain.deps.json
+C:\dev\GC\GC-backend\src\Domain\bin\Debug\net8.0\Domain.dll
+C:\dev\GC\GC-backend\src\Domain\bin\Debug\net8.0\Domain.pdb
+C:\dev\GC\GC-backend\src\Domain\obj\Debug\net8.0\Domain.dll
+C:\dev\GC\GC-backend\src\Domain\obj\Debug\net8.0\refint\Domain.dll
+C:\dev\GC\GC-backend\src\Domain\obj\Debug\net8.0\Domain.pdb
+C:\dev\GC\GC-backend\src\Domain\obj\Debug\net8.0\ref\Domain.dll

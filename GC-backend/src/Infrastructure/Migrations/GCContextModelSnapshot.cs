@@ -3,6 +3,7 @@ using System;
 using Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -17,7 +18,48 @@ namespace Infrastructure.Migrations
 #pragma warning disable 612, 618
             modelBuilder
                 .HasAnnotation("ProductVersion", "8.0.0")
-                .HasAnnotation("Relational:MaxIdentifierLength", 64);
+                .HasAnnotation("Relational:MaxIdentifierLength", 128);
+
+            SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
+
+            modelBuilder.Entity("Domain.Entities.Address", b =>
+                {
+                    b.Property<int>("IdAddress")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("IdAddress"));
+
+                    b.Property<string>("City")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Dpto")
+                        .HasMaxLength(10)
+                        .HasColumnType("nvarchar(10)");
+
+                    b.Property<int>("IdUser")
+                        .HasColumnType("int");
+
+                    b.Property<string>("References")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Street")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("ZipCode")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("nvarchar(10)");
+
+                    b.HasKey("IdAddress");
+
+                    b.HasIndex("IdUser");
+
+                    b.ToTable("Addresses");
+                });
 
             modelBuilder.Entity("Domain.Entities.Category", b =>
                 {
@@ -25,68 +67,20 @@ namespace Infrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("IdCategory"));
+
                     b.Property<string>("ImageUrl")
                         .IsRequired()
-                        .HasColumnType("longtext");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(50)
-                        .HasColumnType("varchar(50)");
+                        .HasColumnType("nvarchar(50)");
 
                     b.HasKey("IdCategory");
 
                     b.ToTable("Categories");
-                });
-
-            modelBuilder.Entity("Domain.Entities.Direction", b =>
-                {
-                    b.Property<int>("IdDirection")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    b.Property<string>("Alias")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("varchar(50)");
-
-                    b.Property<string>("City")
-                        .IsRequired()
-                        .HasColumnType("longtext");
-
-                    b.Property<bool>("Dpto")
-                        .HasColumnType("tinyint(1)");
-
-                    b.Property<int>("IdUser")
-                        .HasColumnType("int");
-
-                    b.Property<bool>("IsDefault")
-                        .HasColumnType("tinyint(1)");
-
-                    b.Property<string>("References")
-                        .HasColumnType("longtext");
-
-                    b.Property<string>("Street")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("varchar(100)");
-
-                    b.Property<int>("StreetNumber")
-                        .HasColumnType("int");
-
-                    b.Property<int>("UserIdUser")
-                        .HasColumnType("int");
-
-                    b.Property<string>("ZipCode")
-                        .IsRequired()
-                        .HasMaxLength(10)
-                        .HasColumnType("varchar(10)");
-
-                    b.HasKey("IdDirection");
-
-                    b.HasIndex("UserIdUser");
-
-                    b.ToTable("Directions");
                 });
 
             modelBuilder.Entity("Domain.Entities.Order", b =>
@@ -95,13 +89,12 @@ namespace Infrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("IdOrder"));
+
                     b.Property<decimal>("GlobalDiscount")
-                        .HasColumnType("decimal(65,30)");
+                        .HasColumnType("decimal(18,2)");
 
-                    b.Property<int>("IdDirection")
-                        .HasColumnType("int");
-
-                    b.Property<int>("IdPayment")
+                    b.Property<int?>("IdCourier")
                         .HasColumnType("int");
 
                     b.Property<int?>("IdPromotion")
@@ -111,26 +104,28 @@ namespace Infrastructure.Migrations
                         .HasColumnType("int");
 
                     b.Property<DateTime>("OrderDate")
-                        .HasColumnType("datetime(6)");
+                        .HasColumnType("datetime2");
 
                     b.Property<string>("OrderStatus")
                         .IsRequired()
-                        .HasColumnType("longtext");
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ShippingAddress")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<decimal>("ShippingCost")
-                        .HasColumnType("decimal(65,30)");
+                        .HasColumnType("decimal(18, 2)");
 
                     b.Property<decimal>("Subtotal")
-                        .HasColumnType("decimal(65,30)");
+                        .HasColumnType("decimal(18, 2)");
 
                     b.Property<decimal>("Total")
-                        .HasColumnType("decimal(65,30)");
+                        .HasColumnType("decimal(18, 2)");
 
                     b.HasKey("IdOrder");
 
-                    b.HasIndex("IdDirection");
-
-                    b.HasIndex("IdPayment");
+                    b.HasIndex("IdCourier");
 
                     b.HasIndex("IdPromotion");
 
@@ -139,7 +134,7 @@ namespace Infrastructure.Migrations
                     b.ToTable("Orders");
                 });
 
-            modelBuilder.Entity("Domain.Entities.OrderDetail", b =>
+            modelBuilder.Entity("Domain.Entities.OrderItem", b =>
                 {
                     b.Property<int>("IdOrder")
                         .HasColumnType("int");
@@ -147,51 +142,17 @@ namespace Infrastructure.Migrations
                     b.Property<int>("IdProduct")
                         .HasColumnType("int");
 
-                    b.Property<int>("Amount")
+                    b.Property<int>("Quantity")
                         .HasColumnType("int");
 
-                    b.Property<decimal>("OriginUnitPrice")
-                        .HasColumnType("decimal(65,30)");
-
-                    b.Property<decimal>("ProductDiscount")
-                        .HasColumnType("decimal(65,30)");
-
-                    b.Property<decimal>("SellUnitPrice")
-                        .HasColumnType("decimal(65,30)");
+                    b.Property<decimal>("UnitPrice")
+                        .HasColumnType("decimal(18,2)");
 
                     b.HasKey("IdOrder", "IdProduct");
 
                     b.HasIndex("IdProduct");
 
-                    b.ToTable("OrderDetails");
-                });
-
-            modelBuilder.Entity("Domain.Entities.Payment", b =>
-                {
-                    b.Property<int>("IdPayment")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    b.Property<string>("ExternalTransactionId")
-                        .HasMaxLength(255)
-                        .HasColumnType("varchar(255)");
-
-                    b.Property<decimal>("PaidAmount")
-                        .HasColumnType("decimal(65,30)");
-
-                    b.Property<string>("PaymentMethod")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("varchar(50)");
-
-                    b.Property<string>("PaymentStatus")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("varchar(100)");
-
-                    b.HasKey("IdPayment");
-
-                    b.ToTable("Payments");
+                    b.ToTable("OrderItems");
                 });
 
             modelBuilder.Entity("Domain.Entities.Product", b =>
@@ -200,24 +161,29 @@ namespace Infrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("IdProduct"));
+
                     b.Property<int>("CurrentStock")
                         .HasColumnType("int");
 
                     b.Property<string>("DescriptionLong")
-                        .HasColumnType("longtext");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("DescriptionShort")
                         .IsRequired()
                         .HasMaxLength(255)
-                        .HasColumnType("varchar(255)");
+                        .HasColumnType("nvarchar(255)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
 
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(100)
-                        .HasColumnType("varchar(100)");
+                        .HasColumnType("nvarchar(100)");
 
-                    b.Property<float?>("PreparationTime")
-                        .HasColumnType("float");
+                    b.Property<decimal?>("PreparationTime")
+                        .HasColumnType("decimal(18,2)");
 
                     b.Property<decimal>("Price")
                         .HasColumnType("decimal(18, 2)");
@@ -225,12 +191,12 @@ namespace Infrastructure.Migrations
                     b.Property<string>("ProductStatus")
                         .IsRequired()
                         .HasMaxLength(25)
-                        .HasColumnType("varchar(25)")
+                        .HasColumnType("nvarchar(25)")
                         .HasColumnName("product_status");
 
                     b.Property<string>("UrlImagePrimary")
                         .HasMaxLength(200)
-                        .HasColumnType("varchar(200)");
+                        .HasColumnType("nvarchar(200)");
 
                     b.Property<decimal?>("Weight")
                         .HasColumnType("decimal(10, 2)");
@@ -243,45 +209,18 @@ namespace Infrastructure.Migrations
             modelBuilder.Entity("Domain.Entities.ProductCategory", b =>
                 {
                     b.Property<int>("IdCategory")
-                        .HasColumnType("int");
+                        .HasColumnType("int")
+                        .HasColumnOrder(1);
 
                     b.Property<int>("IdProduct")
-                        .HasColumnType("int");
+                        .HasColumnType("int")
+                        .HasColumnOrder(0);
 
                     b.HasKey("IdCategory", "IdProduct");
 
                     b.HasIndex("IdProduct");
 
-                    b.ToTable("ProductCategories");
-                });
-
-            modelBuilder.Entity("Domain.Entities.ProductPromotion", b =>
-                {
-                    b.Property<int>("IdProductPromotion")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    b.Property<string>("DiscountType")
-                        .IsRequired()
-                        .HasColumnType("longtext");
-
-                    b.Property<decimal>("DiscountValue")
-                        .HasColumnType("decimal(18, 2)");
-
-                    b.Property<DateTime>("EndDate")
-                        .HasColumnType("datetime(6)");
-
-                    b.Property<int>("IdProduct")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("StartDate")
-                        .HasColumnType("datetime(6)");
-
-                    b.HasKey("IdProductPromotion");
-
-                    b.HasIndex("IdProduct");
-
-                    b.ToTable("ProductPromotions");
+                    b.ToTable("Product_Category");
                 });
 
             modelBuilder.Entity("Domain.Entities.Promotion", b =>
@@ -290,27 +229,53 @@ namespace Infrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    b.Property<string>("CuponCode")
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("IdPromotion"));
+
+                    b.Property<string>("CouponCode")
                         .IsRequired()
                         .HasMaxLength(15)
-                        .HasColumnType("varchar(15)");
+                        .HasColumnType("nvarchar(15)");
 
                     b.Property<string>("DiscountType")
                         .IsRequired()
-                        .HasColumnType("longtext");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<decimal>("DiscountValue")
-                        .HasColumnType("decimal(65,30)");
+                        .HasColumnType("decimal(18, 2)");
 
                     b.Property<DateTime>("EndDate")
-                        .HasColumnType("datetime(6)");
+                        .HasColumnType("datetime2");
+
+                    b.Property<decimal?>("MinAmount")
+                        .HasColumnType("decimal(18, 2)");
 
                     b.Property<DateTime>("StartDate")
-                        .HasColumnType("datetime(6)");
+                        .HasColumnType("datetime2");
 
                     b.HasKey("IdPromotion");
 
                     b.ToTable("Promotions");
+                });
+
+            modelBuilder.Entity("Domain.Entities.ShippingCost", b =>
+                {
+                    b.Property<int>("IdShippingCost")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("IdShippingCost"));
+
+                    b.Property<decimal>("Cost")
+                        .HasColumnType("decimal(10, 2)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.HasKey("IdShippingCost");
+
+                    b.ToTable("ShippingCost");
                 });
 
             modelBuilder.Entity("Domain.Entities.User", b =>
@@ -319,53 +284,49 @@ namespace Infrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    b.Property<string>("AccountStatus")
-                        .IsRequired()
-                        .HasColumnType("longtext");
-
-                    b.Property<string>("BirthDate")
-                        .IsRequired()
-                        .HasColumnType("longtext");
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("IdUser"));
 
                     b.Property<string>("Email")
                         .IsRequired()
                         .HasMaxLength(100)
-                        .HasColumnType("varchar(100)");
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
 
                     b.Property<string>("LastName")
                         .IsRequired()
                         .HasMaxLength(50)
-                        .HasColumnType("varchar(50)");
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(50)
-                        .HasColumnType("varchar(50)");
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<string>("Password")
                         .IsRequired()
                         .HasMaxLength(100)
-                        .HasColumnType("varchar(100)");
+                        .HasColumnType("nvarchar(100)");
 
                     b.Property<string>("Phone")
                         .IsRequired()
                         .HasMaxLength(25)
-                        .HasColumnType("varchar(25)");
+                        .HasColumnType("nvarchar(25)");
 
-                    b.Property<string>("Role")
-                        .IsRequired()
-                        .HasColumnType("longtext");
+                    b.Property<int>("Role")
+                        .HasColumnType("int");
 
                     b.HasKey("IdUser");
 
                     b.ToTable("Users");
                 });
 
-            modelBuilder.Entity("Domain.Entities.Direction", b =>
+            modelBuilder.Entity("Domain.Entities.Address", b =>
                 {
                     b.HasOne("Domain.Entities.User", "User")
                         .WithMany()
-                        .HasForeignKey("UserIdUser")
+                        .HasForeignKey("IdUser")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -374,17 +335,10 @@ namespace Infrastructure.Migrations
 
             modelBuilder.Entity("Domain.Entities.Order", b =>
                 {
-                    b.HasOne("Domain.Entities.Direction", "Direction")
-                        .WithMany("Orders")
-                        .HasForeignKey("IdDirection")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("Domain.Entities.Payment", "Payment")
-                        .WithMany()
-                        .HasForeignKey("IdPayment")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
+                    b.HasOne("Domain.Entities.User", "Courier")
+                        .WithMany("OrdersToDeliver")
+                        .HasForeignKey("IdCourier")
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.HasOne("Domain.Entities.Promotion", "Promotion")
                         .WithMany("Orders")
@@ -392,30 +346,28 @@ namespace Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.SetNull);
 
                     b.HasOne("Domain.Entities.User", "User")
-                        .WithMany("Orders")
+                        .WithMany("OrdersPlaced")
                         .HasForeignKey("IdUser")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.Navigation("Direction");
-
-                    b.Navigation("Payment");
+                    b.Navigation("Courier");
 
                     b.Navigation("Promotion");
 
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("Domain.Entities.OrderDetail", b =>
+            modelBuilder.Entity("Domain.Entities.OrderItem", b =>
                 {
                     b.HasOne("Domain.Entities.Order", "Order")
-                        .WithMany("OrderDetails")
+                        .WithMany("OrderItems")
                         .HasForeignKey("IdOrder")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("Domain.Entities.Product", "Product")
-                        .WithMany("OrderDetails")
+                        .WithMany("OrderItems")
                         .HasForeignKey("IdProduct")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
@@ -444,39 +396,21 @@ namespace Infrastructure.Migrations
                     b.Navigation("Product");
                 });
 
-            modelBuilder.Entity("Domain.Entities.ProductPromotion", b =>
-                {
-                    b.HasOne("Domain.Entities.Product", "Product")
-                        .WithMany("ProductPromotions")
-                        .HasForeignKey("IdProduct")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Product");
-                });
-
             modelBuilder.Entity("Domain.Entities.Category", b =>
                 {
                     b.Navigation("ProductCategories");
                 });
 
-            modelBuilder.Entity("Domain.Entities.Direction", b =>
-                {
-                    b.Navigation("Orders");
-                });
-
             modelBuilder.Entity("Domain.Entities.Order", b =>
                 {
-                    b.Navigation("OrderDetails");
+                    b.Navigation("OrderItems");
                 });
 
             modelBuilder.Entity("Domain.Entities.Product", b =>
                 {
-                    b.Navigation("OrderDetails");
+                    b.Navigation("OrderItems");
 
                     b.Navigation("ProductCategories");
-
-                    b.Navigation("ProductPromotions");
                 });
 
             modelBuilder.Entity("Domain.Entities.Promotion", b =>
@@ -486,7 +420,9 @@ namespace Infrastructure.Migrations
 
             modelBuilder.Entity("Domain.Entities.User", b =>
                 {
-                    b.Navigation("Orders");
+                    b.Navigation("OrdersPlaced");
+
+                    b.Navigation("OrdersToDeliver");
                 });
 #pragma warning restore 612, 618
         }

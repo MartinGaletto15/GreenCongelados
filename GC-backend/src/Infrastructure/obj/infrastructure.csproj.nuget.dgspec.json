@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\Martin Galetto\\OneDrive - frro.utn.edu.ar\\Escritorio\\UTN\\Extras\\GC\\gc-backend\\src\\infrastructure\\infrastructure.csproj": {}
+    "C:\\dev\\GC\\GC-backend\\src\\infrastructure\\infrastructure.csproj": {}
   },
   "projects": {
-    "C:\\Users\\Martin Galetto\\OneDrive - frro.utn.edu.ar\\Escritorio\\UTN\\Extras\\GC\\gc-backend\\src\\Domain\\Domain.csproj": {
+    "C:\\dev\\GC\\GC-backend\\src\\Domain\\Domain.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\Martin Galetto\\OneDrive - frro.utn.edu.ar\\Escritorio\\UTN\\Extras\\GC\\gc-backend\\src\\Domain\\Domain.csproj",
+        "projectUniqueName": "C:\\dev\\GC\\GC-backend\\src\\Domain\\Domain.csproj",
         "projectName": "Domain",
-        "projectPath": "C:\\Users\\Martin Galetto\\OneDrive - frro.utn.edu.ar\\Escritorio\\UTN\\Extras\\GC\\gc-backend\\src\\Domain\\Domain.csproj",
+        "projectPath": "C:\\dev\\GC\\GC-backend\\src\\Domain\\Domain.csproj",
         "packagesPath": "C:\\Users\\Martin Galetto\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\Martin Galetto\\OneDrive - frro.utn.edu.ar\\Escritorio\\UTN\\Extras\\GC\\gc-backend\\src\\Domain\\obj\\",
+        "outputPath": "C:\\dev\\GC\\GC-backend\\src\\Domain\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\Martin Galetto\\AppData\\Roaming\\NuGet\\NuGet.Config"
@@ -62,14 +62,14 @@
         }
       }
     },
-    "C:\\Users\\Martin Galetto\\OneDrive - frro.utn.edu.ar\\Escritorio\\UTN\\Extras\\GC\\gc-backend\\src\\infrastructure\\infrastructure.csproj": {
+    "C:\\dev\\GC\\GC-backend\\src\\infrastructure\\infrastructure.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\Martin Galetto\\OneDrive - frro.utn.edu.ar\\Escritorio\\UTN\\Extras\\GC\\gc-backend\\src\\infrastructure\\infrastructure.csproj",
+        "projectUniqueName": "C:\\dev\\GC\\GC-backend\\src\\infrastructure\\infrastructure.csproj",
         "projectName": "infrastructure",
-        "projectPath": "C:\\Users\\Martin Galetto\\OneDrive - frro.utn.edu.ar\\Escritorio\\UTN\\Extras\\GC\\gc-backend\\src\\infrastructure\\infrastructure.csproj",
+        "projectPath": "C:\\dev\\GC\\GC-backend\\src\\infrastructure\\infrastructure.csproj",
         "packagesPath": "C:\\Users\\Martin Galetto\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\Martin Galetto\\OneDrive - frro.utn.edu.ar\\Escritorio\\UTN\\Extras\\GC\\gc-backend\\src\\infrastructure\\obj\\",
+        "outputPath": "C:\\dev\\GC\\GC-backend\\src\\infrastructure\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\Martin Galetto\\AppData\\Roaming\\NuGet\\NuGet.Config"
@@ -84,8 +84,8 @@
           "net8.0": {
             "targetAlias": "net8.0",
             "projectReferences": {
-              "C:\\Users\\Martin Galetto\\OneDrive - frro.utn.edu.ar\\Escritorio\\UTN\\Extras\\GC\\gc-backend\\src\\Domain\\Domain.csproj": {
-                "projectPath": "C:\\Users\\Martin Galetto\\OneDrive - frro.utn.edu.ar\\Escritorio\\UTN\\Extras\\GC\\gc-backend\\src\\Domain\\Domain.csproj"
+              "C:\\dev\\GC\\GC-backend\\src\\Domain\\Domain.csproj": {
+                "projectPath": "C:\\dev\\GC\\GC-backend\\src\\Domain\\Domain.csproj"
               }
             }
           }
@@ -109,13 +109,13 @@
               "target": "Package",
               "version": "[8.0.0, )"
             },
-            "Microsoft.EntityFrameworkCore.Tools": {
-              "include": "Runtime, Build, Native, ContentFiles, Analyzers, BuildTransitive",
-              "suppressParent": "All",
+            "Microsoft.EntityFrameworkCore.SqlServer": {
               "target": "Package",
               "version": "[8.0.0, )"
             },
-            "Pomelo.EntityFrameworkCore.MySql": {
+            "Microsoft.EntityFrameworkCore.Tools": {
+              "include": "Runtime, Build, Native, ContentFiles, Analyzers, BuildTransitive",
+              "suppressParent": "All",
               "target": "Package",
               "version": "[8.0.0, )"
             }
