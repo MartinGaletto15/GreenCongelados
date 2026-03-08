@@ -39,7 +39,7 @@ public class Product
     public required string ProductStatus { get; set; }
 
     [Required]
-    public required bool IsActive { get; set; }
+    public required bool IsActive { get; set; } = true; // Default value is true
 
     // Propiedades de navegación
     public ICollection<OrderItem> OrderItems { get; set; } = new List<OrderItem>();

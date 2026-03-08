@@ -29,11 +29,9 @@ public class User
     [MaxLength(25)]
     public string? Phone { get; set; }
 
-    [Required]
-    public required Role Role { get; set; }
+    public Role Role { get; set; } = Role.USER;
 
-    [Required]
-    public required bool IsActive { get; set; }
+    public bool IsActive { get; set; } = true;
 
 
     // Órdenes que el usuario HIZO (como Cliente)

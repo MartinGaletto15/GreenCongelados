@@ -25,9 +25,7 @@ namespace Infrastructure.Persistence
         {
             base.OnModelCreating(modelBuilder);
 
-            // CONFIGURACIÓN DE RELACIONES M:M (CLAVES COMPUESTAS)
             // OrderItem (Order <-> Product)
-            modelBuilder.Entity<OrderItem>().HasKey(oi => new { oi.IdOrder, oi.IdProduct });
             modelBuilder.Entity<OrderItem>()
                 .HasOne(oi => oi.Order).WithMany(o => o.OrderItems)
                 .HasForeignKey(oi => oi.IdOrder)
@@ -37,6 +35,7 @@ namespace Infrastructure.Persistence
                 .HasForeignKey(oi => oi.IdProduct)
                 .OnDelete(DeleteBehavior.Restrict); // Product RESTRICT DELETE
 
+            // CONFIGURACIÓN DE RELACIONES M:M (CLAVES COMPUESTAS)
             // ProductCategory (Product <-> Category)
             modelBuilder.Entity<ProductCategory>().HasKey(pc => new { pc.IdCategory, pc.IdProduct });
             modelBuilder.Entity<ProductCategory>()
