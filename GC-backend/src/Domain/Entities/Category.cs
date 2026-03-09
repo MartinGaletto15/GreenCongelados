@@ -14,6 +14,6 @@ public class Category
     [Required]
     public required string ImageUrl { get; set; }
 
-    // Propiedad de navegación
+    // Navigation property
     public ICollection<ProductCategory> ProductCategories { get; set; } = new List<ProductCategory>();
 }

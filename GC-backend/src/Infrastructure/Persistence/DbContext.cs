@@ -35,7 +35,7 @@ namespace Infrastructure.Persistence
                 .HasForeignKey(oi => oi.IdProduct)
                 .OnDelete(DeleteBehavior.Restrict); // Product RESTRICT DELETE
 
-            // CONFIGURACIÓN DE RELACIONES M:M (CLAVES COMPUESTAS)
+            // M:M RELATIONSHIP CONFIGURATION (COMPOSITE KEYS)
             // ProductCategory (Product <-> Category)
             modelBuilder.Entity<ProductCategory>().HasKey(pc => new { pc.IdCategory, pc.IdProduct });
             modelBuilder.Entity<ProductCategory>()
@@ -48,27 +48,27 @@ namespace Infrastructure.Persistence
                 .OnDelete(DeleteBehavior.Cascade); // Product CASCADE DELETE
 
 
-            // CONFIGURACIÓN DE RELACIONES 1:N (CLAVES FORÁNEAS SIMPLES)
-            // Order a User
+            // 1:N RELATIONSHIP CONFIGURATION (SIMPLE FOREIGN KEYS)
+            // Order to User
             modelBuilder.Entity<Order>()
                 .HasOne(o => o.User).WithMany(u => u.OrdersPlaced)
                 .HasForeignKey(o => o.IdUser)
                 .OnDelete(DeleteBehavior.Restrict);
 
-            // Order a Courier
+            // Order to Courier
             modelBuilder.Entity<Order>()
                 .HasOne(o => o.Courier).WithMany(u => u.OrdersToDeliver)
                 .HasForeignKey(o => o.IdCourier)
                 .OnDelete(DeleteBehavior.Restrict);
 
-            // Order a Promotion (Opcional)
+            // Order to Promotion (Optional)
             modelBuilder.Entity<Order>()
                 .HasOne(o => o.Promotion).WithMany(p => p.Orders)
                 .HasForeignKey(o => o.IdPromotion)
-                .IsRequired(false) // Permite valores NULL en la FK
+                .IsRequired(false) // Allows NULL values in the FK
                 .OnDelete(DeleteBehavior.SetNull); // Promotion SET NULL DELETE
 
-            // Mapeo de Enums a String (para almacenar nombres en lugar de números)
+            // Mapping Enums to String (to store names instead of numbers)
             modelBuilder.Entity<Address>().Property(a => a.City).HasConversion<string>();
             modelBuilder.Entity<Order>().Property(o => o.OrderStatus).HasConversion<string>();
             modelBuilder.Entity<Promotion>().Property(p => p.DiscountType).HasConversion<string>();

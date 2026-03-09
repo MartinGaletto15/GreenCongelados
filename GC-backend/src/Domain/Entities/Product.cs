@@ -22,7 +22,7 @@ public class Product
     public string? DescriptionLong { get; set; }
 
     [Required]
-    [Column(TypeName = "decimal(18, 2)")] // Define precisión y escala para el dinero
+    [Column(TypeName = "decimal(18, 2)")] // Define precision and scale for money
     public required decimal Price { get; set; }
 
     [Required]
@@ -33,15 +33,14 @@ public class Product
 
     public decimal? PreparationTime { get; set; }
 
-    [Required]
     [MaxLength(25)]
     [Column("product_status")]
-    public required string ProductStatus { get; set; }
+    public string ProductStatus { get; set; } = ProductStatus.Available;
 
     [Required]
     public required bool IsActive { get; set; } = true; // Default value is true
 
-    // Propiedades de navegación
+    // Navigation properties
     public ICollection<OrderItem> OrderItems { get; set; } = new List<OrderItem>();
     public ICollection<ProductCategory> ProductCategories { get; set; } = new List<ProductCategory>();
 }

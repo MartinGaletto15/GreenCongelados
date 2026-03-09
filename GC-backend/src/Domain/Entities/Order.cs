@@ -42,6 +42,6 @@ public class Order
     [Required]
     public required OrderStatus OrderStatus { get; set; } 
     
-    // Propiedad de navegación
+    // Navigation property
     public ICollection<OrderItem> OrderItems { get; set; } = new List<OrderItem>();
 }

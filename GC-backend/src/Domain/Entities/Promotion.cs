@@ -30,6 +30,6 @@ public class Promotion
     [Required]
     public required DateTime EndDate { get; set; }
 
-    // Propiedad de Navegación de Colección (Relación 1:N con Order)
+    // Collection Navigation Property (1:N Relationship with Order)
     public ICollection<Order> Orders { get; set; } = new List<Order>();
 }

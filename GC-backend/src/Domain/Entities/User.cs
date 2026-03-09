@@ -34,11 +34,11 @@ public class User
     public bool IsActive { get; set; } = true;
 
 
-    // Órdenes que el usuario HIZO (como Cliente)
+    // Orders the user PLACED (as Client)
     [InverseProperty("User")] 
     public ICollection<Order> OrdersPlaced { get; set; } = new List<Order>();
 
-    // Órdenes que el usuario ENTREGA (como Cadete)
+    // Orders the user DELIVERS (as Courier)
     [InverseProperty("Courier")] 
     public ICollection<Order> OrdersToDeliver { get; set; } = new List<Order>();
 }

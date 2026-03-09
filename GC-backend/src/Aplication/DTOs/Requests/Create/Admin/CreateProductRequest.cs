@@ -10,7 +10,6 @@ public record CreateProductRequest(
     [Required] decimal Price,
     [Required] int CurrentStock,
     decimal? Weight,
-    decimal? PreparationTime,
-    [Required] [MaxLength(25)] string ProductStatus,
-    List<int>? CategoryIds
+    decimal? PreparationTime
+    
 );
