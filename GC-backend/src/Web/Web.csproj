@@ -13,11 +13,12 @@
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
     <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="10.0.1" />
-    <PackageReference Include="Swashbuckle.AspNetCore" Version="8.0.0" />
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="10.1.5" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\infrastructure\infrastructure.csproj" />
+    <ProjectReference Include="..\Aplication\Aplication.csproj" />
   </ItemGroup>
 
 </Project>

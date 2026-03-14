@@ -271,3 +271,5 @@ C:\dev\GC\GC-backend\src\Web\obj\Debug\net8.0\refint\Web.dll
 C:\dev\GC\GC-backend\src\Web\obj\Debug\net8.0\Web.pdb
 C:\dev\GC\GC-backend\src\Web\obj\Debug\net8.0\Web.genruntimeconfig.cache
 C:\dev\GC\GC-backend\src\Web\obj\Debug\net8.0\ref\Web.dll
+C:\dev\GC\GC-backend\src\Web\bin\Debug\net8.0\Aplication.dll
+C:\dev\GC\GC-backend\src\Web\bin\Debug\net8.0\Aplication.pdb
