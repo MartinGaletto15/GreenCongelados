@@ -24,8 +24,7 @@ public class User
     [Required]
     [MaxLength(100)]
     public required string Password { get; set; }
-
-    [Required]
+    
     [MaxLength(25)]
     public string? Phone { get; set; }
 

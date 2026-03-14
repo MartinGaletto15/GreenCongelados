@@ -39,7 +39,7 @@ namespace Infrastructure.Migrations
                     CurrentStock = table.Column<int>(type: "int", nullable: false),
                     Weight = table.Column<decimal>(type: "decimal(10,2)", nullable: true),
                     PreparationTime = table.Column<decimal>(type: "decimal(18,2)", nullable: true),
-                    product_status = table.Column<string>(type: "nvarchar(25)", maxLength: 25, nullable: false),
+                    product_status = table.Column<int>(type: "int", maxLength: 25, nullable: false),
                     IsActive = table.Column<bool>(type: "bit", nullable: false)
                 },
                 constraints: table =>
@@ -89,7 +89,7 @@ namespace Infrastructure.Migrations
                     LastName = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
                     Email = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
                     Password = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
-                    Phone = table.Column<string>(type: "nvarchar(25)", maxLength: 25, nullable: false),
+                    Phone = table.Column<string>(type: "nvarchar(25)", maxLength: 25, nullable: true),
                     Role = table.Column<int>(type: "int", nullable: false),
                     IsActive = table.Column<bool>(type: "bit", nullable: false)
                 },
@@ -190,6 +190,8 @@ namespace Infrastructure.Migrations
                 name: "OrderItems",
                 columns: table => new
                 {
+                    IdOrderItem = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
                     IdOrder = table.Column<int>(type: "int", nullable: false),
                     IdProduct = table.Column<int>(type: "int", nullable: false),
                     Quantity = table.Column<int>(type: "int", nullable: false),
@@ -197,7 +199,7 @@ namespace Infrastructure.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_OrderItems", x => new { x.IdOrder, x.IdProduct });
+                    table.PrimaryKey("PK_OrderItems", x => x.IdOrderItem);
                     table.ForeignKey(
                         name: "FK_OrderItems_Orders_IdOrder",
                         column: x => x.IdOrder,
@@ -216,6 +218,11 @@ namespace Infrastructure.Migrations
                 name: "IX_Addresses_IdUser",
                 table: "Addresses",
                 column: "IdUser");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_OrderItems_IdOrder",
+                table: "OrderItems",
+                column: "IdOrder");
 
             migrationBuilder.CreateIndex(
                 name: "IX_OrderItems_IdProduct",

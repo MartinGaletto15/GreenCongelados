@@ -9,7 +9,7 @@ public record CategoryDTO(
     {
         var dto = new CategoryDTO(
             entity.Name,
-            entity.UrlImage
+            entity.ImageUrl
         );
         return dto;
     }

@@ -1,5 +1,10 @@
+using Infrastructure.Repositories;
+using Domain.Interfaces;
 using Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
+using Aplication.Interfaces.UserServices;
+using Aplication.Services;
+using Web.Middlewares;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -8,6 +13,10 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers(); // If using MVC/API controllers
 builder.Services.AddEndpointsApiExplorer(); // For Swagger/OpenAPI
 builder.Services.AddSwaggerGen();
+builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
+builder.Services.AddScoped<IUserWriteService, UserService>();
+builder.Services.AddScoped<IUserReadOnlyService, UserService>();
+builder.Services.AddTransient<GlobalExceptionHandlingMiddleware>();
 
 // Database
 var connectionString = builder.Configuration.GetConnectionString("DbConnectionString");
@@ -27,6 +36,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+app.UseMiddleware<GlobalExceptionHandlingMiddleware>();
 // Controller mapping (if AddControllers was used above)
 app.MapControllers(); 
 

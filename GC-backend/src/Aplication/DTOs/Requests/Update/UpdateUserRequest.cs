@@ -1,3 +1,5 @@
+using System.ComponentModel.DataAnnotations;
+
 namespace Applications.dtos.Requests;
 
 public record UpdateUserRequest(

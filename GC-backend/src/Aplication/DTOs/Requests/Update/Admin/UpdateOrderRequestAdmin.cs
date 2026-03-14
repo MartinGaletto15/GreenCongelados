@@ -1,3 +1,5 @@
+using Domain.Enums.Entities;
+
 namespace Applications.dtos.Requests;
 
 public record UpdateOrderRequestAdmin (

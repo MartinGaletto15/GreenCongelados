@@ -14,7 +14,7 @@ public record PromotionDTO(
         var dto = new PromotionDTO(
             entity.CouponCode,
             entity.DiscountValue,
-            entity.DiscountType,
+            entity.DiscountType.ToString(),
             entity.MinAmount,
             entity.StartDate,
             entity.EndDate

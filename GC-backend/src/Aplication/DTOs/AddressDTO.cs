@@ -12,7 +12,7 @@ public record AddressDTO(
     {
         var dto = new AddressDTO(
             entity.Street,
-            entity.City,
+            entity.City.ToString(),
             entity.ZipCode,
             entity.Dpto,
             entity.References

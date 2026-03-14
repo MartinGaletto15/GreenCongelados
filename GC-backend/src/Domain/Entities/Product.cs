@@ -35,7 +35,7 @@ public class Product
 
     [MaxLength(25)]
     [Column("product_status")]
-    public string ProductStatus { get; set; } = ProductStatus.Available;
+    public ProductStatus Status { get; set; } = ProductStatus.Available;
 
     [Required]
     public required bool IsActive { get; set; } = true; // Default value is true

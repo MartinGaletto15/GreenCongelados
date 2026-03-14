@@ -136,6 +136,12 @@ namespace Infrastructure.Migrations
 
             modelBuilder.Entity("Domain.Entities.OrderItem", b =>
                 {
+                    b.Property<int>("IdOrderItem")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("IdOrderItem"));
+
                     b.Property<int>("IdOrder")
                         .HasColumnType("int");
 
@@ -148,7 +154,9 @@ namespace Infrastructure.Migrations
                     b.Property<decimal>("UnitPrice")
                         .HasColumnType("decimal(18,2)");
 
-                    b.HasKey("IdOrder", "IdProduct");
+                    b.HasKey("IdOrderItem");
+
+                    b.HasIndex("IdOrder");
 
                     b.HasIndex("IdProduct");
 
@@ -188,10 +196,9 @@ namespace Infrastructure.Migrations
                     b.Property<decimal>("Price")
                         .HasColumnType("decimal(18, 2)");
 
-                    b.Property<string>("ProductStatus")
-                        .IsRequired()
+                    b.Property<int>("Status")
                         .HasMaxLength(25)
-                        .HasColumnType("nvarchar(25)")
+                        .HasColumnType("int")
                         .HasColumnName("product_status");
 
                     b.Property<string>("UrlImagePrimary")
@@ -310,7 +317,6 @@ namespace Infrastructure.Migrations
                         .HasColumnType("nvarchar(100)");
 
                     b.Property<string>("Phone")
-                        .IsRequired()
                         .HasMaxLength(25)
                         .HasColumnType("nvarchar(25)");
 
