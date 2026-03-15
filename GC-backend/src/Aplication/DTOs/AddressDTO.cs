@@ -4,8 +4,8 @@ public record AddressDTO(
     string Street,
     string City,
     string ZipCode,
-    string Dpto,
-    string References
+    string? Dpto,
+    string? References
 )
 {
     public static AddressDTO Create(Domain.Entities.Address entity)

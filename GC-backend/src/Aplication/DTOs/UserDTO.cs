@@ -1,19 +1,25 @@
 namespace Applications.dtos;
 
 public record UserDTO(
+    int IdUser,
     string Name,
     string LastName,
     string Email,
-    string Phone
+    string? Phone,
+    string Role,
+    bool IsActive
 )
 {
     public static UserDTO Create(Domain.Entities.User entity)
     {
         var dto = new UserDTO(
+            entity.IdUser,
             entity.Name,
             entity.LastName,
             entity.Email,
-            entity.Phone
+            entity.Phone,
+            entity.Role.ToString(),
+            entity.IsActive
         );
         return dto;
     }

@@ -1,0 +1,29 @@
+﻿  Determinando los proyectos que se van a restaurar...
+  Se ha restaurado C:\dev\GC\GC-backend\src\Infrastructure\Infrastructure.csproj (en 326 ms).
+  Se ha restaurado C:\dev\GC\GC-backend\src\Web\Web.csproj (en 326 ms).
+  2 de 4┬áproyectos est├ín actualizados para la restauraci├│n.
+  Domain -> C:\dev\GC\GC-backend\src\Domain\bin\Debug\net8.0\Domain.dll
+  Aplication -> C:\dev\GC\GC-backend\src\Aplication\bin\Debug\net8.0\Aplication.dll
+C:\dev\GC\GC-backend\src\Infrastructure\Repositories\UserRepository.cs(16,29): warning CS8613: La nulabilidad de los tipos de referencia del tipo de valor devuelto de "Task<User> UserRepository.GetByEmailAsync(string email)" no coincide con el miembro "Task<User?> IUserRepository.GetByEmailAsync(string email)" implementado de forma impl├¡cita. [C:\dev\GC\GC-backend\src\Infrastructure\Infrastructure.csproj]
+C:\dev\GC\GC-backend\src\Infrastructure\Repositories\UserRepository.cs(7,31): error CS0535: 'UserRepository' no implementa el miembro de interfaz 'IGenericRepository<User>.GetByIdAsync(int)' [C:\dev\GC\GC-backend\src\Infrastructure\Infrastructure.csproj]
+C:\dev\GC\GC-backend\src\Infrastructure\Repositories\UserRepository.cs(7,31): error CS0535: 'UserRepository' no implementa el miembro de interfaz 'IGenericRepository<User>.GetAllAsync()' [C:\dev\GC\GC-backend\src\Infrastructure\Infrastructure.csproj]
+C:\dev\GC\GC-backend\src\Infrastructure\Repositories\UserRepository.cs(7,31): error CS0535: 'UserRepository' no implementa el miembro de interfaz 'IGenericRepository<User>.AddAsync(User)' [C:\dev\GC\GC-backend\src\Infrastructure\Infrastructure.csproj]
+C:\dev\GC\GC-backend\src\Infrastructure\Repositories\UserRepository.cs(7,31): error CS0535: 'UserRepository' no implementa el miembro de interfaz 'IGenericRepository<User>.UpdateAsync(User)' [C:\dev\GC\GC-backend\src\Infrastructure\Infrastructure.csproj]
+C:\dev\GC\GC-backend\src\Infrastructure\Repositories\UserRepository.cs(7,31): error CS0535: 'UserRepository' no implementa el miembro de interfaz 'IGenericRepository<User>.DeleteAsync(User)' [C:\dev\GC\GC-backend\src\Infrastructure\Infrastructure.csproj]
+C:\dev\GC\GC-backend\src\Infrastructure\Repositories\UserRepository.cs(9,22): error CS0246: El nombre del tipo o del espacio de nombres 'AppDbContext' no se encontr├│ (┬┐falta una directiva using o una referencia de ensamblado?) [C:\dev\GC\GC-backend\src\Infrastructure\Infrastructure.csproj]
+C:\dev\GC\GC-backend\src\Infrastructure\Repositories\UserRepository.cs(11,27): error CS0246: El nombre del tipo o del espacio de nombres 'AppDbContext' no se encontr├│ (┬┐falta una directiva using o una referencia de ensamblado?) [C:\dev\GC\GC-backend\src\Infrastructure\Infrastructure.csproj]
+
+ERROR al compilar.
+
+C:\dev\GC\GC-backend\src\Infrastructure\Repositories\UserRepository.cs(16,29): warning CS8613: La nulabilidad de los tipos de referencia del tipo de valor devuelto de "Task<User> UserRepository.GetByEmailAsync(string email)" no coincide con el miembro "Task<User?> IUserRepository.GetByEmailAsync(string email)" implementado de forma impl├¡cita. [C:\dev\GC\GC-backend\src\Infrastructure\Infrastructure.csproj]
+C:\dev\GC\GC-backend\src\Infrastructure\Repositories\UserRepository.cs(7,31): error CS0535: 'UserRepository' no implementa el miembro de interfaz 'IGenericRepository<User>.GetByIdAsync(int)' [C:\dev\GC\GC-backend\src\Infrastructure\Infrastructure.csproj]
+C:\dev\GC\GC-backend\src\Infrastructure\Repositories\UserRepository.cs(7,31): error CS0535: 'UserRepository' no implementa el miembro de interfaz 'IGenericRepository<User>.GetAllAsync()' [C:\dev\GC\GC-backend\src\Infrastructure\Infrastructure.csproj]
+C:\dev\GC\GC-backend\src\Infrastructure\Repositories\UserRepository.cs(7,31): error CS0535: 'UserRepository' no implementa el miembro de interfaz 'IGenericRepository<User>.AddAsync(User)' [C:\dev\GC\GC-backend\src\Infrastructure\Infrastructure.csproj]
+C:\dev\GC\GC-backend\src\Infrastructure\Repositories\UserRepository.cs(7,31): error CS0535: 'UserRepository' no implementa el miembro de interfaz 'IGenericRepository<User>.UpdateAsync(User)' [C:\dev\GC\GC-backend\src\Infrastructure\Infrastructure.csproj]
+C:\dev\GC\GC-backend\src\Infrastructure\Repositories\UserRepository.cs(7,31): error CS0535: 'UserRepository' no implementa el miembro de interfaz 'IGenericRepository<User>.DeleteAsync(User)' [C:\dev\GC\GC-backend\src\Infrastructure\Infrastructure.csproj]
+C:\dev\GC\GC-backend\src\Infrastructure\Repositories\UserRepository.cs(9,22): error CS0246: El nombre del tipo o del espacio de nombres 'AppDbContext' no se encontr├│ (┬┐falta una directiva using o una referencia de ensamblado?) [C:\dev\GC\GC-backend\src\Infrastructure\Infrastructure.csproj]
+C:\dev\GC\GC-backend\src\Infrastructure\Repositories\UserRepository.cs(11,27): error CS0246: El nombre del tipo o del espacio de nombres 'AppDbContext' no se encontr├│ (┬┐falta una directiva using o una referencia de ensamblado?) [C:\dev\GC\GC-backend\src\Infrastructure\Infrastructure.csproj]
+    1 Advertencia(s)
+    7 Errores
+
+Tiempo transcurrido 00:00:01.12

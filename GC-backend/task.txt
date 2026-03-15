@@ -1,0 +1,19 @@
+# Tareas de Refactorización - UserService.cs
+
+## Críticas (Alta Prioridad)
+- [ ] Seguridad: Implementar hashing de contraseñas (ej: BCrypt.Net-Next) en `Login` y `CreateUserAsync`. No comparar ni guardar contraseñas en texto plano.
+- [ ] Rendimiento: Cambiar el método `Login` para que sea asíncrono (`LoginAsync`) y utilizar llamadas asíncronas a la base de datos (`await _userRepository.GetByEmailAsync`).
+
+## Mejoras (Media Prioridad)
+- [ ] JWT Claims: Reemplazar strings literales en los claims por `ClaimTypes` nativos (ej: `ClaimTypes.Role`, `ClaimTypes.Email`) para que la autorización por roles de .NET actúe automáticamente.
+- [ ] SRP (Principio de Responsabilidad Única): Extraer la lógica de generación del token JWT a un método privado o servicio dedicado (ej: `IJwtProvider`).
+- [ ] Configuración JWT: Mover la expiración del token (actualmente 1 hora por código) a la configuración (`appsettings.json`). Considerar agregar `Issuer` y `Audience`.
+
+## Otras Correcciones
+- [ ] `CreateUserAsync`: Validar que el email no exista previamente (ej: `_userRepository.ExistsUserAsync(email)`) antes de insertar un nuevo usuario.
+- [ ] `UpdateUserAsync`: Obtener la entidad desde la base de datos (con `GetByIdAsync`) antes de actualizar, en lugar de instanciar un `new User`.
+- [ ] Convenciones: Considerar corregir el "typo" del namespace y carpeta de `Aplication` a `Application`.
+
+## Pruebas Sugeridas (xUnit)
+- [ ] Test de error: Verificar que se arroje `AppValidationException` ("Credenciales inválidas") si falla la autenticación.
+- [ ] Test de éxito: Verificar que devuelva un string válido (Token JWT) si las credenciales son correctas.
