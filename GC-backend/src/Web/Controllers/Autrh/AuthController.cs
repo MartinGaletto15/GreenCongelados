@@ -4,7 +4,7 @@ using Domain.Entities;
 using Domain.Exceptions;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Web.Controllers;
+namespace Web.Controllers.Auth;
 
 
 [ApiController]
@@ -26,9 +26,9 @@ public class AuthController : ControllerBase
     }
 
     [HttpPost("login")]
-    public Task<ActionResult<User>> LoginAsync(CreateUserRequest request)
+    public async Task<ActionResult<string>> LoginAsync(LoginRequest request)
     {
-        // Falta implementar
-        throw new AppValidationException("No se implemento el login", "LOGIN_NOT_IMPLEMENTED");
+        var token = await _userWriteService.LoginAsync(request);
+        return Ok(new { Token = token });
     }
 }

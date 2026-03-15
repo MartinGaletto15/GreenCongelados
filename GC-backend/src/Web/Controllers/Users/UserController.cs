@@ -1,12 +1,13 @@
+using System.Security.Claims;
 using Aplication.Interfaces.UserServices;
 using Applications.dtos.Requests;
 using Domain.Entities;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Web.Controllers;
+namespace Web.Controllers.Users;
 
 [ApiController]
-[Route("api/[controller]")]
+[Route("api/users")]
 public class UserController : ControllerBase
 {
     private readonly IUserWriteService _userWriteService;
@@ -19,30 +20,32 @@ public class UserController : ControllerBase
     }
 
     [HttpGet("{id}")]
-    public async Task<ActionResult<User>> GetUserByIdAsync(int id)
+    public async Task<ActionResult<User>> GetUserByIdAsync([FromRoute] int id)
     {
         var user = await _userReadOnlyService.GetUserByIdAsync(id);
         return Ok(user);
     }
 
-    [HttpGet]
-    public async Task<ActionResult<IEnumerable<User>>> GetAllUsersAsync()
+    [HttpGet("me")]
+    public async Task<ActionResult<User>> GetMyUserAsync()
     {
-        var users = await _userReadOnlyService.GetAllUsersAsync();
-        return Ok(users);
+        var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+        var user = await _userReadOnlyService.GetUserByIdAsync(userId);
+        return Ok(user);
     }
 
-    [HttpPut]
+    [HttpPut("me")]
     public async Task<ActionResult<User>> UpdateUserAsync(UpdateUserRequest request)
     {
         var user = await _userWriteService.UpdateUserAsync(request);
         return Ok(user);
     }
 
-    [HttpDelete]
-    public async Task<ActionResult<User>> DeleteUserAsync(int id)
+    [HttpDelete("me")]
+    public async Task<ActionResult> DeleteUserAsync()
     {
-        var user = await _userWriteService.DeleteUserAsync(id);
+        var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+        await _userWriteService.DeleteUserAsync(userId);
         return NoContent();
     }
 }

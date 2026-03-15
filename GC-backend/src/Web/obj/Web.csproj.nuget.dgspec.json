@@ -1,7 +1,7 @@
 {
   "format": 1,
   "restore": {
-    "C:\\dev\\GC\\GC-backend\\src\\web\\Web.csproj": {}
+    "C:\\dev\\GC\\GC-backend\\src\\Web\\Web.csproj": {}
   },
   "projects": {
     "C:\\dev\\GC\\GC-backend\\src\\Aplication\\Aplication.csproj": {
@@ -46,6 +46,20 @@
       "frameworks": {
         "net8.0": {
           "targetAlias": "net8.0",
+          "dependencies": {
+            "Microsoft.Extensions.Configuration.Abstractions": {
+              "target": "Package",
+              "version": "[10.0.5, )"
+            },
+            "Microsoft.IdentityModel.Tokens": {
+              "target": "Package",
+              "version": "[8.16.0, )"
+            },
+            "System.IdentityModel.Tokens.Jwt": {
+              "target": "Package",
+              "version": "[8.16.0, )"
+            }
+          },
           "imports": [
             "net461",
             "net462",
@@ -146,6 +160,9 @@
           "net8.0": {
             "targetAlias": "net8.0",
             "projectReferences": {
+              "C:\\dev\\GC\\GC-backend\\src\\Aplication\\Aplication.csproj": {
+                "projectPath": "C:\\dev\\GC\\GC-backend\\src\\Aplication\\Aplication.csproj"
+              },
               "C:\\dev\\GC\\GC-backend\\src\\Domain\\Domain.csproj": {
                 "projectPath": "C:\\dev\\GC\\GC-backend\\src\\Domain\\Domain.csproj"
               }
@@ -167,6 +184,10 @@
         "net8.0": {
           "targetAlias": "net8.0",
           "dependencies": {
+            "BCrypt.Net-Next": {
+              "target": "Package",
+              "version": "[4.1.0, )"
+            },
             "Microsoft.EntityFrameworkCore": {
               "target": "Package",
               "version": "[8.0.0, )"
@@ -202,14 +223,14 @@
         }
       }
     },
-    "C:\\dev\\GC\\GC-backend\\src\\web\\Web.csproj": {
+    "C:\\dev\\GC\\GC-backend\\src\\Web\\Web.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\dev\\GC\\GC-backend\\src\\web\\Web.csproj",
+        "projectUniqueName": "C:\\dev\\GC\\GC-backend\\src\\Web\\Web.csproj",
         "projectName": "Web",
-        "projectPath": "C:\\dev\\GC\\GC-backend\\src\\web\\Web.csproj",
+        "projectPath": "C:\\dev\\GC\\GC-backend\\src\\Web\\Web.csproj",
         "packagesPath": "C:\\Users\\Martin Galetto\\.nuget\\packages\\",
-        "outputPath": "C:\\dev\\GC\\GC-backend\\src\\web\\obj\\",
+        "outputPath": "C:\\dev\\GC\\GC-backend\\src\\Web\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\Martin Galetto\\AppData\\Roaming\\NuGet\\NuGet.Config"
