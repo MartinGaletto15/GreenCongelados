@@ -32,6 +32,6 @@ C:\dev\GC\GC-backend\src\Infrastructure\obj\Debug\net8.0\refint\Infrastructure.d
 C:\dev\GC\GC-backend\src\Infrastructure\obj\Debug\net8.0\Infrastructure.pdb
 C:\dev\GC\gc-backend\src\Infrastructure\obj\Debug\net8.0\Infrastructure.genruntimeconfig.cache
 C:\dev\GC\gc-backend\src\Infrastructure\obj\Debug\net8.0\ref\Infrastructure.dll
-C:\dev\GC\GC-backend\src\infrastructure\obj\Debug\net8.0\infrastr.D83B591B.Up2Date
 C:\dev\GC\GC-backend\src\Infrastructure\bin\Debug\net8.0\Aplication.dll
 C:\dev\GC\GC-backend\src\Infrastructure\bin\Debug\net8.0\Aplication.pdb
+C:\dev\GC\GC-backend\src\infrastructure\obj\Debug\net8.0\infrastr.D83B591B.Up2Date

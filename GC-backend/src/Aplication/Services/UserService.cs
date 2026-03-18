@@ -1,16 +1,14 @@
-using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
-using System.Text;
 using Applications.dtos;
 using Applications.dtos.Requests;
 using Aplication.Helpers;
-using Aplication.Interfaces;
+using Aplication.Interfaces.Security;
 using Aplication.Interfaces.UserServices;
 using Domain.Entities;
+using Domain.Entities.Enums;
 using Domain.Exceptions;
 using Domain.Interfaces;
 using Microsoft.Extensions.Configuration;
-using Microsoft.IdentityModel.Tokens;
 
 namespace Aplication.Services;
 
@@ -19,47 +17,31 @@ public class UserService : IUserWriteService, IUserReadOnlyService
     private readonly IUserRepository _userRepository;
     private readonly IConfiguration _configuration;
     private readonly IPasswordHasher _passwordHasher;
+    private readonly IJwtProvider _jwtProvider;
 
-    public UserService(IUserRepository userRepository, IConfiguration configuration, IPasswordHasher passwordHasher)
+    public UserService(
+        IUserRepository userRepository, 
+        IConfiguration configuration, 
+        IPasswordHasher passwordHasher,
+        IJwtProvider jwtProvider)
     {
         _userRepository = userRepository;
         _configuration = configuration;
         _passwordHasher = passwordHasher;
+        _jwtProvider = jwtProvider;
     }
 
     public async Task<string> LoginAsync(LoginRequest request)
-        {
-            var user = await _userRepository.GetByEmailAsync(request.Email);
+    {
+        var user = await _userRepository.GetByEmailAsync(request.Email);
 
-            if (user == null || !_passwordHasher.Verify(request.Password, user.Password))
-                throw new AppValidationException("Credenciales inválidas");
+        if (user == null || !_passwordHasher.Verify(request.Password, user.Password))
+            throw new AppValidationException("Credenciales inválidas");
 
+        return _jwtProvider.GenerateToken(user);
+    }
 
-            var secret = _configuration["JwtSettings:Secret"]
-                         ?? throw new AppValidationException("No se encontró la clave JWT.");
-
-            var securityPassword = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(secret));
-            var signature = new SigningCredentials(securityPassword, SecurityAlgorithms.HmacSha256);
-
-            var claims = new List<Claim>();
-            claims.Add(new Claim("id", user.IdUser.ToString()));
-            claims.Add(new Claim("name", user.Name));
-            claims.Add(new Claim("lastName", user.LastName));
-            claims.Add(new Claim("email", user.Email));
-            claims.Add(new Claim("role", user.Role.ToString()));
-
-
-            var token = new JwtSecurityToken(
-                expires: DateTime.UtcNow.AddHours(1),
-                signingCredentials: signature,
-                claims: claims
-            );
-
-            return new JwtSecurityTokenHandler().WriteToken(token);
-
-        }
-
-    public async Task<User> CreateUserAsync(CreateUserRequest request)
+    public async Task<UserDTO> CreateUserAsync(CreateUserRequest request)
     {
         if (!Validations.ValidateEmail(request.Email))
             throw new AppValidationException("El email provisto no es válido.", "USER_EMAIL_INVALID");
@@ -88,10 +70,10 @@ public class UserService : IUserWriteService, IUserReadOnlyService
         };
 
         await _userRepository.AddAsync(newUser);
-        return newUser;
+        return UserDTO.Create(newUser);
     }
 
-    public async Task<User> UpdateUserAsync(UpdateUserRequest request)
+    public async Task<UserDTO> UpdateUserAsync(int id, UpdateUserRequest request)
     {
         if (!Validations.ValidateEmail(request.Email))
             throw new AppValidationException("El email de referencia provisto no es válido.", "USER_EMAIL_INVALID");
@@ -105,12 +87,13 @@ public class UserService : IUserWriteService, IUserReadOnlyService
         if (!string.IsNullOrEmpty(request.LastName) && !Validations.ValidateString(request.LastName, 2, 50))
             throw new AppValidationException("El apellido debe tener entre 2 y 50 caracteres.", "USER_LASTNAME_INVALID");
 
-        // Aca va la busqueda del usuario previa a la modificacion
-        var user = await _userRepository.GetByEmailAsync(request.Email ?? string.Empty);
+        // Busqueda del usuario previa a la modificacion
+        var user = await _userRepository.GetByIdAsync(id);
         if (user == null)
             throw new AppValidationException("El usuario no existe.", "USER_NOT_FOUND");
 
-        if (user.Email != request.Email)
+        // Si el usuario intenta cambiar su mail, verificar que el nuevo no esté en uso por otro
+        if (request.Email != null && user.Email != request.Email)
         {
             var existingUser = await _userRepository.GetByEmailAsync(request.Email);
             if (existingUser != null)
@@ -129,10 +112,30 @@ public class UserService : IUserWriteService, IUserReadOnlyService
         user.Phone = request.Phone ?? user.Phone;
 
         await _userRepository.UpdateAsync(user);
-        return user;
+        return UserDTO.Create(user);
     }
 
-    public async Task<User> DeleteUserAsync(int id)
+    public async Task<UserDTO> UpdateUserRoleAsync(int id, Role role, Role performerRole)
+    {
+        var user = await _userRepository.GetByIdAsync(id);
+        
+        if (user == null)
+            throw new AppValidationException("El usuario no existe.", "USER_NOT_FOUND");
+
+        // El ejecutor debe tener una jerarquía superior (valor numérico menor) al rol actual del usuario
+        if (performerRole >= user.Role)
+            throw new AppValidationException("No tienes permisos para modificar el rol de este usuario.", "USER_ROLE_INSUFFICIENT_PERMISSIONS");
+
+        // El ejecutor solo puede asignar roles de jerarquía inferior a la suya
+        if (performerRole >= role)
+            throw new AppValidationException("No tienes permisos para asignar este rol.", "USER_ROLE_INVALID_ASSIGNMENT");
+
+        user.Role = role;
+        await _userRepository.UpdateAsync(user);
+        return UserDTO.Create(user);
+    }
+
+    public async Task<UserDTO> DeleteUserAsync(int id)
     {
         var user = await _userRepository.GetByIdAsync(id);
         
@@ -141,7 +144,7 @@ public class UserService : IUserWriteService, IUserReadOnlyService
             throw new AppValidationException($"No se puede eliminar: El usuario con ID {id} no existe.", "USER_NOT_FOUND");
 
         await _userRepository.DeleteAsync(user);
-        return user;
+        return UserDTO.Create(user);
     }
 
     public async Task<UserDTO> GetUserByIdAsync(int id)

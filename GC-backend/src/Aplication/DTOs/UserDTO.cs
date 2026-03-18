@@ -6,8 +6,7 @@ public record UserDTO(
     string LastName,
     string Email,
     string? Phone,
-    string Role,
-    bool IsActive
+    string Role
 )
 {
     public static UserDTO Create(Domain.Entities.User entity)
@@ -18,8 +17,7 @@ public record UserDTO(
             entity.LastName,
             entity.Email,
             entity.Phone,
-            entity.Role.ToString(),
-            entity.IsActive
+            entity.Role.ToString()
         );
         return dto;
     }

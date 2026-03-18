@@ -139,14 +139,8 @@ C:\dev\GC\GC-backend\src\Web\bin\Debug\net8.0\Microsoft.EntityFrameworkCore.Abst
 C:\dev\GC\GC-backend\src\Web\bin\Debug\net8.0\Microsoft.EntityFrameworkCore.Design.dll
 C:\dev\GC\GC-backend\src\Web\bin\Debug\net8.0\Microsoft.EntityFrameworkCore.Relational.dll
 C:\dev\GC\GC-backend\src\Web\bin\Debug\net8.0\Microsoft.EntityFrameworkCore.SqlServer.dll
-C:\dev\GC\GC-backend\src\Web\bin\Debug\net8.0\Microsoft.Extensions.Configuration.dll
 C:\dev\GC\GC-backend\src\Web\bin\Debug\net8.0\Microsoft.Extensions.Configuration.Abstractions.dll
-C:\dev\GC\GC-backend\src\Web\bin\Debug\net8.0\Microsoft.Extensions.Configuration.FileExtensions.dll
-C:\dev\GC\GC-backend\src\Web\bin\Debug\net8.0\Microsoft.Extensions.Configuration.Json.dll
 C:\dev\GC\GC-backend\src\Web\bin\Debug\net8.0\Microsoft.Extensions.DependencyModel.dll
-C:\dev\GC\GC-backend\src\Web\bin\Debug\net8.0\Microsoft.Extensions.FileProviders.Abstractions.dll
-C:\dev\GC\GC-backend\src\Web\bin\Debug\net8.0\Microsoft.Extensions.FileProviders.Physical.dll
-C:\dev\GC\GC-backend\src\Web\bin\Debug\net8.0\Microsoft.Extensions.FileSystemGlobbing.dll
 C:\dev\GC\GC-backend\src\Web\bin\Debug\net8.0\Microsoft.Extensions.Primitives.dll
 C:\dev\GC\GC-backend\src\Web\bin\Debug\net8.0\Microsoft.Identity.Client.dll
 C:\dev\GC\GC-backend\src\Web\bin\Debug\net8.0\Microsoft.Identity.Client.Extensions.Msal.dll
@@ -172,13 +166,10 @@ C:\dev\GC\GC-backend\src\Web\bin\Debug\net8.0\System.Composition.TypedParts.dll
 C:\dev\GC\GC-backend\src\Web\bin\Debug\net8.0\System.Configuration.ConfigurationManager.dll
 C:\dev\GC\GC-backend\src\Web\bin\Debug\net8.0\System.Drawing.Common.dll
 C:\dev\GC\GC-backend\src\Web\bin\Debug\net8.0\System.IdentityModel.Tokens.Jwt.dll
-C:\dev\GC\GC-backend\src\Web\bin\Debug\net8.0\System.IO.Pipelines.dll
 C:\dev\GC\GC-backend\src\Web\bin\Debug\net8.0\System.Memory.Data.dll
 C:\dev\GC\GC-backend\src\Web\bin\Debug\net8.0\System.Runtime.Caching.dll
 C:\dev\GC\GC-backend\src\Web\bin\Debug\net8.0\System.Security.Cryptography.ProtectedData.dll
 C:\dev\GC\GC-backend\src\Web\bin\Debug\net8.0\System.Security.Permissions.dll
-C:\dev\GC\GC-backend\src\Web\bin\Debug\net8.0\System.Text.Encodings.Web.dll
-C:\dev\GC\GC-backend\src\Web\bin\Debug\net8.0\System.Text.Json.dll
 C:\dev\GC\GC-backend\src\Web\bin\Debug\net8.0\System.Windows.Extensions.dll
 C:\dev\GC\GC-backend\src\Web\bin\Debug\net8.0\cs\Microsoft.CodeAnalysis.resources.dll
 C:\dev\GC\GC-backend\src\Web\bin\Debug\net8.0\de\Microsoft.CodeAnalysis.resources.dll
@@ -243,7 +234,6 @@ C:\dev\GC\GC-backend\src\Web\bin\Debug\net8.0\runtimes\unix\lib\net6.0\System.Dr
 C:\dev\GC\GC-backend\src\Web\bin\Debug\net8.0\runtimes\win\lib\net6.0\System.Drawing.Common.dll
 C:\dev\GC\GC-backend\src\Web\bin\Debug\net8.0\runtimes\win\lib\net6.0\System.Runtime.Caching.dll
 C:\dev\GC\GC-backend\src\Web\bin\Debug\net8.0\runtimes\win\lib\net6.0\System.Security.Cryptography.ProtectedData.dll
-C:\dev\GC\GC-backend\src\Web\bin\Debug\net8.0\runtimes\browser\lib\net8.0\System.Text.Encodings.Web.dll
 C:\dev\GC\GC-backend\src\Web\bin\Debug\net8.0\runtimes\win\lib\net6.0\System.Windows.Extensions.dll
 C:\dev\GC\GC-backend\src\Web\bin\Debug\net8.0\Domain.dll
 C:\dev\GC\GC-backend\src\Web\bin\Debug\net8.0\Infrastructure.dll
@@ -274,3 +264,4 @@ C:\dev\GC\GC-backend\src\Web\obj\Debug\net8.0\ref\Web.dll
 C:\dev\GC\GC-backend\src\Web\bin\Debug\net8.0\Aplication.dll
 C:\dev\GC\GC-backend\src\Web\bin\Debug\net8.0\Aplication.pdb
 C:\dev\GC\GC-backend\src\Web\bin\Debug\net8.0\BCrypt.Net-Next.dll
+C:\dev\GC\GC-backend\src\Web\bin\Debug\net8.0\Microsoft.AspNetCore.Authentication.JwtBearer.dll

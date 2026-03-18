@@ -30,8 +30,6 @@ public class User
 
     public Role Role { get; set; } = Role.USER;
 
-    public bool IsActive { get; set; } = true;
-
 
     // Orders the user PLACED (as Client)
     [InverseProperty("User")] 
