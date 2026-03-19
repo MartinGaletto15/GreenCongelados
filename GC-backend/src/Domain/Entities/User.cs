@@ -38,4 +38,7 @@ public class User
     // Orders the user DELIVERS (as Courier)
     [InverseProperty("Courier")] 
     public ICollection<Order> OrdersToDeliver { get; set; } = new List<Order>();
+
+    // Cart belonging to the user
+    public Cart? Cart { get; set; }
 }

@@ -477,11 +477,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\dev\\GC\\GC-backend\\src\\Aplication\\Aplication.csproj",
+      "projectUniqueName": "c:\\dev\\GC\\GC-backend\\src\\Aplication\\Aplication.csproj",
       "projectName": "Aplication",
-      "projectPath": "C:\\dev\\GC\\GC-backend\\src\\Aplication\\Aplication.csproj",
+      "projectPath": "c:\\dev\\GC\\GC-backend\\src\\Aplication\\Aplication.csproj",
       "packagesPath": "C:\\Users\\Martin Galetto\\.nuget\\packages\\",
-      "outputPath": "C:\\dev\\GC\\GC-backend\\src\\Aplication\\obj\\",
+      "outputPath": "c:\\dev\\GC\\GC-backend\\src\\Aplication\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
         "C:\\Users\\Martin Galetto\\AppData\\Roaming\\NuGet\\NuGet.Config"
@@ -496,8 +496,8 @@
         "net8.0": {
           "targetAlias": "net8.0",
           "projectReferences": {
-            "C:\\dev\\GC\\GC-backend\\src\\Domain\\Domain.csproj": {
-              "projectPath": "C:\\dev\\GC\\GC-backend\\src\\Domain\\Domain.csproj"
+            "c:\\dev\\GC\\GC-backend\\src\\Domain\\Domain.csproj": {
+              "projectPath": "c:\\dev\\GC\\GC-backend\\src\\Domain\\Domain.csproj"
             }
           }
         }

@@ -6,7 +6,7 @@ namespace Infrastructure.Repositories;
 
 public class GenericRepository<T> : IGenericRepository<T> where T : class
 {
-    private readonly GCContext _context;
+    protected readonly GCContext _context;
     private readonly DbSet<T> _dbSet;
 
     public GenericRepository(GCContext context)

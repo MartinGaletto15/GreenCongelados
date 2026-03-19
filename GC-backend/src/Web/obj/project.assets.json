@@ -1556,7 +1556,7 @@
           "bin/placeholder/Domain.dll": {}
         }
       },
-      "infrastructure/1.0.0": {
+      "Infrastructure/1.0.0": {
         "type": "project",
         "framework": ".NETCoreApp,Version=v8.0",
         "dependencies": {
@@ -1567,10 +1567,10 @@
           "Microsoft.EntityFrameworkCore.SqlServer": "8.0.0"
         },
         "compile": {
-          "bin/placeholder/infrastructure.dll": {}
+          "bin/placeholder/Infrastructure.dll": {}
         },
         "runtime": {
-          "bin/placeholder/infrastructure.dll": {}
+          "bin/placeholder/Infrastructure.dll": {}
         }
       }
     }
@@ -4248,20 +4248,20 @@
       "path": "../Domain/Domain.csproj",
       "msbuildProject": "../Domain/Domain.csproj"
     },
-    "infrastructure/1.0.0": {
+    "Infrastructure/1.0.0": {
       "type": "project",
-      "path": "../infrastructure/infrastructure.csproj",
-      "msbuildProject": "../infrastructure/infrastructure.csproj"
+      "path": "../Infrastructure/Infrastructure.csproj",
+      "msbuildProject": "../Infrastructure/Infrastructure.csproj"
     }
   },
   "projectFileDependencyGroups": {
     "net8.0": [
       "Aplication >= 1.0.0",
+      "Infrastructure >= 1.0.0",
       "Microsoft.AspNetCore.Authentication.JwtBearer >= 8.0.0",
       "Microsoft.EntityFrameworkCore.Design >= 8.0.0",
       "Microsoft.OpenApi >= 1.6.14",
-      "Swashbuckle.AspNetCore >= 6.6.2",
-      "infrastructure >= 1.0.0"
+      "Swashbuckle.AspNetCore >= 6.6.2"
     ]
   },
   "packageFolders": {
@@ -4270,11 +4270,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\dev\\GC\\GC-backend\\src\\Web\\Web.csproj",
+      "projectUniqueName": "c:\\dev\\GC\\GC-backend\\src\\Web\\Web.csproj",
       "projectName": "Web",
-      "projectPath": "C:\\dev\\GC\\GC-backend\\src\\Web\\Web.csproj",
+      "projectPath": "c:\\dev\\GC\\GC-backend\\src\\Web\\Web.csproj",
       "packagesPath": "C:\\Users\\Martin Galetto\\.nuget\\packages\\",
-      "outputPath": "C:\\dev\\GC\\GC-backend\\src\\Web\\obj\\",
+      "outputPath": "c:\\dev\\GC\\GC-backend\\src\\Web\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
         "C:\\Users\\Martin Galetto\\AppData\\Roaming\\NuGet\\NuGet.Config"
@@ -4289,11 +4289,11 @@
         "net8.0": {
           "targetAlias": "net8.0",
           "projectReferences": {
-            "C:\\dev\\GC\\GC-backend\\src\\Aplication\\Aplication.csproj": {
-              "projectPath": "C:\\dev\\GC\\GC-backend\\src\\Aplication\\Aplication.csproj"
+            "c:\\dev\\GC\\GC-backend\\src\\Aplication\\Aplication.csproj": {
+              "projectPath": "c:\\dev\\GC\\GC-backend\\src\\Aplication\\Aplication.csproj"
             },
-            "C:\\dev\\GC\\GC-backend\\src\\infrastructure\\infrastructure.csproj": {
-              "projectPath": "C:\\dev\\GC\\GC-backend\\src\\infrastructure\\infrastructure.csproj"
+            "c:\\dev\\GC\\GC-backend\\src\\Infrastructure\\Infrastructure.csproj": {
+              "projectPath": "c:\\dev\\GC\\GC-backend\\src\\Infrastructure\\Infrastructure.csproj"
             }
           }
         }

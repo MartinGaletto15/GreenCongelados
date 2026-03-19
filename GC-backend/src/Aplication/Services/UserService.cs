@@ -9,6 +9,8 @@ using Domain.Entities.Enums;
 using Domain.Exceptions;
 using Domain.Interfaces;
 using Microsoft.Extensions.Configuration;
+using Aplication.Interfaces.CartItem;
+
 
 namespace Aplication.Services;
 
@@ -18,17 +20,20 @@ public class UserService : IUserWriteService, IUserReadOnlyService
     private readonly IConfiguration _configuration;
     private readonly IPasswordHasher _passwordHasher;
     private readonly IJwtProvider _jwtProvider;
+    private readonly ICartItemWriteService _cartItemWriteService;
 
     public UserService(
         IUserRepository userRepository, 
         IConfiguration configuration, 
         IPasswordHasher passwordHasher,
-        IJwtProvider jwtProvider)
+        IJwtProvider jwtProvider,
+        ICartItemWriteService cartItemWriteService)
     {
         _userRepository = userRepository;
         _configuration = configuration;
         _passwordHasher = passwordHasher;
         _jwtProvider = jwtProvider;
+        _cartItemWriteService = cartItemWriteService;
     }
 
     public async Task<string> LoginAsync(LoginRequest request)
@@ -70,6 +75,8 @@ public class UserService : IUserWriteService, IUserReadOnlyService
         };
 
         await _userRepository.AddAsync(newUser);
+        // Aca se crea el carrito del usuario
+        await _cartItemWriteService.CreateCartAsync(newUser.IdUser);
         return UserDTO.Create(newUser);
     }
 

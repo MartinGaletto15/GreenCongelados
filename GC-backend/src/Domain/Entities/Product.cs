@@ -43,4 +43,5 @@ public class Product
     // Navigation properties
     public ICollection<OrderItem> OrderItems { get; set; } = new List<OrderItem>();
     public ICollection<ProductCategory> ProductCategories { get; set; } = new List<ProductCategory>();
+    public ICollection<CartItem> CartItems { get; set; } = new List<CartItem>();
 }

@@ -19,6 +19,8 @@ namespace Infrastructure.Persistence
         public DbSet<Promotion> Promotions { get; set; }
         public DbSet<User> Users { get; set; }
         public DbSet<ShippingCost> ShippingCost { get; set; }
+        public DbSet<Cart> Carts { get; set; }
+        public DbSet<CartItem> CartItems { get; set; }
 
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -72,6 +74,22 @@ namespace Infrastructure.Persistence
             modelBuilder.Entity<Address>().Property(a => a.City).HasConversion<string>();
             modelBuilder.Entity<Order>().Property(o => o.OrderStatus).HasConversion<string>();
             modelBuilder.Entity<Promotion>().Property(p => p.DiscountType).HasConversion<string>();
+
+            // Cart to User (1:1)
+            modelBuilder.Entity<Cart>()
+                .HasOne(c => c.User).WithOne(u => u.Cart)
+                .HasForeignKey<Cart>(c => c.IdUser)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            // CartItem (Cart <-> Product)
+            modelBuilder.Entity<CartItem>()
+                .HasOne(ci => ci.Cart).WithMany(c => c.CartItems)
+                .HasForeignKey(ci => ci.IdCart)
+                .OnDelete(DeleteBehavior.Cascade);
+            modelBuilder.Entity<CartItem>()
+                .HasOne(ci => ci.Product).WithMany(p => p.CartItems)
+                .HasForeignKey(ci => ci.IdProduct)
+                .OnDelete(DeleteBehavior.Cascade);
         }
     }
 }

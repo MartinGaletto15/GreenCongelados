@@ -1,9 +1,65 @@
-# Tareas de Refactorización - UserService.cs
+Crear las validaciones en base a las reglas de negocio (services)
 
-## Otras Correcciones
-- [ ] `UpdateUserAsync`: Obtener la entidad desde la base de datos (con `GetByIdAsync`) antes de actualizar, en lugar de instanciar un `new User`.
-- [ ] Convenciones: Considerar corregir el "typo" del namespace y carpeta de `Aplication` a `Application`.
+Controllers:
 
-## Pruebas Sugeridas (xUnit)
-- [ ] Test de error: Verificar que se arroje `AppValidationException` ("Credenciales inválidas") si falla la autenticación.
-- [ ] Test de éxito: Verificar que devuelva un string válido (Token JWT) si las credenciales son correctas.
+ADDRESS
+Post address --> No debe pedir el ID, debe ser autogenerado
+Get address by id --> Debe validar que el id exista y que el usuario sea el dueño de la direccion o que sea Administrador/Cadete
+Get addressMe --> Agregar
+Put address --> Debe pasar a ser addressMe
+Delete address --> Debe pasar a ser addressMe
+
+CATEGORY
+Post category --> Verificar que sea administrador/superadministrador
+Get category by id --> Debe validar que el id exista y Disponible para todos
+Get category --> Disponible para todos
+Put category --> Verificar que sea administrador/superadministrador
+Delete category --> Verificar que sea administrador/superadministrador
+
+ORDER
+Post order:
+    a - Guardar el ID del usuario que genera el pedido, la fecha actual y Verificar el codigo de promocion
+    b - Verificar el shipping cost y guardarlo
+    c - Guardar campos de envio asociados al usuario
+    d - Guardar promociones y total
+    e - Inicializar estado en pendiente
+Get order by id --> Verificar que el usuario sea dueño de esa orden o que sea Administrador/Cadete
+Get order --> Verificar que sea Administrador/superadministrador
+Get orderMe --> Agregar
+Put order --> Verificar que esa orden sea del usuario y que no este en estado entregado
+put orderStatus --> Verificar que sea Administrador/Cadete
+Delete order --> Debe funcionar como un cambio de estado a cancelado
+
+ORDERITEM
+Todas las operaciones de order item suceden dentro del servicio de order, no tienen endpoints propios ni validaciones propias
+
+PRODUCT [Solo admins]
+Metodos CRUD basicos
+
+PRODUCTCATEGORY
+No tiene endpoints propios, se maneja desde el servicio de product
+No tiene servicio propio, se maneja desde el servicio de product
+
+PROMOTIONS [Solo admins]
+Metodos CRUD basicos
+
+SHIPPINGCOSTS [Solo admins]
+Metodos CRUD basicos
+
+PROMOTION [Solo admins]
+Metodos CRUD basicos
+
+CART
+Post cart --> Debe asociar el carrito al usuario al inicializar el usuario (No necesita endpoint)
+Delete cart --> Debe eliminar el carrito del usuario cuando este se elimine (onDeleteCascade, no necesita endpoint)
+
+[x] USERS
+[Tarea actual] CART
+[] ADDRESS
+[] CATEGORY
+[] ORDER
+[] ORDERITEM
+[] PRODUCT
+[] PRODUCTCATEGORY
+[] PROMOTION
+[] SHIPPINGCOST
