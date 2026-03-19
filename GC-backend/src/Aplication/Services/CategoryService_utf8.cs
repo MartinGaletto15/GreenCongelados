@@ -1,4 +1,4 @@
-using Aplication.Interfaces.Categories;
+﻿using Aplication.Interfaces.Category;
 using Applications.dtos;
 using Applications.dtos.Requests;
 using Domain.Entities;
@@ -7,7 +7,7 @@ using Domain.Exceptions;
 
 namespace Aplication.Services;
 
-public class CategoryService : ICategoryReadOnlyService, ICategoryWriteService
+public class CategoryService : ICategoryService
 {
     private readonly IGenericRepository<Category> _repository;
 

@@ -9,13 +9,6 @@ Get addressMe --> Agregar
 Put address --> Debe pasar a ser addressMe
 Delete address --> Debe pasar a ser addressMe
 
-CATEGORY
-Post category --> Verificar que sea administrador/superadministrador
-Get category by id --> Debe validar que el id exista y Disponible para todos
-Get category --> Disponible para todos
-Put category --> Verificar que sea administrador/superadministrador
-Delete category --> Verificar que sea administrador/superadministrador
-
 ORDER
 Post order:
     a - Guardar el ID del usuario que genera el pedido, la fecha actual y Verificar el codigo de promocion
@@ -49,14 +42,10 @@ Metodos CRUD basicos
 PROMOTION [Solo admins]
 Metodos CRUD basicos
 
-CART
-Post cart --> Debe asociar el carrito al usuario al inicializar el usuario (No necesita endpoint)
-Delete cart --> Debe eliminar el carrito del usuario cuando este se elimine (onDeleteCascade, no necesita endpoint)
-
 [x] USERS
-[Tarea actual] CART
+[x] CART
 [] ADDRESS
-[] CATEGORY
+[x] CATEGORY
 [] ORDER
 [] ORDERITEM
 [] PRODUCT
