@@ -7,11 +7,11 @@ using Domain.Exceptions;
 
 namespace Aplication.Services;
 
-public class AddressService : IAddressService
+public class AddressService : IAddressReadOnlyService, IAddressWriteService
 {
-    private readonly IGenericRepository<Address> _repository;
+    private readonly IAddressRepository _repository;
 
-    public AddressService(IGenericRepository<Address> repository)
+    public AddressService(IAddressRepository repository)
     {
         _repository = repository;
     }
@@ -29,15 +29,19 @@ public class AddressService : IAddressService
         return AddressDTO.Create(entity);
     }
 
-    public async Task<AddressDTO> CreateAsync(CreateAddressRequest request)
+    public async Task<AddressDTO> GetByUserIdAsync(int userId)
+    {
+        var entity = await _repository.GetByUserIdAsync(userId);
+        if (entity == null) throw new AppValidationException("Address not found", "ADDRESS_NOT_FOUND");
+        return AddressDTO.Create(entity);
+    }
+
+    public async Task<AddressDTO> CreateAsync(CreateAddressRequest request, int idUser)
     {
         var entity = new Address
         {
-            IdUser = request.IdUser,
-            User = null!, // EF handles navigation via FK
+            IdUser = idUser,
             Street = request.Street,
-            City = request.City,
-            ZipCode = request.ZipCode,
             Dpto = request.Dpto,
             References = request.References
         };
@@ -46,14 +50,12 @@ public class AddressService : IAddressService
         return AddressDTO.Create(entity);
     }
 
-    public async Task<AddressDTO> UpdateAsync(int id, UpdateAddressRequest request)
+    public async Task<AddressDTO> UpdateMyAddressAsync(UpdateAddressRequest request, int idUser)
     {
-        var entity = await _repository.GetByIdAsync(id);
+        var entity = await _repository.GetByUserIdAsync(idUser);
         if (entity == null) throw new AppValidationException("Address not found", "ADDRESS_NOT_FOUND");
 
         entity.Street = request.Street ?? entity.Street;
-        entity.City = request.City ?? entity.City;
-        entity.ZipCode = request.ZipCode ?? entity.ZipCode;
         entity.Dpto = request.Dpto ?? entity.Dpto;
         entity.References = request.References ?? entity.References;
 
@@ -61,9 +63,9 @@ public class AddressService : IAddressService
         return AddressDTO.Create(entity);
     }
 
-    public async Task DeleteAsync(int id)
+    public async Task DeleteMyAddressAsync(int idUser)
     {
-        var entity = await _repository.GetByIdAsync(id);
+        var entity = await _repository.GetByUserIdAsync(idUser);
         if (entity == null) throw new AppValidationException("Address not found", "ADDRESS_NOT_FOUND");
         await _repository.DeleteAsync(entity);
     }

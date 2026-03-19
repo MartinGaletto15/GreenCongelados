@@ -2,13 +2,6 @@ Crear las validaciones en base a las reglas de negocio (services)
 
 Controllers:
 
-ADDRESS
-Post address --> No debe pedir el ID, debe ser autogenerado
-Get address by id --> Debe validar que el id exista y que el usuario sea el dueño de la direccion o que sea Administrador/Cadete
-Get addressMe --> Agregar
-Put address --> Debe pasar a ser addressMe
-Delete address --> Debe pasar a ser addressMe
-
 ORDER
 Post order:
     a - Guardar el ID del usuario que genera el pedido, la fecha actual y Verificar el codigo de promocion
@@ -44,7 +37,8 @@ Metodos CRUD basicos
 
 [x] USERS
 [x] CART
-[] ADDRESS
+[x] CARTITEM
+[x] ADDRESS
 [x] CATEGORY
 [] ORDER
 [] ORDERITEM

@@ -17,13 +17,6 @@ public class Address
     [MaxLength(100)]
     public required string Street { get; set; }
 
-    [Required]
-    public required Cities City { get; set; }
-
-    [Required]
-    [MaxLength(10)]
-    public required string ZipCode { get; set; }
-
     [MaxLength(10)]
     public string? Dpto { get; set; }
 

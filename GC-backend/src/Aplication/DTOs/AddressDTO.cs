@@ -2,8 +2,6 @@ namespace Applications.dtos;
 
 public record AddressDTO(
     string Street,
-    string City,
-    string ZipCode,
     string? Dpto,
     string? References
 )
@@ -12,8 +10,6 @@ public record AddressDTO(
     {
         var dto = new AddressDTO(
             entity.Street,
-            entity.City.ToString(),
-            entity.ZipCode,
             entity.Dpto,
             entity.References
         );
