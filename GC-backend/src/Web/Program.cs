@@ -30,6 +30,7 @@ builder.Services.AddControllers(); // If using MVC/API controllers
 builder.Services.AddEndpointsApiExplorer(); // For Swagger/OpenAPI
 builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
 builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<IProductRepository, ProductRepository>();
 builder.Services.AddScoped<IPasswordHasher, BcryptPasswordHasher>();
 builder.Services.AddScoped<IJwtProvider, JwtProvider>();
 builder.Services.AddScoped<IUserWriteService, UserService>();
@@ -41,7 +42,8 @@ builder.Services.AddScoped<ICategoryWriteService, CategoryService>();
 builder.Services.AddScoped<IOrderService, OrderService>();
 builder.Services.AddScoped<IOrderItemService, OrderItemService>();
 builder.Services.AddScoped<IProductCategoryService, ProductCategoryService>();
-builder.Services.AddScoped<IProductService, ProductService>();
+builder.Services.AddScoped<IProductReadOnlyService, ProductService>();
+builder.Services.AddScoped<IProductWriteService, ProductService>();
 builder.Services.AddScoped<IPromotionReadOnlyService, PromotionService>();
 builder.Services.AddScoped<IPromotionWriteService, PromotionService>();
 builder.Services.AddScoped<IShippingCostReadOnlyService, ShippingCostService>();

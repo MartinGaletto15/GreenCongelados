@@ -1,7 +1,7 @@
 using System.Security.Claims;
 using Applications.dtos;
 using Applications.dtos.Requests;
-using Aplication.Helpers;
+using Aplication.Validators;
 using Aplication.Interfaces.Security;
 using Aplication.Interfaces.UserServices;
 using Domain.Entities;
@@ -48,21 +48,7 @@ public class UserService : IUserWriteService, IUserReadOnlyService
 
     public async Task<UserDTO> CreateUserAsync(CreateUserRequest request)
     {
-        if (!Validations.ValidateEmail(request.Email))
-            throw new AppValidationException("El email provisto no es válido.", "USER_EMAIL_INVALID");
-
-        if (!Validations.ValidatePassword(request.Password, 6, 20, true, true))
-            throw new AppValidationException("La contraseña debe tener entre 6 y 20 caracteres, e incluir al menos una mayúscula y un número.", "USER_PASSWORD_INVALID");
-
-        if (!Validations.ValidateString(request.Name, 2, 50))
-            throw new AppValidationException("El nombre es obligatorio y debe tener entre 2 y 50 caracteres.", "USER_NAME_INVALID");
-
-        if (!Validations.ValidateString(request.LastName, 2, 50))
-            throw new AppValidationException("El apellido es obligatorio y debe tener entre 2 y 50 caracteres.", "USER_LASTNAME_INVALID");
-
-        var existingUser = await _userRepository.GetByEmailAsync(request.Email);
-        if (existingUser != null)
-            throw new AppValidationException("El email ya existe en la base de datos.", "USER_EMAIL_EXISTS");
+        await UserValidator.ValidateCreateAsync(request, _userRepository);
 
         string passwordHash = _passwordHasher.Hash(request.Password);
 
@@ -82,30 +68,12 @@ public class UserService : IUserWriteService, IUserReadOnlyService
 
     public async Task<UserDTO> UpdateUserAsync(int id, UpdateUserRequest request)
     {
-        if (!Validations.ValidateEmail(request.Email))
-            throw new AppValidationException("El email de referencia provisto no es válido.", "USER_EMAIL_INVALID");
-
-        if (!string.IsNullOrEmpty(request.Password) && !Validations.ValidatePassword(request.Password, 6, 20, true, true))
-            throw new AppValidationException("La contraseña debe tener entre 6 y 20 caracteres, e incluir al menos una mayúscula y un número.", "USER_PASSWORD_INVALID");
-
-        if (!string.IsNullOrEmpty(request.Name) && !Validations.ValidateString(request.Name, 2, 50))
-            throw new AppValidationException("El nombre debe tener entre 2 y 50 caracteres.", "USER_NAME_INVALID");
-
-        if (!string.IsNullOrEmpty(request.LastName) && !Validations.ValidateString(request.LastName, 2, 50))
-            throw new AppValidationException("El apellido debe tener entre 2 y 50 caracteres.", "USER_LASTNAME_INVALID");
-
         // Busqueda del usuario previa a la modificacion
         var user = await _userRepository.GetByIdAsync(id);
         if (user == null)
             throw new AppValidationException("El usuario no existe.", "USER_NOT_FOUND");
 
-        // Si el usuario intenta cambiar su mail, verificar que el nuevo no esté en uso por otro
-        if (request.Email != null && user.Email != request.Email)
-        {
-            var existingUser = await _userRepository.GetByEmailAsync(request.Email);
-            if (existingUser != null)
-                throw new AppValidationException("El email ya existe en la base de datos.", "USER_EMAIL_EXISTS");
-        }
+        await UserValidator.ValidateUpdateAsync(id, request, _userRepository, user);
 
         string passwordHash = string.Empty;
         if (!string.IsNullOrEmpty(request.Password))
@@ -129,13 +97,7 @@ public class UserService : IUserWriteService, IUserReadOnlyService
         if (user == null)
             throw new AppValidationException("El usuario no existe.", "USER_NOT_FOUND");
 
-        // El ejecutor debe tener una jerarquía superior (valor numérico menor) al rol actual del usuario
-        if (performerRole >= user.Role)
-            throw new AppValidationException("No tienes permisos para modificar el rol de este usuario.", "USER_ROLE_INSUFFICIENT_PERMISSIONS");
-
-        // El ejecutor solo puede asignar roles de jerarquía inferior a la suya
-        if (performerRole >= role)
-            throw new AppValidationException("No tienes permisos para asignar este rol.", "USER_ROLE_INVALID_ASSIGNMENT");
+        UserValidator.ValidateRoleUpdate(role, user.Role, performerRole);
 
         user.Role = role;
         await _userRepository.UpdateAsync(user);

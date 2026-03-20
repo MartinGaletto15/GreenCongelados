@@ -1,7 +1,7 @@
 using System.Linq;
 using System.Text.RegularExpressions;
 
-namespace Aplication.Helpers;
+namespace Aplication.Validators;
 
 public static partial class Validations
 {

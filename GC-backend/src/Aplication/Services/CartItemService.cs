@@ -5,6 +5,7 @@ using Aplication.DTOs.Requests.Update;
 using Domain.Entities;
 using Domain.Interfaces;
 using Domain.Exceptions;
+using Aplication.Validators;
 
 namespace Aplication.Services;
 
@@ -57,17 +58,12 @@ public class CartItemService : ICartItemReadOnlyService, ICartItemWriteService
     public async Task<CartItemDTO> UpdateCartItemAsync(int userId, int cartItemId, UpdateCartItemRequest request)
     {
         var cart = await _repository.GetUserCartAsync(userId);
-        if (cart == null) 
-            throw new AppValidationException("El usuario no tiene un carrito activo.", "CART_NOT_FOUND");
+        CartItemValidator.ValidateCartExists(cart);
 
         var cartItem = await _repository.GetByIdAsync(cartItemId);
-        if (cartItem == null) 
-            throw new AppValidationException("Item del carrito no encontrado.", "CART_ITEM_NOT_FOUND");
-        
-        if (cartItem.IdCart != cart.IdCart)
-            throw new AppValidationException("No tienes permisos para modificar este item.", "CART_ITEM_FORBIDDEN");
+        CartItemValidator.ValidateCartItemOwnership(cartItem, cart!);
 
-        cartItem.Quantity = request.Quantity;
+        cartItem!.Quantity = request.Quantity;
 
         await _repository.UpdateAsync(cartItem);
         return CartItemDTO.Create(cartItem);
@@ -76,16 +72,11 @@ public class CartItemService : ICartItemReadOnlyService, ICartItemWriteService
     public async Task DeleteCartItemAsync(int userId, int cartItemId)
     {
         var cart = await _repository.GetUserCartAsync(userId);
-        if (cart == null) 
-            throw new AppValidationException("El usuario no tiene un carrito activo.", "CART_NOT_FOUND");
+        CartItemValidator.ValidateCartExists(cart);
 
         var cartItem = await _repository.GetByIdAsync(cartItemId);
-        if (cartItem == null) 
-            throw new AppValidationException("Item del carrito no encontrado.", "CART_ITEM_NOT_FOUND");
+        CartItemValidator.ValidateCartItemOwnership(cartItem, cart!);
 
-        if (cartItem.IdCart != cart.IdCart) 
-            throw new AppValidationException("No tienes permisos para eliminar este item.", "CART_ITEM_FORBIDDEN");
-
-        await _repository.DeleteAsync(cartItem);
+        await _repository.DeleteAsync(cartItem!);
     }
 }
