@@ -1,4 +1,6 @@
 using Applications.dtos;
+using Aplication.DTOs.Requests.Create;
+using Aplication.DTOs.Requests.Update;
 
 namespace Aplication.Interfaces.CartItem;
 

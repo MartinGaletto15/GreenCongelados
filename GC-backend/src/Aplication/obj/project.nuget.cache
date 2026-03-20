@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "5Kva0COMuv0=",
+  "dgSpecHash": "xFVZxlugk04=",
   "success": true,
-  "projectFilePath": "c:\\dev\\GC\\GC-backend\\src\\Aplication\\Aplication.csproj",
+  "projectFilePath": "C:\\dev\\GC\\GC-backend\\src\\Aplication\\Aplication.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\Martin Galetto\\.nuget\\packages\\microsoft.extensions.configuration.abstractions\\10.0.5\\microsoft.extensions.configuration.abstractions.10.0.5.nupkg.sha512",
     "C:\\Users\\Martin Galetto\\.nuget\\packages\\microsoft.extensions.dependencyinjection.abstractions\\8.0.0\\microsoft.extensions.dependencyinjection.abstractions.8.0.0.nupkg.sha512",

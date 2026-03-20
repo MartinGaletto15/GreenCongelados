@@ -71,7 +71,6 @@ namespace Infrastructure.Persistence
                 .OnDelete(DeleteBehavior.SetNull); // Promotion SET NULL DELETE
 
             // Mapping Enums to String (to store names instead of numbers)
-            modelBuilder.Entity<Address>().Property(a => a.City).HasConversion<string>();
             modelBuilder.Entity<Order>().Property(o => o.OrderStatus).HasConversion<string>();
             modelBuilder.Entity<Promotion>().Property(p => p.DiscountType).HasConversion<string>();
 

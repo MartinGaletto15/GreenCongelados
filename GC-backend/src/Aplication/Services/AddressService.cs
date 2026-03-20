@@ -41,6 +41,7 @@ public class AddressService : IAddressReadOnlyService, IAddressWriteService
         var entity = new Address
         {
             IdUser = idUser,
+            User = null!,
             Street = request.Street,
             Dpto = request.Dpto,
             References = request.References

@@ -1,3 +1,11 @@
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
+using System.Security.Claims;
+using Aplication.Interfaces.CartItem;
+using Applications.dtos;
+using Aplication.DTOs.Requests.Create;
+using Aplication.DTOs.Requests.Update;
+
 namespace Web.Controllers.Cart;
 
 [ApiController]

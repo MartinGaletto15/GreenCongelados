@@ -1,10 +1,10 @@
 using Aplication.Interfaces.CartItem;
 using Applications.dtos;
+using Aplication.DTOs.Requests.Create;
+using Aplication.DTOs.Requests.Update;
 using Domain.Entities;
 using Domain.Interfaces;
 using Domain.Exceptions;
-using Aplication.DTOs.Requests.Create;
-using Aplication.DTOs.Requests.Update;
 
 namespace Aplication.Services;
 

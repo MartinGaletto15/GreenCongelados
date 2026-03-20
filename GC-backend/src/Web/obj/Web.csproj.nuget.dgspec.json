@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "c:\\dev\\GC\\GC-backend\\src\\Web\\Web.csproj": {}
+    "C:\\dev\\GC\\GC-backend\\src\\Web\\Web.csproj": {}
   },
   "projects": {
-    "c:\\dev\\GC\\GC-backend\\src\\Aplication\\Aplication.csproj": {
+    "C:\\dev\\GC\\GC-backend\\src\\Aplication\\Aplication.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "c:\\dev\\GC\\GC-backend\\src\\Aplication\\Aplication.csproj",
+        "projectUniqueName": "C:\\dev\\GC\\GC-backend\\src\\Aplication\\Aplication.csproj",
         "projectName": "Aplication",
-        "projectPath": "c:\\dev\\GC\\GC-backend\\src\\Aplication\\Aplication.csproj",
+        "projectPath": "C:\\dev\\GC\\GC-backend\\src\\Aplication\\Aplication.csproj",
         "packagesPath": "C:\\Users\\Martin Galetto\\.nuget\\packages\\",
-        "outputPath": "c:\\dev\\GC\\GC-backend\\src\\Aplication\\obj\\",
+        "outputPath": "C:\\dev\\GC\\GC-backend\\src\\Aplication\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\Martin Galetto\\AppData\\Roaming\\NuGet\\NuGet.Config"
@@ -26,8 +26,8 @@
           "net8.0": {
             "targetAlias": "net8.0",
             "projectReferences": {
-              "c:\\dev\\GC\\GC-backend\\src\\Domain\\Domain.csproj": {
-                "projectPath": "c:\\dev\\GC\\GC-backend\\src\\Domain\\Domain.csproj"
+              "C:\\dev\\GC\\GC-backend\\src\\Domain\\Domain.csproj": {
+                "projectPath": "C:\\dev\\GC\\GC-backend\\src\\Domain\\Domain.csproj"
               }
             }
           }
@@ -80,14 +80,14 @@
         }
       }
     },
-    "c:\\dev\\GC\\GC-backend\\src\\Domain\\Domain.csproj": {
+    "C:\\dev\\GC\\GC-backend\\src\\Domain\\Domain.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "c:\\dev\\GC\\GC-backend\\src\\Domain\\Domain.csproj",
+        "projectUniqueName": "C:\\dev\\GC\\GC-backend\\src\\Domain\\Domain.csproj",
         "projectName": "Domain",
-        "projectPath": "c:\\dev\\GC\\GC-backend\\src\\Domain\\Domain.csproj",
+        "projectPath": "C:\\dev\\GC\\GC-backend\\src\\Domain\\Domain.csproj",
         "packagesPath": "C:\\Users\\Martin Galetto\\.nuget\\packages\\",
-        "outputPath": "c:\\dev\\GC\\GC-backend\\src\\Domain\\obj\\",
+        "outputPath": "C:\\dev\\GC\\GC-backend\\src\\Domain\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\Martin Galetto\\AppData\\Roaming\\NuGet\\NuGet.Config"
@@ -138,14 +138,14 @@
         }
       }
     },
-    "c:\\dev\\GC\\GC-backend\\src\\Infrastructure\\Infrastructure.csproj": {
+    "C:\\dev\\GC\\GC-backend\\src\\infrastructure\\infrastructure.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "c:\\dev\\GC\\GC-backend\\src\\Infrastructure\\Infrastructure.csproj",
-        "projectName": "Infrastructure",
-        "projectPath": "c:\\dev\\GC\\GC-backend\\src\\Infrastructure\\Infrastructure.csproj",
+        "projectUniqueName": "C:\\dev\\GC\\GC-backend\\src\\infrastructure\\infrastructure.csproj",
+        "projectName": "infrastructure",
+        "projectPath": "C:\\dev\\GC\\GC-backend\\src\\infrastructure\\infrastructure.csproj",
         "packagesPath": "C:\\Users\\Martin Galetto\\.nuget\\packages\\",
-        "outputPath": "c:\\dev\\GC\\GC-backend\\src\\Infrastructure\\obj\\",
+        "outputPath": "C:\\dev\\GC\\GC-backend\\src\\infrastructure\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\Martin Galetto\\AppData\\Roaming\\NuGet\\NuGet.Config"
@@ -160,11 +160,11 @@
           "net8.0": {
             "targetAlias": "net8.0",
             "projectReferences": {
-              "c:\\dev\\GC\\GC-backend\\src\\Aplication\\Aplication.csproj": {
-                "projectPath": "c:\\dev\\GC\\GC-backend\\src\\Aplication\\Aplication.csproj"
+              "C:\\dev\\GC\\GC-backend\\src\\Aplication\\Aplication.csproj": {
+                "projectPath": "C:\\dev\\GC\\GC-backend\\src\\Aplication\\Aplication.csproj"
               },
-              "c:\\dev\\GC\\GC-backend\\src\\Domain\\Domain.csproj": {
-                "projectPath": "c:\\dev\\GC\\GC-backend\\src\\Domain\\Domain.csproj"
+              "C:\\dev\\GC\\GC-backend\\src\\Domain\\Domain.csproj": {
+                "projectPath": "C:\\dev\\GC\\GC-backend\\src\\Domain\\Domain.csproj"
               }
             }
           }
@@ -223,14 +223,14 @@
         }
       }
     },
-    "c:\\dev\\GC\\GC-backend\\src\\Web\\Web.csproj": {
+    "C:\\dev\\GC\\GC-backend\\src\\Web\\Web.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "c:\\dev\\GC\\GC-backend\\src\\Web\\Web.csproj",
+        "projectUniqueName": "C:\\dev\\GC\\GC-backend\\src\\Web\\Web.csproj",
         "projectName": "Web",
-        "projectPath": "c:\\dev\\GC\\GC-backend\\src\\Web\\Web.csproj",
+        "projectPath": "C:\\dev\\GC\\GC-backend\\src\\Web\\Web.csproj",
         "packagesPath": "C:\\Users\\Martin Galetto\\.nuget\\packages\\",
-        "outputPath": "c:\\dev\\GC\\GC-backend\\src\\Web\\obj\\",
+        "outputPath": "C:\\dev\\GC\\GC-backend\\src\\Web\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\Martin Galetto\\AppData\\Roaming\\NuGet\\NuGet.Config"
@@ -245,11 +245,11 @@
           "net8.0": {
             "targetAlias": "net8.0",
             "projectReferences": {
-              "c:\\dev\\GC\\GC-backend\\src\\Aplication\\Aplication.csproj": {
-                "projectPath": "c:\\dev\\GC\\GC-backend\\src\\Aplication\\Aplication.csproj"
+              "C:\\dev\\GC\\GC-backend\\src\\Aplication\\Aplication.csproj": {
+                "projectPath": "C:\\dev\\GC\\GC-backend\\src\\Aplication\\Aplication.csproj"
               },
-              "c:\\dev\\GC\\GC-backend\\src\\Infrastructure\\Infrastructure.csproj": {
-                "projectPath": "c:\\dev\\GC\\GC-backend\\src\\Infrastructure\\Infrastructure.csproj"
+              "C:\\dev\\GC\\GC-backend\\src\\infrastructure\\infrastructure.csproj": {
+                "projectPath": "C:\\dev\\GC\\GC-backend\\src\\infrastructure\\infrastructure.csproj"
               }
             }
           }
