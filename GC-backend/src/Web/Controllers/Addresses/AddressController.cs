@@ -40,7 +40,7 @@ public class AddressController : ControllerBase
     [Authorize]
     public async Task<ActionResult<AddressDTO>> GetMyAddressAsync()
     {
-        var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
+        var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
         var result = await _readOnlyService.GetByUserIdAsync(userId);
         return Ok(result);
     }
@@ -49,7 +49,7 @@ public class AddressController : ControllerBase
     [Authorize]
     public async Task<ActionResult<AddressDTO>> CreateAsync(CreateAddressRequest request)
     {
-        var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
+        var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
         var result = await _writeService.CreateAsync(request, userId);
         return Ok(result);
     }
@@ -58,7 +58,7 @@ public class AddressController : ControllerBase
     [Authorize]
     public async Task<ActionResult<AddressDTO>> UpdateMyAddressAsync(UpdateAddressRequest request)
     {
-        var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
+        var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
         var result = await _writeService.UpdateMyAddressAsync(request, userId);
         return Ok(result);
     }
@@ -67,7 +67,7 @@ public class AddressController : ControllerBase
     [Authorize]
     public async Task<ActionResult> DeleteMyAddressAsync()
     {
-        var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
+        var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
         await _writeService.DeleteMyAddressAsync(userId);
         return NoContent();
     }

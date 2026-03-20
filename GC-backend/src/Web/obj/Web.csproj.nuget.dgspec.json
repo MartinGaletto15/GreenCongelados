@@ -138,14 +138,14 @@
         }
       }
     },
-    "C:\\dev\\GC\\GC-backend\\src\\infrastructure\\infrastructure.csproj": {
+    "C:\\dev\\GC\\GC-backend\\src\\Infrastructure\\Infrastructure.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\dev\\GC\\GC-backend\\src\\infrastructure\\infrastructure.csproj",
-        "projectName": "infrastructure",
-        "projectPath": "C:\\dev\\GC\\GC-backend\\src\\infrastructure\\infrastructure.csproj",
+        "projectUniqueName": "C:\\dev\\GC\\GC-backend\\src\\Infrastructure\\Infrastructure.csproj",
+        "projectName": "Infrastructure",
+        "projectPath": "C:\\dev\\GC\\GC-backend\\src\\Infrastructure\\Infrastructure.csproj",
         "packagesPath": "C:\\Users\\Martin Galetto\\.nuget\\packages\\",
-        "outputPath": "C:\\dev\\GC\\GC-backend\\src\\infrastructure\\obj\\",
+        "outputPath": "C:\\dev\\GC\\GC-backend\\src\\Infrastructure\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\Martin Galetto\\AppData\\Roaming\\NuGet\\NuGet.Config"
@@ -248,8 +248,8 @@
               "C:\\dev\\GC\\GC-backend\\src\\Aplication\\Aplication.csproj": {
                 "projectPath": "C:\\dev\\GC\\GC-backend\\src\\Aplication\\Aplication.csproj"
               },
-              "C:\\dev\\GC\\GC-backend\\src\\infrastructure\\infrastructure.csproj": {
-                "projectPath": "C:\\dev\\GC\\GC-backend\\src\\infrastructure\\infrastructure.csproj"
+              "C:\\dev\\GC\\GC-backend\\src\\Infrastructure\\Infrastructure.csproj": {
+                "projectPath": "C:\\dev\\GC\\GC-backend\\src\\Infrastructure\\Infrastructure.csproj"
               }
             }
           }

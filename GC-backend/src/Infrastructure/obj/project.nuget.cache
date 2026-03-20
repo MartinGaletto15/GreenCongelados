@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "xpFvEyZAsaY=",
+  "dgSpecHash": "hpQ3OmiOW4s=",
   "success": true,
-  "projectFilePath": "C:\\dev\\GC\\GC-backend\\src\\infrastructure\\infrastructure.csproj",
+  "projectFilePath": "C:\\dev\\GC\\GC-backend\\src\\Infrastructure\\Infrastructure.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\Martin Galetto\\.nuget\\packages\\azure.core\\1.25.0\\azure.core.1.25.0.nupkg.sha512",
     "C:\\Users\\Martin Galetto\\.nuget\\packages\\azure.identity\\1.7.0\\azure.identity.1.7.0.nupkg.sha512",

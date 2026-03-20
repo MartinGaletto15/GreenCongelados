@@ -127,7 +127,9 @@ C:\dev\GC\GC-backend\src\Web\bin\Debug\net8.0\Web.dll
 C:\dev\GC\GC-backend\src\Web\bin\Debug\net8.0\Web.pdb
 C:\dev\GC\GC-backend\src\Web\bin\Debug\net8.0\Azure.Core.dll
 C:\dev\GC\GC-backend\src\Web\bin\Debug\net8.0\Azure.Identity.dll
+C:\dev\GC\GC-backend\src\Web\bin\Debug\net8.0\BCrypt.Net-Next.dll
 C:\dev\GC\GC-backend\src\Web\bin\Debug\net8.0\Humanizer.dll
+C:\dev\GC\GC-backend\src\Web\bin\Debug\net8.0\Microsoft.AspNetCore.Authentication.JwtBearer.dll
 C:\dev\GC\GC-backend\src\Web\bin\Debug\net8.0\Microsoft.Bcl.AsyncInterfaces.dll
 C:\dev\GC\GC-backend\src\Web\bin\Debug\net8.0\Microsoft.CodeAnalysis.dll
 C:\dev\GC\GC-backend\src\Web\bin\Debug\net8.0\Microsoft.CodeAnalysis.CSharp.dll
@@ -235,9 +237,11 @@ C:\dev\GC\GC-backend\src\Web\bin\Debug\net8.0\runtimes\win\lib\net6.0\System.Dra
 C:\dev\GC\GC-backend\src\Web\bin\Debug\net8.0\runtimes\win\lib\net6.0\System.Runtime.Caching.dll
 C:\dev\GC\GC-backend\src\Web\bin\Debug\net8.0\runtimes\win\lib\net6.0\System.Security.Cryptography.ProtectedData.dll
 C:\dev\GC\GC-backend\src\Web\bin\Debug\net8.0\runtimes\win\lib\net6.0\System.Windows.Extensions.dll
+C:\dev\GC\GC-backend\src\Web\bin\Debug\net8.0\Aplication.dll
 C:\dev\GC\GC-backend\src\Web\bin\Debug\net8.0\Domain.dll
 C:\dev\GC\GC-backend\src\Web\bin\Debug\net8.0\Infrastructure.dll
 C:\dev\GC\GC-backend\src\Web\bin\Debug\net8.0\Infrastructure.pdb
+C:\dev\GC\GC-backend\src\Web\bin\Debug\net8.0\Aplication.pdb
 C:\dev\GC\GC-backend\src\Web\bin\Debug\net8.0\Domain.pdb
 C:\dev\GC\GC-backend\src\Web\obj\Debug\net8.0\Web.csproj.AssemblyReference.cache
 C:\dev\GC\GC-backend\src\Web\obj\Debug\net8.0\Web.GeneratedMSBuildEditorConfig.editorconfig
@@ -261,7 +265,3 @@ C:\dev\GC\GC-backend\src\Web\obj\Debug\net8.0\refint\Web.dll
 C:\dev\GC\GC-backend\src\Web\obj\Debug\net8.0\Web.pdb
 C:\dev\GC\GC-backend\src\Web\obj\Debug\net8.0\Web.genruntimeconfig.cache
 C:\dev\GC\GC-backend\src\Web\obj\Debug\net8.0\ref\Web.dll
-C:\dev\GC\GC-backend\src\Web\bin\Debug\net8.0\Aplication.dll
-C:\dev\GC\GC-backend\src\Web\bin\Debug\net8.0\Aplication.pdb
-C:\dev\GC\GC-backend\src\Web\bin\Debug\net8.0\BCrypt.Net-Next.dll
-C:\dev\GC\GC-backend\src\Web\bin\Debug\net8.0\Microsoft.AspNetCore.Authentication.JwtBearer.dll

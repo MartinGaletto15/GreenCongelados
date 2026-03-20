@@ -9,11 +9,11 @@
       "Web/1.0.0": {
         "dependencies": {
           "Aplication": "1.0.0",
+          "Infrastructure": "1.0.0",
           "Microsoft.AspNetCore.Authentication.JwtBearer": "8.0.0",
           "Microsoft.EntityFrameworkCore.Design": "8.0.0",
           "Microsoft.OpenApi": "1.6.14",
-          "Swashbuckle.AspNetCore": "6.6.2",
-          "infrastructure": "1.0.0"
+          "Swashbuckle.AspNetCore": "6.6.2"
         },
         "runtime": {
           "Web.dll": {}
@@ -929,7 +929,7 @@
           }
         }
       },
-      "infrastructure/1.0.0": {
+      "Infrastructure/1.0.0": {
         "dependencies": {
           "Aplication": "1.0.0",
           "BCrypt.Net-Next": "4.1.0",
@@ -938,7 +938,7 @@
           "Microsoft.EntityFrameworkCore.SqlServer": "8.0.0"
         },
         "runtime": {
-          "infrastructure.dll": {
+          "Infrastructure.dll": {
             "assemblyVersion": "1.0.0",
             "fileVersion": "1.0.0.0"
           }
@@ -1501,7 +1501,7 @@
       "serviceable": false,
       "sha512": ""
     },
-    "infrastructure/1.0.0": {
+    "Infrastructure/1.0.0": {
       "type": "project",
       "serviceable": false,
       "sha512": ""

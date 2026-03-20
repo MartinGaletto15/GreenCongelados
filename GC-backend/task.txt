@@ -26,15 +26,6 @@ PRODUCTCATEGORY
 No tiene endpoints propios, se maneja desde el servicio de product
 No tiene servicio propio, se maneja desde el servicio de product
 
-PROMOTIONS [Solo admins]
-Metodos CRUD basicos
-
-SHIPPINGCOSTS [Solo admins]
-Metodos CRUD basicos
-
-PROMOTION [Solo admins]
-Metodos CRUD basicos
-
 [x] USERS
 [x] CART
 [x] CARTITEM
@@ -45,4 +36,4 @@ Metodos CRUD basicos
 [] PRODUCT
 [] PRODUCTCATEGORY
 [x] PROMOTION
-[Actual] SHIPPINGCOST
+[x] SHIPPINGCOST

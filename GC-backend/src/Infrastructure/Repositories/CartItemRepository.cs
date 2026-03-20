@@ -20,7 +20,7 @@ public class CartItemRepository : GenericRepository<CartItem>, ICartItemReposito
             .ToListAsync();
     }
 
-    public async Task<Cart> GetUserCartAsync(int userId)
+    public async Task<Cart?> GetUserCartAsync(int userId)
     {
         return await _context.Set<Cart>()
             .Include(c => c.CartItems)
