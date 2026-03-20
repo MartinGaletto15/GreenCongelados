@@ -20,7 +20,16 @@ public class GlobalExceptionHandlingMiddleware: IMiddleware
         catch (AppValidationException ex)
         {
             _logger.LogError(ex, ex.Message);
-            context.Response.StatusCode = 400; // Bad Request
+            
+            if (ex.ErrorCode == "PRODUCT_CATEGORY_CONFLICT")
+            {
+                context.Response.StatusCode = 409; // Conflict
+            }
+            else
+            {
+                context.Response.StatusCode = 400; // Bad Request
+            }
+            
             await context.Response.WriteAsJsonAsync(new { error = ex.Message, code = ex.ErrorCode });
         }
         catch (Exception ex)

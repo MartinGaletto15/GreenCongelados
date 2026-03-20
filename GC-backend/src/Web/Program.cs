@@ -31,6 +31,7 @@ builder.Services.AddEndpointsApiExplorer(); // For Swagger/OpenAPI
 builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IProductRepository, ProductRepository>();
+builder.Services.AddScoped<IProductCategoryRepository, ProductCategoryRepository>();
 builder.Services.AddScoped<IPasswordHasher, BcryptPasswordHasher>();
 builder.Services.AddScoped<IJwtProvider, JwtProvider>();
 builder.Services.AddScoped<IUserWriteService, UserService>();
@@ -41,7 +42,8 @@ builder.Services.AddScoped<ICategoryReadOnlyService, CategoryService>();
 builder.Services.AddScoped<ICategoryWriteService, CategoryService>();
 builder.Services.AddScoped<IOrderService, OrderService>();
 builder.Services.AddScoped<IOrderItemService, OrderItemService>();
-builder.Services.AddScoped<IProductCategoryService, ProductCategoryService>();
+builder.Services.AddScoped<IProductCategoryReadOnlyService, ProductCategoryService>();
+builder.Services.AddScoped<IProductCategoryWriteService, ProductCategoryService>();
 builder.Services.AddScoped<IProductReadOnlyService, ProductService>();
 builder.Services.AddScoped<IProductWriteService, ProductService>();
 builder.Services.AddScoped<IPromotionReadOnlyService, PromotionService>();

@@ -1,6 +1,7 @@
 namespace Applications.dtos;
 
 public record CategoryDTO(
+    int IdCategory,
     string Name,
     string? UrlImage
 )
@@ -8,6 +9,7 @@ public record CategoryDTO(
     public static CategoryDTO Create(Domain.Entities.Category entity)
     {
         var dto = new CategoryDTO(
+            entity.IdCategory,
             entity.Name,
             entity.ImageUrl
         );

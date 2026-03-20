@@ -24,7 +24,13 @@ public class Order
     public decimal ShippingCost { get; set; }
 
     [Required] 
-    public required string ShippingAddress { get; set; }
+    public required string ShippingStreet { get; set; }
+
+    [Required] 
+    public required string ShippingDpto { get; set; }
+
+    [Required] 
+    public required string ShippingReference { get; set; }
 
     [Required]
     public required DateTime OrderDate { get; set; }

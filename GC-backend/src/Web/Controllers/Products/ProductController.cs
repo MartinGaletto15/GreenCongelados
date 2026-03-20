@@ -1,4 +1,5 @@
 using Aplication.Interfaces.Product;
+using Aplication.Interfaces.ProductCategory;
 using Applications.dtos;
 using Applications.dtos.Requests;
 using Microsoft.AspNetCore.Mvc;
@@ -13,11 +14,19 @@ public class ProductController : ControllerBase
 {
     private readonly IProductWriteService _writeProductService;
     private readonly IProductReadOnlyService _readProductService;
+    private readonly IProductCategoryReadOnlyService _readProductCategoryService;
+    private readonly IProductCategoryWriteService _writeProductCategoryService;
 
-    public ProductController(IProductWriteService writeProductService, IProductReadOnlyService readProductService)
+    public ProductController(
+        IProductWriteService writeProductService,
+        IProductReadOnlyService readProductService,
+        IProductCategoryReadOnlyService readProductCategoryService,
+        IProductCategoryWriteService writeProductCategoryService)
     {
         _writeProductService = writeProductService;
         _readProductService = readProductService;
+        _readProductCategoryService = readProductCategoryService;
+        _writeProductCategoryService = writeProductCategoryService;
     }
 
     [HttpGet]
@@ -54,6 +63,37 @@ public class ProductController : ControllerBase
     public async Task<ActionResult> DeleteAsync(int id)
     {
         await _writeProductService.DeleteAsync(id);
+        return NoContent();
+    }
+
+    // PRODUCT CATEGORY NESTED ROUTES
+
+    [HttpGet("{id}/categories")]
+    [AllowAnonymous]
+    public async Task<ActionResult<IEnumerable<CategoryDTO>>> GetCategoriesAsync(int id)
+    {
+        var result = await _readProductCategoryService.GetCategoriesByProductIdAsync(id);
+        return Ok(result);
+    }
+
+    [HttpPost("{id}/categories")]
+    public async Task<ActionResult> AddCategoryAsync(int id, ProductAssociateCategoryRequest request)
+    {
+        await _writeProductCategoryService.AddCategoryToProductAsync(id, request.IdCategory);
+        return NoContent();
+    }
+
+    [HttpDelete("{id}/categories/{idCategory}")]
+    public async Task<ActionResult> RemoveCategoryAsync(int id, int idCategory)
+    {
+        await _writeProductCategoryService.RemoveCategoryFromProductAsync(id, idCategory);
+        return NoContent();
+    }
+
+    [HttpPut("{id}/categories")]
+    public async Task<ActionResult> SyncCategoriesAsync(int id, [FromBody] IEnumerable<int> categoryIds)
+    {
+        await _writeProductCategoryService.SyncCategoriesToProductAsync(id, categoryIds);
         return NoContent();
     }
 }

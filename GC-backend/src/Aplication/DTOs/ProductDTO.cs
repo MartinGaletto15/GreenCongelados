@@ -1,6 +1,7 @@
 namespace Applications.dtos;
 
 public record ProductDTO(
+    int IdProduct,
     string Name,
     string? UrlImagePrimary,
     string DescriptionShort,
@@ -16,6 +17,7 @@ public record ProductDTO(
     public static ProductDTO Create(Domain.Entities.Product entity)
     {
         var dto = new ProductDTO(
+            entity.IdProduct,
             entity.Name,
             entity.UrlImagePrimary,
             entity.DescriptionShort,
