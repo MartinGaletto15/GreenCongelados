@@ -9,7 +9,7 @@ public record OrderItemDTO(
     public static OrderItemDTO Create(Domain.Entities.OrderItem entity)
     {
         var dto = new OrderItemDTO(
-            ProductDTO.Create(entity.Product),
+            entity.Product != null ? ProductDTO.Create(entity.Product) : null!,
             entity.Quantity,
             entity.UnitPrice
         );

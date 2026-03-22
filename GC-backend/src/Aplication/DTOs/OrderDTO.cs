@@ -1,6 +1,7 @@
 namespace Applications.dtos;
 
 public record OrderDTO(
+    int IdOrder,
     UserDTO? Courier,
     PromotionDTO? Promotion,
     decimal ShippingCost,
@@ -11,12 +12,14 @@ public record OrderDTO(
     decimal GlobalDiscount,
     decimal Subtotal,
     decimal Total,
-    string OrderStatus
+    string OrderStatus,
+    List<OrderItemDTO> OrderItems
 )
 {
     public static OrderDTO Create(Domain.Entities.Order entity)
     {
         return new OrderDTO(
+            entity.IdOrder,
             entity.Courier != null ? UserDTO.Create(entity.Courier) : null,
             entity.Promotion != null ? PromotionDTO.Create(entity.Promotion) : null,
             entity.ShippingCost,
@@ -27,7 +30,8 @@ public record OrderDTO(
             entity.GlobalDiscount,
             entity.Subtotal,
             entity.Total,
-            entity.OrderStatus.ToString()
+            entity.OrderStatus.ToString(),
+            entity.OrderItems != null ? OrderItemDTO.Create(entity.OrderItems) : new List<OrderItemDTO>()
         );
     }
 

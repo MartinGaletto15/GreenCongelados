@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(GCContext))]
-    [Migration("20260320222756_InitialCreate")]
-    partial class InitialCreate
+    [Migration("20260321234751_Initial")]
+    partial class Initial
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -321,6 +321,9 @@ namespace Infrastructure.Migrations
 
                     b.Property<decimal>("Cost")
                         .HasColumnType("decimal(10, 2)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
 
                     b.Property<string>("Name")
                         .IsRequired()

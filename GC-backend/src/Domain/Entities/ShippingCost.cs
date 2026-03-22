@@ -15,4 +15,7 @@ public class ShippingCost
     [Required]
     [Column(TypeName = "decimal(10, 2)")]
     public required decimal Cost { get; set; }
+
+    [Required]
+    public required bool IsActive { get; set; }
 }

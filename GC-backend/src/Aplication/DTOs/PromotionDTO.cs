@@ -1,6 +1,7 @@
 namespace Applications.dtos;
 
 public record PromotionDTO(
+    int IdPromotion,
     string CouponCode,
     decimal DiscountValue,
     string DiscountType,
@@ -12,6 +13,7 @@ public record PromotionDTO(
     public static PromotionDTO Create(Domain.Entities.Promotion entity)
     {
         var dto = new PromotionDTO(
+            entity.IdPromotion,
             entity.CouponCode,
             entity.DiscountValue,
             entity.DiscountType.ToString(),

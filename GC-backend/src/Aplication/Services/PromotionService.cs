@@ -29,6 +29,13 @@ public class PromotionService : IPromotionReadOnlyService, IPromotionWriteServic
         return PromotionDTO.Create(entity);
     }
 
+    public async Task<PromotionDTO?> GetByCodeAsync(string couponCode)
+    {
+        var entities = await _repository.GetAllAsync();
+        var entity = entities.FirstOrDefault(x => x.CouponCode == couponCode);
+        return entity != null ? PromotionDTO.Create(entity) : null;
+    }
+
     public async Task<PromotionDTO> CreateAsync(CreatePromotionRequest request)
     {
         var entity = new Promotion

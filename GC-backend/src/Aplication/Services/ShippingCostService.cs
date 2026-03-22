@@ -29,12 +29,37 @@ public class ShippingCostService : IShippingCostReadOnlyService, IShippingCostWr
         return ShippingCostDTO.Create(entity);
     }
 
+    public async Task<ShippingCostDTO?> GetActiveAsync()
+    {
+        var entities = await _repository.GetAllAsync();
+        var entity = entities.FirstOrDefault(x => x.IsActive);
+        return entity != null ? ShippingCostDTO.Create(entity) : null;
+    }
+
+    private async Task DeactivateAllOthersAsync(int? exceptId = null)
+    {
+        var allEntities = await _repository.GetAllAsync();
+        var activeEntities = allEntities.Where(x => x.IsActive && x.IdShippingCost != exceptId).ToList();
+        
+        foreach (var entity in activeEntities)
+        {
+            entity.IsActive = false;
+            await _repository.UpdateAsync(entity);
+        }
+    }
+
     public async Task<ShippingCostDTO> CreateAsync(CreateShippingCostRequest request)
     {
+        if (request.IsActive)
+        {
+            await DeactivateAllOthersAsync();
+        }
+
         var entity = new ShippingCost
         {
             Name = request.Name,
-            Cost = request.Cost
+            Cost = request.Cost,
+            IsActive = request.IsActive
         };
 
         await _repository.AddAsync(entity);
@@ -46,8 +71,17 @@ public class ShippingCostService : IShippingCostReadOnlyService, IShippingCostWr
         var entity = await _repository.GetByIdAsync(id);
         if (entity == null) throw new AppValidationException("ShippingCost not found", "SHIPPINGCOST_NOT_FOUND");
 
+        if (request.IsActive.HasValue && request.IsActive.Value)
+        {
+            await DeactivateAllOthersAsync(id);
+        }
+
         entity.Name = request.Name ?? entity.Name;
         entity.Cost = request.Cost ?? entity.Cost;
+        if (request.IsActive.HasValue)
+        {
+            entity.IsActive = request.IsActive.Value;
+        }
 
         await _repository.UpdateAsync(entity);
         return ShippingCostDTO.Create(entity);

@@ -1,39 +1,14 @@
 Crear las validaciones en base a las reglas de negocio (services)
 
-Controllers:
-
-ORDER
-Post order:
-    a - Guardar el ID del usuario que genera el pedido, la fecha actual y Verificar el codigo de promocion
-    b - Verificar el shipping cost y guardarlo
-    c - Guardar campos de envio asociados al usuario
-    d - Guardar promociones y total
-    e - Inicializar estado en pendiente
-Get order by id --> Verificar que el usuario sea dueño de esa orden o que sea Administrador/Cadete
-Get order --> Verificar que sea Administrador/superadministrador
-Get orderMe --> Agregar
-Put order --> Verificar que esa orden sea del usuario y que no este en estado entregado
-put orderStatus --> Verificar que sea Administrador/Cadete
-Delete order --> Debe funcionar como un cambio de estado a cancelado
-
-ORDERITEM
-Todas las operaciones de order item suceden dentro del servicio de order, no tienen endpoints propios ni validaciones propias
-
-PRODUCT [Solo admins]
-Metodos CRUD basicos
-
-PRODUCTCATEGORY
-No tiene endpoints propios, se maneja desde el servicio de product
-No tiene servicio propio, se maneja desde el servicio de product
-
 [x] USERS
 [x] CART
 [x] CARTITEM
 [x] ADDRESS
 [x] CATEGORY
-[] ORDER
-[] ORDERITEM
-[] PRODUCT
-[] PRODUCTCATEGORY
+[x] ORDER
+[x] ORDERITEM
+[x] PRODUCT
+[x] PRODUCTCATEGORY
 [x] PROMOTION
 [x] SHIPPINGCOST
+[] Pruebas unitarias
