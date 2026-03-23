@@ -8,4 +8,5 @@ public interface IOrderReadOnlyService
     Task<OrderDTO> GetOrderByIdAsync(int id, int userId, string role);
     Task<IEnumerable<OrderDTO>> GetMyOrdersAsync(int userId);
     Task<OrderDTO> GetMyOrderByIdAsync(int id, int userId, string role);
+    Task<IEnumerable<OrderDTO>> GetOrdersByCourierAsync(int courierId);
 }

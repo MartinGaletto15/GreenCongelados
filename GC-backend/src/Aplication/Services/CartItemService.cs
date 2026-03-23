@@ -12,10 +12,12 @@ namespace Aplication.Services;
 public class CartItemService : ICartItemReadOnlyService, ICartItemWriteService
 {
     private readonly ICartItemRepository _repository;
+    private readonly IUnitOfWork _unitOfWork;
 
-    public CartItemService(ICartItemRepository repository)
+    public CartItemService(ICartItemRepository repository, IUnitOfWork unitOfWork)
     {
         _repository = repository;
+        _unitOfWork = unitOfWork;
     }
 
     // Gets all cart items for a specific user.
@@ -52,6 +54,7 @@ public class CartItemService : ICartItemReadOnlyService, ICartItemWriteService
         };
 
         await _repository.AddAsync(cartItem);
+        await _unitOfWork.SaveChangesAsync();
         return CartItemDTO.Create(cartItem);
     }
 
@@ -66,6 +69,7 @@ public class CartItemService : ICartItemReadOnlyService, ICartItemWriteService
         cartItem!.Quantity = request.Quantity;
 
         await _repository.UpdateAsync(cartItem);
+        await _unitOfWork.SaveChangesAsync();
         return CartItemDTO.Create(cartItem);
     }
 
@@ -78,5 +82,6 @@ public class CartItemService : ICartItemReadOnlyService, ICartItemWriteService
         CartItemValidator.ValidateCartItemOwnership(cartItem, cart!);
 
         await _repository.DeleteAsync(cartItem!);
+        await _unitOfWork.SaveChangesAsync();
     }
 }

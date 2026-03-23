@@ -37,9 +37,6 @@ public class Product
     [Column("product_status")]
     public ProductStatus Status { get; set; } = ProductStatus.Available;
 
-    [Required]
-    public required bool IsActive { get; set; } = true; // Default value is true
-
     // Navigation properties
     public ICollection<OrderItem> OrderItems { get; set; } = new List<OrderItem>();
     public ICollection<ProductCategory> ProductCategories { get; set; } = new List<ProductCategory>();

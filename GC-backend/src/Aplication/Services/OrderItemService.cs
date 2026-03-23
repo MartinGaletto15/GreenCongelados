@@ -10,10 +10,12 @@ namespace Aplication.Services;
 public class OrderItemService : IOrderItemReadOnlyService, IOrderItemWriteService
 {
     private readonly IOrderItemRepository _repository;
+    private readonly IUnitOfWork _unitOfWork;
 
-    public OrderItemService(IOrderItemRepository repository)
+    public OrderItemService(IOrderItemRepository repository, IUnitOfWork unitOfWork)
     {
         _repository = repository;
+        _unitOfWork = unitOfWork;
     }
 
     public async Task<IEnumerable<OrderItemDTO>> GetByOrderIdAsync(int orderId)
@@ -35,6 +37,7 @@ public class OrderItemService : IOrderItemReadOnlyService, IOrderItemWriteServic
         };
 
         await _repository.AddAsync(entity);
+        await _unitOfWork.SaveChangesAsync();
         return OrderItemDTO.Create(entity);
     }
 }

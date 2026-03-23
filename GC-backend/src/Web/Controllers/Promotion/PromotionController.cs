@@ -6,7 +6,7 @@ using Applications.dtos.Requests;
 
 namespace Web.Controllers.Promotion;
 
-[Authorize(Roles = "Admin,SuperAdmin")]
+[Authorize(Roles = "ADMIN,SUPERADMIN")]
 [ApiController]
 [Route("api/promotions")]
 public class PromotionController : ControllerBase

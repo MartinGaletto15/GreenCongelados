@@ -34,7 +34,7 @@ public class CategoryController : ControllerBase
     }
 
     [HttpPost]
-    [Authorize(Roles = "Superadmin,Admin")]
+    [Authorize(Roles = "SUPERADMIN,ADMIN")]
     public async Task<ActionResult<CategoryDTO>> CreateAsync(CreateCategoryRequest request)
     {
         var result = await _writeService.CreateAsync(request);
@@ -42,7 +42,7 @@ public class CategoryController : ControllerBase
     }
 
     [HttpPut("{id}")]
-    [Authorize(Roles = "Superadmin,Admin")]
+    [Authorize(Roles = "SUPERADMIN,ADMIN")]
     public async Task<ActionResult<CategoryDTO>> UpdateAsync(int id, UpdateCategoryRequest request)
     {
         var result = await _writeService.UpdateAsync(id, request);
@@ -50,7 +50,7 @@ public class CategoryController : ControllerBase
     }
 
     [HttpDelete("{id}")]
-    [Authorize(Roles = "Superadmin,Admin")]
+    [Authorize(Roles = "SUPERADMIN,ADMIN")]
     public async Task<ActionResult> DeleteAsync(int id)
     {
         await _writeService.DeleteAsync(id);

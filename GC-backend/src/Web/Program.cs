@@ -16,18 +16,25 @@ using Aplication.Interfaces.ShippingCost;
 using Infrastructure.Security;
 using Aplication.Interfaces.Security;
 using Aplication.Interfaces.CartItem;
+using Aplication.Interfaces.User;
 using Web.Middlewares;
 using Microsoft.OpenApi.Models;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // --- 1. Service Configuration (Add Services to the container) ---
 // Here you add services like Entity Framework, CORS, Authentication, etc.
-builder.Services.AddControllers(); // If using MVC/API controllers
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+    }); // If using MVC/API controllers
 builder.Services.AddEndpointsApiExplorer(); // For Swagger/OpenAPI
+builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IProductRepository, ProductRepository>();
@@ -59,6 +66,8 @@ builder.Services.AddScoped<ICartItemRepository, CartItemRepository>();
 builder.Services.AddScoped<IAddressRepository, AddressRepository>();
 builder.Services.AddScoped<ICartItemReadOnlyService, CartItemService>();
 builder.Services.AddScoped<ICartItemWriteService, CartItemService>();
+builder.Services.AddScoped<ICadetReadOnlyService, CadetService>();
+builder.Services.AddScoped<ICadetWriteService, CadetService>();
 builder.Services.AddTransient<GlobalExceptionHandlingMiddleware>();
 
 var jwtSecret = builder.Configuration["JwtSettings:Secret"] 

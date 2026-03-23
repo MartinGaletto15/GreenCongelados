@@ -10,10 +10,12 @@ namespace Aplication.Services;
 public class CategoryService : ICategoryReadOnlyService, ICategoryWriteService
 {
     private readonly IGenericRepository<Category> _repository;
+    private readonly IUnitOfWork _unitOfWork;
 
-    public CategoryService(IGenericRepository<Category> repository)
+    public CategoryService(IGenericRepository<Category> repository, IUnitOfWork unitOfWork)
     {
         _repository = repository;
+        _unitOfWork = unitOfWork;
     }
 
     public async Task<IEnumerable<CategoryDTO>> GetAllAsync()
@@ -38,6 +40,7 @@ public class CategoryService : ICategoryReadOnlyService, ICategoryWriteService
         };
 
         await _repository.AddAsync(entity);
+        await _unitOfWork.SaveChangesAsync();
         return CategoryDTO.Create(entity);
     }
 
@@ -50,6 +53,7 @@ public class CategoryService : ICategoryReadOnlyService, ICategoryWriteService
         entity.ImageUrl = request.ImageUrl ?? entity.ImageUrl;
 
         await _repository.UpdateAsync(entity);
+        await _unitOfWork.SaveChangesAsync();
         return CategoryDTO.Create(entity);
     }
 
@@ -58,5 +62,6 @@ public class CategoryService : ICategoryReadOnlyService, ICategoryWriteService
         var entity = await _repository.GetByIdAsync(id);
         if (entity == null) throw new AppValidationException("Category not found", "CATEGORY_NOT_FOUND");
         await _repository.DeleteAsync(entity);
+        await _unitOfWork.SaveChangesAsync();
     }
 }

@@ -9,10 +9,10 @@ public class OrderItem
 
     [Required]
     public required int IdOrder { get; set; }
-    public required Order Order { get; set; }
+    public Order? Order { get; set; }
     [Required]
     public required int IdProduct { get; set; }
-    public required Product Product { get; set; }   
+    public Product? Product { get; set; }   
 
     [Required]
     public required int Quantity { get; set; }

@@ -8,7 +8,7 @@ namespace Web.Controllers.ShippingCosts;
 
 [ApiController]
 [Route("api/shipping-cost")]
-[Authorize(Roles = "Admin,SuperAdmin")]
+[Authorize(Roles = "ADMIN,SUPERADMIN")]
 public class ShippingCostController : ControllerBase
 {
     private readonly IShippingCostWriteService _writeService;

@@ -10,10 +10,12 @@ namespace Aplication.Services;
 public class PromotionService : IPromotionReadOnlyService, IPromotionWriteService
 {
     private readonly IGenericRepository<Promotion> _repository;
+    private readonly IUnitOfWork _unitOfWork;
 
-    public PromotionService(IGenericRepository<Promotion> repository)
+    public PromotionService(IGenericRepository<Promotion> repository, IUnitOfWork unitOfWork)
     {
         _repository = repository;
+        _unitOfWork = unitOfWork;
     }
 
     public async Task<IEnumerable<PromotionDTO>> GetAllAsync()
@@ -49,6 +51,7 @@ public class PromotionService : IPromotionReadOnlyService, IPromotionWriteServic
         };
 
         await _repository.AddAsync(entity);
+        await _unitOfWork.SaveChangesAsync();
         return PromotionDTO.Create(entity);
     }
 
@@ -65,6 +68,7 @@ public class PromotionService : IPromotionReadOnlyService, IPromotionWriteServic
         entity.EndDate = request.EndDate ?? entity.EndDate;
 
         await _repository.UpdateAsync(entity);
+        await _unitOfWork.SaveChangesAsync();
         return PromotionDTO.Create(entity);
     }
 
@@ -73,5 +77,6 @@ public class PromotionService : IPromotionReadOnlyService, IPromotionWriteServic
         var entity = await _repository.GetByIdAsync(id);
         if (entity == null) throw new AppValidationException("Promotion not found", "PROMOTION_NOT_FOUND");
         await _repository.DeleteAsync(entity);
+        await _unitOfWork.SaveChangesAsync();
     }
 }

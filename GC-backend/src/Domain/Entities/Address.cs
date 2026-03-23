@@ -11,7 +11,7 @@ public class Address
     [Required]
     public required int IdUser { get; set; }
     [ForeignKey("IdUser")]
-    public required User User { get; set; }
+    public User? User { get; set; }
 
     [Required]
     [MaxLength(100)]

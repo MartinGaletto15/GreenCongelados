@@ -11,7 +11,7 @@ public class Order
 
     [Required]
     public required int IdUser { get; set; }
-    public required User User { get; set; }
+    public User? User { get; set; }
 
     public int? IdCourier { get; set; }
     public User? Courier { get; set; }
@@ -26,11 +26,9 @@ public class Order
     [Required] 
     public required string ShippingStreet { get; set; }
 
-    [Required] 
-    public required string ShippingDpto { get; set; }
+    public string? ShippingDpto { get; set; }
 
-    [Required] 
-    public required string ShippingReference { get; set; }
+    public string? ShippingReference { get; set; }
 
     [Required]
     public required DateTime OrderDate { get; set; }

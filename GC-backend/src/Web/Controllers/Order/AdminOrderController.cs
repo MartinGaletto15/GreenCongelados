@@ -7,9 +7,9 @@ using System.Security.Claims;
 
 namespace GC.Web.Controllers.Order;
 
+[Authorize(Roles = "ADMIN,SUPERADMIN")]
 [ApiController]
 [Route("api/[controller]")]
-[Authorize(Roles = "Admin,SuperAdmin")]
 public class AdminOrderController : ControllerBase
 {
     private readonly IOrderReadOnlyService _readOnlyService;
@@ -29,7 +29,7 @@ public class AdminOrderController : ControllerBase
     }
 
     [HttpGet("{id}")]
-    [Authorize(Roles = "Admin,SuperAdmin,Cadet")]
+    [Authorize(Roles = "ADMIN,SUPERADMIN,CADET")]
     public async Task<ActionResult<OrderDTO>> GetOrderById(int id)
     {
         var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);

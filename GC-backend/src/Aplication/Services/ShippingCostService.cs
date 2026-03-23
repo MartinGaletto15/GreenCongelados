@@ -10,10 +10,12 @@ namespace Aplication.Services;
 public class ShippingCostService : IShippingCostReadOnlyService, IShippingCostWriteService
 {
     private readonly IGenericRepository<ShippingCost> _repository;
+    private readonly IUnitOfWork _unitOfWork;
 
-    public ShippingCostService(IGenericRepository<ShippingCost> repository)
+    public ShippingCostService(IGenericRepository<ShippingCost> repository, IUnitOfWork unitOfWork)
     {
         _repository = repository;
+        _unitOfWork = unitOfWork;
     }
 
     public async Task<IEnumerable<ShippingCostDTO>> GetAllAsync()
@@ -45,6 +47,7 @@ public class ShippingCostService : IShippingCostReadOnlyService, IShippingCostWr
         {
             entity.IsActive = false;
             await _repository.UpdateAsync(entity);
+            await _unitOfWork.SaveChangesAsync();
         }
     }
 
@@ -63,6 +66,7 @@ public class ShippingCostService : IShippingCostReadOnlyService, IShippingCostWr
         };
 
         await _repository.AddAsync(entity);
+        await _unitOfWork.SaveChangesAsync();
         return ShippingCostDTO.Create(entity);
     }
 
@@ -84,6 +88,7 @@ public class ShippingCostService : IShippingCostReadOnlyService, IShippingCostWr
         }
 
         await _repository.UpdateAsync(entity);
+        await _unitOfWork.SaveChangesAsync();
         return ShippingCostDTO.Create(entity);
     }
 
@@ -92,5 +97,6 @@ public class ShippingCostService : IShippingCostReadOnlyService, IShippingCostWr
         var entity = await _repository.GetByIdAsync(id);
         if (entity == null) throw new AppValidationException("ShippingCost not found", "SHIPPINGCOST_NOT_FOUND");
         await _repository.DeleteAsync(entity);
+        await _unitOfWork.SaveChangesAsync();
     }
 }

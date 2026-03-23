@@ -4,5 +4,5 @@ namespace Aplication.Interfaces.Security;
 
 public interface IJwtProvider
 {
-    string GenerateToken(User user);
+    string GenerateToken(Domain.Entities.User user);
 }

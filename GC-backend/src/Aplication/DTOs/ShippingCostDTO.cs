@@ -1,6 +1,7 @@
 namespace Applications.dtos;
 
 public record ShippingCostDTO(
+    int Id,
     string Name,
     decimal Cost,
     bool IsActive
@@ -9,6 +10,7 @@ public record ShippingCostDTO(
     public static ShippingCostDTO Create(Domain.Entities.ShippingCost entity)
     {
         var dto = new ShippingCostDTO(
+            entity.IdShippingCost,
             entity.Name,
             entity.Cost,
             entity.IsActive

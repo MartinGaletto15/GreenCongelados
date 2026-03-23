@@ -21,19 +21,25 @@ public class UserService : IUserWriteService, IUserReadOnlyService
     private readonly IPasswordHasher _passwordHasher;
     private readonly IJwtProvider _jwtProvider;
     private readonly ICartItemWriteService _cartItemWriteService;
+    private readonly IUnitOfWork _unitOfWork;
+    private readonly IOrderRepository _orderRepository;
 
     public UserService(
         IUserRepository userRepository, 
         IConfiguration configuration, 
         IPasswordHasher passwordHasher,
         IJwtProvider jwtProvider,
-        ICartItemWriteService cartItemWriteService)
+        ICartItemWriteService cartItemWriteService,
+        IUnitOfWork unitOfWork,
+        IOrderRepository orderRepository)
     {
         _userRepository = userRepository;
         _configuration = configuration;
         _passwordHasher = passwordHasher;
         _jwtProvider = jwtProvider;
         _cartItemWriteService = cartItemWriteService;
+        _unitOfWork = unitOfWork;
+        _orderRepository = orderRepository;
     }
 
     public async Task<string> LoginAsync(LoginRequest request)
@@ -61,6 +67,7 @@ public class UserService : IUserWriteService, IUserReadOnlyService
         };
 
         await _userRepository.AddAsync(newUser);
+        await _unitOfWork.SaveChangesAsync();
         // Aca se crea el carrito del usuario
         await _cartItemWriteService.CreateCartAsync(newUser.IdUser);
         return UserDTO.Create(newUser);
@@ -87,6 +94,7 @@ public class UserService : IUserWriteService, IUserReadOnlyService
         user.Phone = request.Phone ?? user.Phone;
 
         await _userRepository.UpdateAsync(user);
+        await _unitOfWork.SaveChangesAsync();
         return UserDTO.Create(user);
     }
 
@@ -101,6 +109,7 @@ public class UserService : IUserWriteService, IUserReadOnlyService
 
         user.Role = role;
         await _userRepository.UpdateAsync(user);
+        await _unitOfWork.SaveChangesAsync();
         return UserDTO.Create(user);
     }
 
@@ -113,6 +122,7 @@ public class UserService : IUserWriteService, IUserReadOnlyService
             throw new AppValidationException($"No se puede eliminar: El usuario con ID {id} no existe.", "USER_NOT_FOUND");
 
         await _userRepository.DeleteAsync(user);
+        await _unitOfWork.SaveChangesAsync();
         return UserDTO.Create(user);
     }
 

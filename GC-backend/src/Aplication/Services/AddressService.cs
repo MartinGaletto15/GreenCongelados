@@ -10,10 +10,12 @@ namespace Aplication.Services;
 public class AddressService : IAddressReadOnlyService, IAddressWriteService
 {
     private readonly IAddressRepository _repository;
+    private readonly IUnitOfWork _unitOfWork;
 
-    public AddressService(IAddressRepository repository)
+    public AddressService(IAddressRepository repository, IUnitOfWork unitOfWork)
     {
         _repository = repository;
+        _unitOfWork = unitOfWork;
     }
 
     public async Task<IEnumerable<AddressDTO>> GetAllAsync()
@@ -48,6 +50,7 @@ public class AddressService : IAddressReadOnlyService, IAddressWriteService
         };
 
         await _repository.AddAsync(entity);
+        await _unitOfWork.SaveChangesAsync();
         return AddressDTO.Create(entity);
     }
 
@@ -61,6 +64,7 @@ public class AddressService : IAddressReadOnlyService, IAddressWriteService
         entity.References = request.References ?? entity.References;
 
         await _repository.UpdateAsync(entity);
+        await _unitOfWork.SaveChangesAsync();
         return AddressDTO.Create(entity);
     }
 
@@ -69,5 +73,6 @@ public class AddressService : IAddressReadOnlyService, IAddressWriteService
         var entity = await _repository.GetByUserIdAsync(idUser);
         if (entity == null) throw new AppValidationException("Address not found", "ADDRESS_NOT_FOUND");
         await _repository.DeleteAsync(entity);
+        await _unitOfWork.SaveChangesAsync();
     }
 }

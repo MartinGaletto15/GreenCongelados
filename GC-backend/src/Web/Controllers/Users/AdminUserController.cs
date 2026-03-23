@@ -7,9 +7,9 @@ using Microsoft.AspNetCore.Authorization;
 
 namespace Web.Controllers.Users;
 
-[Authorize(Roles = "ADMIN,SUPERADMIN")]
 [ApiController]
 [Route("api/admin/users")]
+[Authorize(Roles = "ADMIN,SUPERADMIN")]
 public class AdminUserController : ControllerBase
 {
     private readonly IUserReadOnlyService _userReadOnlyService;

@@ -41,4 +41,15 @@ public class OrderRepository : GenericRepository<Order>, IOrderRepository
             .Where(o => o.IdUser == userId)
             .ToListAsync();
     }
+
+    public async Task<IEnumerable<Order>> GetByCourierIdWithDetailsAsync(int courierId)
+    {
+        return await _context.Orders
+            .Include(o => o.Courier)
+            .Include(o => o.Promotion)
+            .Include(o => o.OrderItems)
+                .ThenInclude(oi => oi.Product)
+            .Where(o => o.IdCourier == courierId)
+            .ToListAsync();
+    }
 }

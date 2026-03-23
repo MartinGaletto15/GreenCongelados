@@ -21,7 +21,7 @@ public class AddressController : ControllerBase
     }
 
     [HttpGet]
-    [Authorize(Roles = "SuperAdmin")]
+    [Authorize(Roles = "SUPERADMIN")]
     public async Task<ActionResult<IEnumerable<AddressDTO>>> GetAllAsync()
     {
         var result = await _readOnlyService.GetAllAsync();
@@ -29,7 +29,7 @@ public class AddressController : ControllerBase
     }
 
     [HttpGet("{id}")]
-    [Authorize(Roles = "Admin,SuperAdmin")]
+    [Authorize(Roles = "ADMIN,SUPERADMIN")]
     public async Task<ActionResult<AddressDTO>> GetByIdAsync(int id)
     {
         var result = await _readOnlyService.GetByIdAsync(id);

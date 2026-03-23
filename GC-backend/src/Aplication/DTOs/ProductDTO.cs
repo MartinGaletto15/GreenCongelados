@@ -10,8 +10,7 @@ public record ProductDTO(
     int CurrentStock,
     decimal? Weight,
     decimal? PreparationTime,
-    string ProductStatus,
-    bool IsActive
+    string ProductStatus
 )
 {
     public static ProductDTO Create(Domain.Entities.Product entity)
@@ -26,8 +25,7 @@ public record ProductDTO(
             entity.CurrentStock,
             entity.Weight,
             entity.PreparationTime,
-            entity.Status.ToString(),
-            entity.IsActive
+            entity.Status.ToString()
         );
         return dto;
     }

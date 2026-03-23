@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Authorization;
 
 namespace Web.Controllers.Products;
 
-[Authorize(Roles = "Admin,SuperAdmin")]
+[Authorize(Roles = "ADMIN,SUPERADMIN")]
 [ApiController]
 [Route("api/products")]
 public class ProductController : ControllerBase

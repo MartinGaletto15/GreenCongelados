@@ -1,6 +1,7 @@
 namespace Applications.dtos;
 
 public record AddressDTO(
+    int Id,
     string Street,
     string? Dpto,
     string? References
@@ -9,6 +10,7 @@ public record AddressDTO(
     public static AddressDTO Create(Domain.Entities.Address entity)
     {
         var dto = new AddressDTO(
+            entity.IdAddress,
             entity.Street,
             entity.Dpto,
             entity.References

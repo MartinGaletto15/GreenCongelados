@@ -11,10 +11,12 @@ namespace Aplication.Services;
 public class ProductService : IProductReadOnlyService, IProductWriteService
 {
     private readonly IProductRepository _repository;
+    private readonly IUnitOfWork _unitOfWork;
 
-    public ProductService(IProductRepository repository)
+    public ProductService(IProductRepository repository, IUnitOfWork unitOfWork)
     {
         _repository = repository;
+        _unitOfWork = unitOfWork;
     }
 
     public async Task<IEnumerable<ProductDTO>> GetAllAsync()
@@ -44,11 +46,11 @@ public class ProductService : IProductReadOnlyService, IProductWriteService
             CurrentStock = request.CurrentStock,
             Weight = request.Weight,
             PreparationTime = request.PreparationTime,
-            Status = request.Status,
-            IsActive = request.IsActive
+            Status = request.Status
         };
 
         await _repository.AddAsync(entity);
+        await _unitOfWork.SaveChangesAsync();
         return ProductDTO.Create(entity);
     }
 
@@ -68,9 +70,9 @@ public class ProductService : IProductReadOnlyService, IProductWriteService
         entity.Weight = request.Weight ?? entity.Weight;
         entity.PreparationTime = request.PreparationTime ?? entity.PreparationTime;
         entity.Status = request.Status ?? entity.Status;
-        entity.IsActive = request.IsActive ?? entity.IsActive;
 
         await _repository.UpdateAsync(entity);
+        await _unitOfWork.SaveChangesAsync();
         return ProductDTO.Create(entity);
     }
 
@@ -79,5 +81,6 @@ public class ProductService : IProductReadOnlyService, IProductWriteService
         var entity = await _repository.GetByIdAsync(id);
         if (entity == null) throw new AppValidationException("Product not found", "PRODUCT_NOT_FOUND");
         await _repository.DeleteAsync(entity);
+        await _unitOfWork.SaveChangesAsync();
     }
 }

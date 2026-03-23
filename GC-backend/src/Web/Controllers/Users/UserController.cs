@@ -25,6 +25,14 @@ public class UserController : ControllerBase
     [HttpGet("{id}")]
     public async Task<ActionResult<UserDTO>> GetUserByIdAsync([FromRoute] int id)
     {
+        var currentUserId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+        var role = User.FindFirstValue(ClaimTypes.Role) ?? "";
+
+        if (currentUserId != id && role != "ADMIN" && role != "SUPERADMIN")
+        {
+            return Forbid();
+        }
+
         var user = await _userReadOnlyService.GetUserByIdAsync(id);
         return Ok(user);
     }
