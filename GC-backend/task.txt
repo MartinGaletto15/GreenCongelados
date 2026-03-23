@@ -1,14 +1,4 @@
-Crear las validaciones en base a las reglas de negocio (services)
-
-[x] USERS
-[x] CART
-[x] CARTITEM
-[x] ADDRESS
-[x] CATEGORY
-[x] ORDER
-[x] ORDERITEM
-[x] PRODUCT
-[x] PRODUCTCATEGORY
-[x] PROMOTION
-[x] SHIPPINGCOST
-[] Pruebas unitarias
+[] Mailing
+[] Pasarela de pagos (?)
+[] Cadetes:
+    1 - Tratar diferente a los pedidos cancelados (O solo filtrar por pedidos no cancelados)
