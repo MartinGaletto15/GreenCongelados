@@ -26,15 +26,7 @@ public class OrderItemService : IOrderItemReadOnlyService, IOrderItemWriteServic
 
     public async Task<OrderItemDTO> CreateAsync(CreateOrderItemRequest request)
     {
-        var entity = new OrderItem
-        {
-            IdProduct = request.IdProduct,
-            Product = null!,
-            IdOrder = request.IdOrder,
-            Order = null!,
-            Quantity = request.Quantity,
-            UnitPrice = request.UnitPrice
-        };
+        var entity = new OrderItem(request.IdProduct, request.Quantity, request.UnitPrice, request.IdOrder);
 
         await _repository.AddAsync(entity);
         await _unitOfWork.SaveChangesAsync();

@@ -5,7 +5,6 @@ using Domain.Entities;
 using Domain.Interfaces;
 using Domain.Exceptions;
 using Domain.Entities.Enums;
-using Domain.Enums.Entities;
 
 namespace Aplication.Services;
 
@@ -61,7 +60,7 @@ public class CadetService : ICadetReadOnlyService, ICadetWriteService
             throw new AppValidationException("La orden no existe", "ORDER_NOT_FOUND");
 
         // 3. Asignar cadete a la orden
-        order.IdCourier = id;
+        order.AssignCourier(id);
         
         await _orderRepository.UpdateAsync(order);
         await _unitOfWork.SaveChangesAsync();
@@ -78,7 +77,7 @@ public class CadetService : ICadetReadOnlyService, ICadetWriteService
         if (order.IdCourier != idCadet)
             throw new AppValidationException("No tienes permiso para actualizar esta orden", "FORBIDDEN");
 
-        order.OrderStatus = status;
+        order.UpdateStatus(status);
         await _orderRepository.UpdateAsync(order);
         await _unitOfWork.SaveChangesAsync();
 

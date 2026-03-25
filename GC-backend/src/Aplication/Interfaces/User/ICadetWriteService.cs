@@ -1,5 +1,5 @@
 using Applications.dtos;
-using Domain.Enums.Entities;
+using Domain.Entities.Enums;
 
 namespace Aplication.Interfaces.User;
 

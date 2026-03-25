@@ -40,15 +40,14 @@ public class PromotionService : IPromotionReadOnlyService, IPromotionWriteServic
 
     public async Task<PromotionDTO> CreateAsync(CreatePromotionRequest request)
     {
-        var entity = new Promotion
-        {
-            CouponCode = request.CouponCode,
-            DiscountValue = request.DiscountValue,
-            DiscountType = request.DiscountType,
-            MinAmount = request.MinAmount,
-            StartDate = request.StartDate,
-            EndDate = request.EndDate
-        };
+        var entity = new Promotion(
+            request.CouponCode,
+            request.DiscountValue,
+            request.DiscountType,
+            request.MinAmount,
+            request.StartDate,
+            request.EndDate
+        );
 
         await _repository.AddAsync(entity);
         await _unitOfWork.SaveChangesAsync();
@@ -60,12 +59,14 @@ public class PromotionService : IPromotionReadOnlyService, IPromotionWriteServic
         var entity = await _repository.GetByIdAsync(id);
         if (entity == null) throw new AppValidationException("Promotion not found", "PROMOTION_NOT_FOUND");
 
-        entity.CouponCode = request.CouponCode ?? entity.CouponCode;
-        entity.DiscountValue = request.DiscountValue ?? entity.DiscountValue;
-        entity.DiscountType = request.DiscountType ?? entity.DiscountType;
-        entity.MinAmount = request.MinAmount ?? entity.MinAmount;
-        entity.StartDate = request.StartDate ?? entity.StartDate;
-        entity.EndDate = request.EndDate ?? entity.EndDate;
+        entity.UpdateDetails(
+            request.CouponCode,
+            request.DiscountValue,
+            request.DiscountType,
+            request.MinAmount,
+            request.StartDate,
+            request.EndDate
+        );
 
         await _repository.UpdateAsync(entity);
         await _unitOfWork.SaveChangesAsync();

@@ -21,7 +21,11 @@ public record OrderDTO(
         return new OrderDTO(
             entity.IdOrder,
             entity.Courier != null ? UserDTO.Create(entity.Courier) : null,
-            entity.Promotion != null ? PromotionDTO.Create(entity.Promotion) : null,
+            entity.Promotion != null ? 
+                (entity.Promotion.DiscountType == Domain.Entities.Enums.DiscountType.FreeShipping 
+                    ? PromotionDTO.Create(entity.Promotion) with { DiscountValue = entity.GlobalDiscount } 
+                    : PromotionDTO.Create(entity.Promotion)) 
+                : null,
             entity.ShippingCost,
             entity.ShippingStreet,
             entity.ShippingDpto,

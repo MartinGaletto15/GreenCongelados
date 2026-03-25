@@ -1,4 +1,4 @@
-using Domain.Enums.Entities;
+using Domain.Entities.Enums;
 
 namespace Applications.dtos.Requests;
 

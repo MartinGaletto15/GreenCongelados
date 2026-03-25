@@ -58,13 +58,12 @@ public class UserService : IUserWriteService, IUserReadOnlyService
 
         string passwordHash = _passwordHasher.Hash(request.Password);
 
-        var newUser = new User
-        {
-            Name = request.Name,
-            LastName = request.LastName,
-            Email = request.Email,
-            Password = passwordHash
-        };
+        var newUser = new User(
+            request.Name,
+            request.LastName,
+            request.Email,
+            passwordHash
+        );
 
         await _userRepository.AddAsync(newUser);
         await _unitOfWork.SaveChangesAsync();
@@ -75,23 +74,19 @@ public class UserService : IUserWriteService, IUserReadOnlyService
 
     public async Task<UserDTO> UpdateUserAsync(int id, UpdateUserRequest request)
     {
-        // Busqueda del usuario previa a la modificacion
         var user = await _userRepository.GetByIdAsync(id);
         if (user == null)
             throw new AppValidationException("El usuario no existe.", "USER_NOT_FOUND");
 
         await UserValidator.ValidateUpdateAsync(id, request, _userRepository, user);
 
-        string passwordHash = string.Empty;
         if (!string.IsNullOrEmpty(request.Password))
         {
-            passwordHash = _passwordHasher.Hash(request.Password);
+            string passwordHash = _passwordHasher.Hash(request.Password);
+            user.UpdatePassword(passwordHash);
         }
         
-        user.Name = request.Name ?? user.Name;
-        user.LastName = request.LastName ?? user.LastName;
-        user.Password = string.IsNullOrEmpty(passwordHash) ? user.Password : passwordHash;
-        user.Phone = request.Phone ?? user.Phone;
+        user.UpdateDetails(request.Name, request.LastName, request.Phone);
 
         await _userRepository.UpdateAsync(user);
         await _unitOfWork.SaveChangesAsync();
@@ -107,7 +102,7 @@ public class UserService : IUserWriteService, IUserReadOnlyService
 
         UserValidator.ValidateRoleUpdate(role, user.Role, performerRole);
 
-        user.Role = role;
+        user.ChangeRole(role);
         await _userRepository.UpdateAsync(user);
         await _unitOfWork.SaveChangesAsync();
         return UserDTO.Create(user);
@@ -117,7 +112,6 @@ public class UserService : IUserWriteService, IUserReadOnlyService
     {
         var user = await _userRepository.GetByIdAsync(id);
         
-        // Uso de AppValidationException si el usuario no existe
         if (user == null)
             throw new AppValidationException($"No se puede eliminar: El usuario con ID {id} no existe.", "USER_NOT_FOUND");
 

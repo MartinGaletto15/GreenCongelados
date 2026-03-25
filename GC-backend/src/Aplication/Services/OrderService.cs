@@ -10,9 +10,9 @@ using Aplication.Interfaces.UserServices;
 using Applications.dtos;
 using Applications.dtos.Requests;
 using Domain.Entities;
+using Domain.Entities.Enums;
 using Domain.Interfaces;
 using Domain.Exceptions;
-using Domain.Enums.Entities;
 
 namespace Aplication.Services;
 
@@ -25,10 +25,9 @@ public class OrderService : IOrderReadOnlyService, IOrderWriteService
     private readonly IShippingCostReadOnlyService _shippingCostService;
     private readonly ICartItemReadOnlyService _cartItemReadOnlyService;
     private readonly ICartItemWriteService _cartItemWriteService;
-    private readonly IOrderItemWriteService _orderItemService;
-    private readonly IProductReadOnlyService _productService;
     private readonly IUserReadOnlyService _userService;
     private readonly IAddressReadOnlyService _addressService;
+    private readonly IGenericRepository<Promotion> _promotionRepository;
 
     public OrderService(
         IOrderRepository repository,
@@ -38,10 +37,9 @@ public class OrderService : IOrderReadOnlyService, IOrderWriteService
         IShippingCostReadOnlyService shippingCostService,
         ICartItemReadOnlyService cartItemReadOnlyService,
         ICartItemWriteService cartItemWriteService,
-        IOrderItemWriteService orderItemService,
-        IProductReadOnlyService productService,
         IUserReadOnlyService userService,
-        IAddressReadOnlyService addressService)
+        IAddressReadOnlyService addressService,
+        IGenericRepository<Promotion> promotionRepository)
     {
         _repository = repository;
         _productRepository = productRepository;
@@ -50,10 +48,9 @@ public class OrderService : IOrderReadOnlyService, IOrderWriteService
         _shippingCostService = shippingCostService;
         _cartItemReadOnlyService = cartItemReadOnlyService;
         _cartItemWriteService = cartItemWriteService;
-        _orderItemService = orderItemService;
-        _productService = productService;
         _userService = userService;
         _addressService = addressService;
+        _promotionRepository = promotionRepository;
     }
 
     public async Task<IEnumerable<OrderDTO>> GetAllOrdersAsync()
@@ -95,99 +92,41 @@ public class OrderService : IOrderReadOnlyService, IOrderWriteService
         await _userService.GetUserByIdAsync(userId);
         var address = await _addressService.GetByUserIdAsync(userId);
         
-        // 1. Fetch Cart Items
         var cartItems = await _cartItemReadOnlyService.GetCartItemsAsync(userId);
         if (!cartItems.Any()) throw new AppValidationException("Cart is empty", "EMPTY_CART");
 
-        // 2. Fetch Products and Validate Stock
-        var productsToUpdate = new List<(Product Entity, int Quantity)>();
-        decimal subtotal = 0;
-
+        var productsWithQuantity = new List<(Product Product, int Quantity)>();
         foreach (var cartItem in cartItems)
         {
             var product = await _productRepository.GetByIdAsync(cartItem.ProductId);
             if (product == null) throw new AppValidationException($"Product {cartItem.ProductId} not found", "PRODUCT_NOT_FOUND");
-            
-            if (product.CurrentStock < cartItem.Quantity)
-                throw new AppValidationException($"Insufficient stock for product: {product.Name}. Available: {product.CurrentStock}", "INSUFFICIENT_STOCK");
-
-            subtotal += product.Price * cartItem.Quantity;
-            productsToUpdate.Add((product, cartItem.Quantity));
+            productsWithQuantity.Add((product, cartItem.Quantity));
         }
 
-        // 3. Handle Promotion
         var promotion = request.CouponCode != null 
-            ? await _promotionService.GetByCodeAsync(request.CouponCode) 
+            ? (await _promotionRepository.GetAllAsync()).FirstOrDefault(x => x.CouponCode == request.CouponCode)
             : null;
 
-        decimal discount = 0;
-        decimal shippingDiscount = 1;
-        
-        if (promotion != null)
-        {
-            var now = DateTime.Now;
-            if (now < promotion.StartDate || now > promotion.EndDate)
-                throw new AppValidationException("The promotion coupon has expired or is not yet valid", "PROMOTION_EXPIRED");
-
-            if (promotion.MinAmount.HasValue && subtotal < promotion.MinAmount.Value)
-                throw new AppValidationException($"Min amount for promotion is {promotion.MinAmount.Value}", "PROMOTION_MIN_AMOUNT");
-
-            if (promotion.DiscountType == "Percentage")
-                discount = subtotal * (promotion.DiscountValue / 100);
-            else if (promotion.DiscountType == "FixedAmount")
-                discount = promotion.DiscountValue;
-            else if (promotion.DiscountType == "FreeShipping")
-                shippingDiscount = 0;
-        }
-
-        // 4. Handle Shipping
         var shippingCost = await _shippingCostService.GetActiveAsync();
-        decimal shippingAmount = shippingCost?.Cost ?? 0;
+        decimal baseShippingAmount = shippingCost?.Cost ?? 0;
 
-        // 5. TRANSACTIONAL BLOCK
         await _unitOfWork.BeginTransactionAsync();
         try
         {
-            // 5.1 Create Order
-            var entity = new Order
-            {
-                IdUser = userId,
-                User = null!,
-                IdCourier = null,
-                IdPromotion = promotion?.IdPromotion,
-                ShippingCost = shippingAmount * shippingDiscount,
-                ShippingStreet = address.Street,
-                ShippingDpto = address.Dpto,
-                ShippingReference = address.References,
-                OrderDate = DateTime.Now,
-                GlobalDiscount = discount,
-                Subtotal = subtotal,
-                Total = subtotal + (shippingAmount * shippingDiscount) - discount,
-                OrderStatus = OrderStatus.LogisticsPending
-            };
+            // The logic for stock validation, calculation and items creation is now in the Order.Create domain method
+            var order = Order.Create(
+                userId,
+                address.Street,
+                address.Dpto,
+                address.References,
+                baseShippingAmount,
+                productsWithQuantity,
+                promotion
+            );
 
-            await _repository.AddAsync(entity);
-            await _unitOfWork.SaveChangesAsync(); // To get IdOrder
-
-            // 5.2 Create OrderItems and Update Stock
-            foreach (var item in productsToUpdate)
-            {
-                // Create Item
-                var orderItem = new OrderItem
-                {
-                    IdOrder = entity.IdOrder,
-                    IdProduct = item.Entity.IdProduct,
-                    Quantity = item.Quantity,
-                    UnitPrice = item.Entity.Price
-                };
-                
-                item.Entity.CurrentStock -= item.Quantity;
-                await _productRepository.UpdateAsync(item.Entity);
-                
-                entity.OrderItems.Add(orderItem);
-            }
-
-            // 5.3 Clear Cart
+            await _repository.AddAsync(order);
+            
+            // Clear Cart
             foreach (var cartItem in cartItems)
             {
                 await _cartItemWriteService.DeleteCartItemAsync(userId, cartItem.Id);
@@ -196,7 +135,7 @@ public class OrderService : IOrderReadOnlyService, IOrderWriteService
             await _unitOfWork.SaveChangesAsync();
             await _unitOfWork.CommitTransactionAsync();
 
-            var savedEntity = await _repository.GetByIdWithDetailsAsync(entity.IdOrder);
+            var savedEntity = await _repository.GetByIdWithDetailsAsync(order.IdOrder);
             return OrderDTO.Create(savedEntity!);
         }
         catch (Exception)
@@ -208,23 +147,35 @@ public class OrderService : IOrderReadOnlyService, IOrderWriteService
 
     public async Task<OrderDTO> UpdateMyOrderAsync(int id, UpdateOrderRequest request, int userId)
     {
-        var entity = await _repository.GetByIdAsync(id);
+        var entity = await _repository.GetByIdWithDetailsAsync(id);
         if (entity == null) throw new AppValidationException("Order not found", "ORDER_NOT_FOUND");
 
         if (entity.IdUser != userId)
             throw new AppValidationException("Not authorized to update this order", "FORBIDDEN");
 
-        if (entity.OrderStatus == OrderStatus.Delivered)
-            throw new AppValidationException("Cannot update a delivered order", "INVALID_OPERATION");
+        await _unitOfWork.BeginTransactionAsync();
+        try
+        {
+            entity.UpdateShippingDetails(request.ShippingStreet, request.ShippingDpto, request.ShippingReference);
+            
+            if (request.OrderStatus.HasValue && request.OrderStatus.Value != entity.OrderStatus)
+            {
+                if (request.OrderStatus.Value == OrderStatus.Cancelled)
+                    await ExecuteCancellationAsync(entity);
+                else
+                    entity.UpdateStatus(request.OrderStatus.Value);
+            }
 
-        entity.ShippingStreet = request.ShippingStreet ?? entity.ShippingStreet;
-        entity.ShippingDpto = request.ShippingDpto ?? entity.ShippingDpto;
-        entity.ShippingReference = request.ShippingReference ?? entity.ShippingReference;
-        entity.ShippingCost = request.ShippingCost ?? entity.ShippingCost;
-        entity.OrderStatus = request.OrderStatus ?? entity.OrderStatus;
+            await _repository.UpdateAsync(entity);
+            await _unitOfWork.SaveChangesAsync();
+            await _unitOfWork.CommitTransactionAsync();
+        }
+        catch (Exception)
+        {
+            await _unitOfWork.RollbackTransactionAsync();
+            throw;
+        }
 
-        await _repository.UpdateAsync(entity);
-        await _unitOfWork.SaveChangesAsync();
         return OrderDTO.Create(entity);
     }
 
@@ -233,9 +184,36 @@ public class OrderService : IOrderReadOnlyService, IOrderWriteService
         var entity = await _repository.GetByIdWithDetailsAsync(id);
         if (entity == null) throw new AppValidationException("Order not found", "ORDER_NOT_FOUND");
 
-        entity.OrderStatus = status;
-        await _repository.UpdateAsync(entity);
-        await _unitOfWork.SaveChangesAsync();
+        // Use rich domain methods for status transitions
+        switch (status)
+        {
+            case OrderStatus.Cancelled:
+                if (entity.OrderStatus != OrderStatus.Cancelled)
+                {
+                    await ExecuteCancellationAsync(entity);
+                }
+                break;
+            case OrderStatus.Delivered:
+                entity.MarkAsDelivered();
+                await _repository.UpdateAsync(entity);
+                break;
+            default:
+                entity.UpdateStatus(status);
+                await _repository.UpdateAsync(entity);
+                break;
+        }
+
+        await _unitOfWork.BeginTransactionAsync();
+        try
+        {
+            await _unitOfWork.SaveChangesAsync();
+            await _unitOfWork.CommitTransactionAsync();
+        }
+        catch (Exception)
+        {
+            await _unitOfWork.RollbackTransactionAsync();
+            throw;
+        }
         return OrderDTO.Create(entity);
     }
 
@@ -247,9 +225,41 @@ public class OrderService : IOrderReadOnlyService, IOrderWriteService
         if (entity.IdUser != userId && role != "ADMIN" && role != "SUPERADMIN")
             throw new AppValidationException("Not authorized to delete/cancel this order", "FORBIDDEN");
 
-        entity.OrderStatus = OrderStatus.Cancelled;
-        await _repository.UpdateAsync(entity);
-        await _unitOfWork.SaveChangesAsync();
+        await _unitOfWork.BeginTransactionAsync();
+        try
+        {
+            if (entity.OrderStatus != OrderStatus.Cancelled)
+            {
+                await ExecuteCancellationAsync(entity);
+            }
+            await _unitOfWork.SaveChangesAsync();
+            await _unitOfWork.CommitTransactionAsync();
+        }
+        catch (Exception)
+        {
+            await _unitOfWork.RollbackTransactionAsync();
+            throw;
+        }
         return OrderDTO.Create(entity);
+    }
+
+    private async Task ExecuteCancellationAsync(Order order)
+    {
+        order.Cancel();
+        await RestoreStockAsync(order);
+        await _repository.UpdateAsync(order);
+    }
+
+    private async Task RestoreStockAsync(Order order)
+    {
+        foreach (var item in order.OrderItems)
+        {
+            var product = await _productRepository.GetByIdAsync(item.IdProduct);
+            if (product != null)
+            {
+                product.IncreaseStock(item.Quantity);
+                await _productRepository.UpdateAsync(product);
+            }
+        }
     }
 }

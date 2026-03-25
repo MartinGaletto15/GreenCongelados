@@ -2,3 +2,88 @@
 [] Pasarela de pagos (?)
 [] Cadetes:
     1 - Tratar diferente a los pedidos cancelados (O solo filtrar por pedidos no cancelados)
+    2 - Si cancela la orden se debe volver a sumar el stock
+    3 - No actualiza el status de order el Put
+
+
+
+
+  ⚠️ 2. Redundancias y Fugas de Lógica (Áreas de Mejora)
+
+  Aunque el dominio es rico, en la capa de Servicios (Aplicación) he detectado algunas redundancias y pequeños problemas
+  donde la lógica se escapó del dominio:
+
+  B. Redundancia al Restaurar Stock
+  Cuando un pedido se cancela, llamas al método privado RestoreStockAsync(entity) en tres lugares distintos del
+  OrderService (UpdateMyOrderAsync, UpdateOrderStatusAsync y DeleteAsync).
+
+  Mejora: Aunque restaurar stock involucra a otros repositorios (IProductRepository), la lógica de "qué pasa cuando un
+  pedido se cancela" debería estar unificada para evitar que te olvides de llamarlo en el futuro. Esto suele resolverse
+  disparando Eventos de Dominio (Domain Events) (ej. OrderCancelledEvent) desde la entidad Order, y un Handler en
+  Aplicación escucha ese evento y restaura el stock.
+
+  C. Fuga de Lógica en OrderService.UpdateOrderStatusAsync
+  En el OrderService, tienes este código:
+
+    1 switch (status)
+    2 {
+    3     case OrderStatus.Cancelled:
+    4         entity.Cancel();
+    5         await RestoreStockAsync(entity);
+    6         break;
+    7     case OrderStatus.Delivered:
+    8         entity.MarkAsDelivered();
+    9         break;
+   10     // ...
+   11 }
+  Problema: El servicio está decidiendo qué método de la entidad llamar basándose en el enum. Sin embargo, en tu entidad
+  Order.cs ya existe el método UpdateStatus(OrderStatus newStatus) que tiene exactamente ese mismo switch.
+  Mejora: El servicio solo debería llamar a entity.UpdateStatus(status) y confiar en que la entidad sabe cómo
+  transicionar.
+
+  💡 Conclusión
+  Tu código tiene una calidad superior a la media en cuanto a arquitectura. Has entendido perfectamente que el Dominio
+  debe proteger sus datos. Las únicas correcciones necesarias son refactorizaciones menores en OrderService para limpiar
+  el código repetitivo (DRY) y evitar hacer switch sobre estados que la entidad ya sabe cómo manejar.
+
+
+
+
+
+
+
+  Aquí tienes el análisis profundo y el resumen de cómo funcionan estas interfaces (IOrderItemReadOnlyService e
+  IOrderItemWriteService) y su flujo real dentro de tu aplicación:
+
+  🔬 Análisis del Flujo
+
+   1. Su Propósito Teórico:
+       * IOrderItemReadOnlyService (GetByOrderIdAsync): Fue diseñada para consultar específicamente la lista de
+         productos (ítems) que pertenecen a un pedido (OrderId) particular, devolviendo una lista de DTOs.
+       * IOrderItemWriteService (CreateAsync): Fue pensada para agregar un ítem individual de forma aislada mediante un
+         request (CreateOrderItemRequest).
+
+   2. Su Estado Real en el Código (El Hallazgo):
+      He investigado tu base de código y ocurre algo muy interesante: Estas interfaces y su implementación
+  (OrderItemService) NO se están utilizando en ningún lugar de tu API.
+      Están registradas en el contenedor de dependencias (Program.cs), pero no hay ningún Controller ni ningún otro
+  Service que las llame.
+
+   3. ¿Por qué no se usan? (Y por qué esto es algo bueno):
+      Tu proyecto respeta el patrón de diseño de "Aggregate Root" (Raíz de Agregado), uno de los pilares de
+  Domain-Driven Design (DDD) y Clean Architecture:
+       * En tu dominio, Order es la raíz. Un OrderItem no tiene sentido de existir por sí solo sin pertenecer a un
+         Order.
+       * Tú creas los OrderItems directamente cuando llamas a Order.Create(...) dentro de OrderService.
+       * Tú obtienes los OrderItems automáticamente cuando haces GetOrderByIdAsync, porque Entity Framework trae la
+         orden completa (con la propiedad de navegación OrderItems incluida) y el OrderDTO se encarga de mapearlos.
+
+  📝 Resumen de su uso en tu sistema (en pocas líneas)
+
+  > Las interfaces IOrderItem...Service fueron creadas inicialmente para manejar de forma aislada la lectura y creación
+  de los productos dentro de un pedido. Sin embargo, en el flujo actual son código muerto/huérfano. Tu aplicación
+  gestiona los OrderItems correctamente a través de la entidad raíz Order y del OrderService (patrón Aggregate Root).
+  >
+  > Recomendación: Puedes eliminar con seguridad IOrderItemReadOnlyService, IOrderItemWriteService, el OrderItemService
+  y su registro en Program.cs, ya que la creación y lectura de los ítems de un pedido ya están centralizadas de manera
+  más limpia y segura a través de los servicios del Order.

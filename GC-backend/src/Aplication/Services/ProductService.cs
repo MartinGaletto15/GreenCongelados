@@ -2,6 +2,7 @@ using Aplication.Interfaces.Product;
 using Applications.dtos;
 using Applications.dtos.Requests;
 using Domain.Entities;
+using Domain.Entities.Enums;
 using Domain.Interfaces;
 using Domain.Exceptions;
 using Aplication.Validators;
@@ -36,18 +37,17 @@ public class ProductService : IProductReadOnlyService, IProductWriteService
     {
         await ProductValidator.ValidateCreateAsync(request, _repository);
 
-        var entity = new Product
-        {
-            Name = request.Name,
-            UrlImagePrimary = request.UrlImagePrimary,
-            DescriptionShort = request.DescriptionShort,
-            DescriptionLong = request.DescriptionLong,
-            Price = request.Price,
-            CurrentStock = request.CurrentStock,
-            Weight = request.Weight,
-            PreparationTime = request.PreparationTime,
-            Status = request.Status
-        };
+        var entity = new Product(
+            request.Name,
+            request.UrlImagePrimary,
+            request.DescriptionShort,
+            request.DescriptionLong,
+            request.Price,
+            request.CurrentStock,
+            request.Weight,
+            request.PreparationTime,
+            request.Status
+        );
 
         await _repository.AddAsync(entity);
         await _unitOfWork.SaveChangesAsync();
@@ -61,15 +61,17 @@ public class ProductService : IProductReadOnlyService, IProductWriteService
 
         await ProductValidator.ValidateUpdateAsync(id, request, _repository, entity);
 
-        entity.Name = request.Name ?? entity.Name;
-        entity.UrlImagePrimary = request.UrlImagePrimary ?? entity.UrlImagePrimary;
-        entity.DescriptionShort = request.DescriptionShort ?? entity.DescriptionShort;
-        entity.DescriptionLong = request.DescriptionLong ?? entity.DescriptionLong;
-        entity.Price = request.Price ?? entity.Price;
-        entity.CurrentStock = request.CurrentStock ?? entity.CurrentStock;
-        entity.Weight = request.Weight ?? entity.Weight;
-        entity.PreparationTime = request.PreparationTime ?? entity.PreparationTime;
-        entity.Status = request.Status ?? entity.Status;
+        entity.UpdateDetails(
+            request.Name,
+            request.UrlImagePrimary,
+            request.DescriptionShort,
+            request.DescriptionLong,
+            request.Price,
+            request.CurrentStock,
+            request.Weight,
+            request.PreparationTime,
+            request.Status
+        );
 
         await _repository.UpdateAsync(entity);
         await _unitOfWork.SaveChangesAsync();
@@ -80,7 +82,9 @@ public class ProductService : IProductReadOnlyService, IProductWriteService
     {
         var entity = await _repository.GetByIdAsync(id);
         if (entity == null) throw new AppValidationException("Product not found", "PRODUCT_NOT_FOUND");
-        await _repository.DeleteAsync(entity);
+        
+        entity.Delete();
+        await _repository.UpdateAsync(entity);
         await _unitOfWork.SaveChangesAsync();
     }
 }

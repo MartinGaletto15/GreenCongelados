@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using Domain.Enums.Entities;
+using Domain.Entities.Enums;
 
 namespace Domain.Entities;
 public class Address

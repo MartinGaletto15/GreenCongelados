@@ -89,7 +89,7 @@ public class ProductCategoryService : IProductCategoryReadOnlyService, IProductC
                 IdProduct = productId,
                 IdCategory = categoryId
             });
-            await _unitOfWork.SaveChangesAsync();
         }
+        await _unitOfWork.SaveChangesAsync();
     }
 }

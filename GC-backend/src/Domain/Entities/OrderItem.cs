@@ -1,22 +1,39 @@
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Domain.Entities;
 
 public class OrderItem
 {
     [Key]
-    public int IdOrderItem { get; set; }
+    public int IdOrderItem { get; private set; }
 
     [Required]
-    public required int IdOrder { get; set; }
-    public Order? Order { get; set; }
-    [Required]
-    public required int IdProduct { get; set; }
-    public Product? Product { get; set; }   
+    public int IdOrder { get; private set; }
+    public Order? Order { get; private set; }
 
     [Required]
-    public required int Quantity { get; set; }
+    public int IdProduct { get; private set; }
+    public Product? Product { get; private set; }   
+
+    [Required]
+    public int Quantity { get; private set; }
     
     [Required]
-    public required decimal UnitPrice { get; set; }
+    [Column(TypeName = "decimal(18, 2)")]
+    public decimal UnitPrice { get; private set; }
+
+    // EF constructor
+    protected OrderItem() { }
+
+    public OrderItem(int idProduct, int quantity, decimal unitPrice, int idOrder = 0)
+    {
+        if (quantity <= 0) throw new ArgumentException("Quantity must be greater than zero", nameof(quantity));
+        if (unitPrice < 0) throw new ArgumentException("Unit price cannot be negative", nameof(unitPrice));
+
+        IdOrder = idOrder;
+        IdProduct = idProduct;
+        Quantity = quantity;
+        UnitPrice = unitPrice;
+    }
 }

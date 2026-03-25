@@ -12,11 +12,13 @@ namespace Aplication.Services;
 public class CartItemService : ICartItemReadOnlyService, ICartItemWriteService
 {
     private readonly ICartItemRepository _repository;
+    private readonly IProductRepository _productRepository;
     private readonly IUnitOfWork _unitOfWork;
 
-    public CartItemService(ICartItemRepository repository, IUnitOfWork unitOfWork)
+    public CartItemService(ICartItemRepository repository, IProductRepository productRepository, IUnitOfWork unitOfWork)
     {
         _repository = repository;
+        _productRepository = productRepository;
         _unitOfWork = unitOfWork;
     }
 
@@ -46,6 +48,28 @@ public class CartItemService : ICartItemReadOnlyService, ICartItemWriteService
             cart = await _repository.CreateCartAsync(userId);
         }
 
+        var product = await _productRepository.GetByIdAsync(request.IdProduct);
+        if (product == null) throw new AppValidationException("Producto no encontrado", "PRODUCT_NOT_FOUND");
+
+        // Buscar si el producto ya está en el carrito
+        var cartItems = await _repository.GetByUserIdAsync(userId);
+        var existingItem = cartItems.FirstOrDefault(ci => ci.IdProduct == request.IdProduct);
+
+        int totalQuantity = request.Quantity + (existingItem?.Quantity ?? 0);
+
+        if (product.CurrentStock < totalQuantity)
+        {
+            throw new AppValidationException($"Stock insuficiente para el producto: {product.Name}. Disponible: {product.CurrentStock}", "INSUFFICIENT_STOCK");
+        }
+
+        if (existingItem != null)
+        {
+            existingItem.Quantity = totalQuantity;
+            await _repository.UpdateAsync(existingItem);
+            await _unitOfWork.SaveChangesAsync();
+            return CartItemDTO.Create(existingItem);
+        }
+
         var cartItem = new CartItem
         {
             IdCart = cart.IdCart,
@@ -65,6 +89,14 @@ public class CartItemService : ICartItemReadOnlyService, ICartItemWriteService
 
         var cartItem = await _repository.GetByIdAsync(cartItemId);
         CartItemValidator.ValidateCartItemOwnership(cartItem, cart!);
+
+        var product = await _productRepository.GetByIdAsync(cartItem!.IdProduct);
+        if (product == null) throw new AppValidationException("Producto no encontrado", "PRODUCT_NOT_FOUND");
+
+        if (product.CurrentStock < request.Quantity)
+        {
+            throw new AppValidationException($"Stock insuficiente para el producto: {product.Name}. Disponible: {product.CurrentStock}", "INSUFFICIENT_STOCK");
+        }
 
         cartItem!.Quantity = request.Quantity;
 

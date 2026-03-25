@@ -1,5 +1,6 @@
 using Applications.dtos.Requests;
 using Domain.Exceptions;
+using Domain.Entities.Enums;
 using Domain.Interfaces;
 
 namespace Aplication.Validators;
@@ -23,7 +24,7 @@ public static class ProductValidator
         if (request.PreparationTime < 0)
             throw new AppValidationException("El tiempo de preparación no puede ser negativo.", "PRODUCT_PREPARATION_TIME_INVALID");
 
-        if (!Enum.IsDefined(typeof(Domain.Entities.ProductStatus), request.Status))
+        if (!Enum.IsDefined(typeof(ProductStatus), request.Status))
             throw new AppValidationException("El estado del producto no es válido.", "PRODUCT_STATUS_INVALID");
 
         var existingProduct = await repository.GetByNameAsync(request.Name);
@@ -48,7 +49,7 @@ public static class ProductValidator
         if (request.PreparationTime.HasValue && request.PreparationTime < 0)
             throw new AppValidationException("El tiempo de preparación no puede ser negativo.", "PRODUCT_PREPARATION_TIME_INVALID");
 
-        if (request.Status.HasValue && !Enum.IsDefined(typeof(Domain.Entities.ProductStatus), request.Status.Value))
+        if (request.Status.HasValue && !Enum.IsDefined(typeof(ProductStatus), request.Status.Value))
             throw new AppValidationException("El estado del producto no es válido.", "PRODUCT_STATUS_INVALID");
 
         if (request.Name != null && currentEntity.Name != request.Name)

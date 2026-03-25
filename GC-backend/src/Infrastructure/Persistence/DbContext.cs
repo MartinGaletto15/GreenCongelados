@@ -69,9 +69,10 @@ namespace Infrastructure.Persistence
                 .HasForeignKey(o => o.IdPromotion)
                 .IsRequired(false) // Allows NULL values in the FK
                 .OnDelete(DeleteBehavior.SetNull); // Promotion SET NULL DELETE
-
+            
             // Mapping Enums to String (to store names instead of numbers)
             modelBuilder.Entity<Order>().Property(o => o.OrderStatus).HasConversion<string>();
+            modelBuilder.Entity<Order>().Property(o => o.GlobalDiscount).HasColumnType("decimal(18,2)");
             modelBuilder.Entity<Promotion>().Property(p => p.DiscountType).HasConversion<string>();
 
             // Cart to User (1:1)
@@ -81,6 +82,10 @@ namespace Infrastructure.Persistence
                 .OnDelete(DeleteBehavior.Cascade);
 
             // CartItem (Cart <-> Product)
+            modelBuilder.Entity<CartItem>()
+                .HasIndex(ci => new { ci.IdCart, ci.IdProduct })
+                .IsUnique();
+
             modelBuilder.Entity<CartItem>()
                 .HasOne(ci => ci.Cart).WithMany(c => c.CartItems)
                 .HasForeignKey(ci => ci.IdCart)

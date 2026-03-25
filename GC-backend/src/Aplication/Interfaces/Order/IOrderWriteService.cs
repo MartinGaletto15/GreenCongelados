@@ -1,6 +1,6 @@
 using Applications.dtos;
 using Applications.dtos.Requests;
-using Domain.Enums.Entities;
+using Domain.Entities.Enums;
 
 namespace Aplication.Interfaces.Order;
 
