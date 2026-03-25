@@ -51,11 +51,11 @@ public static class UserValidator
 
     public static void ValidateRoleUpdate(Role newRole, Role currentTargetRole, Role performerRole)
     {
-        // El ejecutor debe tener una jerarquía superior (valor numérico menor) al rol actual del usuario
+        // Performer must have a higher hierarchy (lower numerical value) than the target user's current role
         if (performerRole >= currentTargetRole)
             throw new AppValidationException("No tienes permisos para modificar el rol de este usuario.", "USER_ROLE_INSUFFICIENT_PERMISSIONS");
 
-        // El ejecutor solo puede asignar roles de jerarquía inferior a la suya
+        // Performer can only assign roles with a lower hierarchy than their own
         if (performerRole >= newRole)
             throw new AppValidationException("No tienes permisos para asignar este rol.", "USER_ROLE_INVALID_ASSIGNMENT");
     }

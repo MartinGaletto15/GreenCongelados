@@ -67,7 +67,7 @@ public class UserService : IUserWriteService, IUserReadOnlyService
 
         await _userRepository.AddAsync(newUser);
         await _unitOfWork.SaveChangesAsync();
-        // Aca se crea el carrito del usuario
+        // Create user's cart here
         await _cartItemWriteService.CreateCartAsync(newUser.IdUser);
         return UserDTO.Create(newUser);
     }

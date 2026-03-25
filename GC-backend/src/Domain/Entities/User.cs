@@ -43,7 +43,6 @@ public class User
     // Cart belonging to the user
     public Cart? Cart { get; private set; }
 
-    // EF constructor
     protected User() {
         Name = string.Empty;
         LastName = string.Empty;

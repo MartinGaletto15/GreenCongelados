@@ -158,14 +158,6 @@ public class OrderService : IOrderReadOnlyService, IOrderWriteService
         {
             entity.UpdateShippingDetails(request.ShippingStreet, request.ShippingDpto, request.ShippingReference);
             
-            if (request.OrderStatus.HasValue && request.OrderStatus.Value != entity.OrderStatus)
-            {
-                if (request.OrderStatus.Value == OrderStatus.Cancelled)
-                    await ExecuteCancellationAsync(entity);
-                else
-                    entity.UpdateStatus(request.OrderStatus.Value);
-            }
-
             await _repository.UpdateAsync(entity);
             await _unitOfWork.SaveChangesAsync();
             await _unitOfWork.CommitTransactionAsync();
@@ -184,24 +176,7 @@ public class OrderService : IOrderReadOnlyService, IOrderWriteService
         var entity = await _repository.GetByIdWithDetailsAsync(id);
         if (entity == null) throw new AppValidationException("Order not found", "ORDER_NOT_FOUND");
 
-        // Use rich domain methods for status transitions
-        switch (status)
-        {
-            case OrderStatus.Cancelled:
-                if (entity.OrderStatus != OrderStatus.Cancelled)
-                {
-                    await ExecuteCancellationAsync(entity);
-                }
-                break;
-            case OrderStatus.Delivered:
-                entity.MarkAsDelivered();
-                await _repository.UpdateAsync(entity);
-                break;
-            default:
-                entity.UpdateStatus(status);
-                await _repository.UpdateAsync(entity);
-                break;
-        }
+        await ChangeStatusAndHandleStockAsync(entity, status);
 
         await _unitOfWork.BeginTransactionAsync();
         try
@@ -228,10 +203,7 @@ public class OrderService : IOrderReadOnlyService, IOrderWriteService
         await _unitOfWork.BeginTransactionAsync();
         try
         {
-            if (entity.OrderStatus != OrderStatus.Cancelled)
-            {
-                await ExecuteCancellationAsync(entity);
-            }
+            await ChangeStatusAndHandleStockAsync(entity, OrderStatus.Cancelled);
             await _unitOfWork.SaveChangesAsync();
             await _unitOfWork.CommitTransactionAsync();
         }
@@ -243,10 +215,16 @@ public class OrderService : IOrderReadOnlyService, IOrderWriteService
         return OrderDTO.Create(entity);
     }
 
-    private async Task ExecuteCancellationAsync(Order order)
+    private async Task ChangeStatusAndHandleStockAsync(Order order, OrderStatus newStatus)
     {
-        order.Cancel();
-        await RestoreStockAsync(order);
+        var oldStatus = order.OrderStatus;
+        order.UpdateStatus(newStatus);
+
+        if (order.OrderStatus == OrderStatus.Cancelled && oldStatus != OrderStatus.Cancelled)
+        {
+            await RestoreStockAsync(order);
+        }
+
         await _repository.UpdateAsync(order);
     }
 

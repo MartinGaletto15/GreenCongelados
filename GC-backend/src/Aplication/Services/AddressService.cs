@@ -40,6 +40,12 @@ public class AddressService : IAddressReadOnlyService, IAddressWriteService
 
     public async Task<AddressDTO> CreateAsync(CreateAddressRequest request, int idUser)
     {
+        var existingAddress = await _repository.GetByUserIdAsync(idUser);
+        if (existingAddress != null)
+        {
+            throw new AppValidationException("User already has an address. Use update instead.", "ADDRESS_ALREADY_EXISTS");
+        }
+
         var entity = new Address
         {
             IdUser = idUser,

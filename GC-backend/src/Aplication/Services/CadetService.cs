@@ -49,17 +49,14 @@ public class CadetService : ICadetReadOnlyService, ICadetWriteService
 
     public async Task<UserDTO> AsingOrderToCadetAsync(int id, int idOrder)
     {
-        // 1. Validar cadete
         var user = await _userRepository.GetByIdAsync(id);
         if (user == null || user.Role != Role.CADET)
             throw new AppValidationException("El cadete no existe o el usuario no es un cadete", "CADET_NOT_FOUND");
 
-        // 2. Buscar la orden usando el repositorio de órdenes
         var order = await _orderRepository.GetByIdAsync(idOrder);
         if (order == null)
             throw new AppValidationException("La orden no existe", "ORDER_NOT_FOUND");
-
-        // 3. Asignar cadete a la orden
+            
         order.AssignCourier(id);
         
         await _orderRepository.UpdateAsync(order);

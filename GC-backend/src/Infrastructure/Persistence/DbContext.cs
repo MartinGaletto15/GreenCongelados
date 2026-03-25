@@ -9,7 +9,6 @@ namespace Infrastructure.Persistence
         {
         }
 
-        // DB SETS
         public DbSet<Category> Categories { get; set; }
         public DbSet<Address> Addresses { get; set; }
         public DbSet<Order> Orders { get; set; }
@@ -94,6 +93,11 @@ namespace Infrastructure.Persistence
                 .HasOne(ci => ci.Product).WithMany(p => p.CartItems)
                 .HasForeignKey(ci => ci.IdProduct)
                 .OnDelete(DeleteBehavior.Cascade);
+
+            // UNIQUE INDEX FOR ADDRESS (1:1 per User)
+            modelBuilder.Entity<Address>()
+                .HasIndex(a => a.IdUser)
+                .IsUnique();
         }
     }
 }

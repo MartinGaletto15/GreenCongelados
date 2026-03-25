@@ -39,12 +39,10 @@ public class Product
     [Column("product_status")]
     public ProductStatus Status { get; private set; } = ProductStatus.Available;
 
-    // Navigation properties
     public ICollection<OrderItem> OrderItems { get; private set; } = new List<OrderItem>();
     public ICollection<ProductCategory> ProductCategories { get; private set; } = new List<ProductCategory>();
     public ICollection<CartItem> CartItems { get; private set; } = new List<CartItem>();
 
-    // EF constructor
     protected Product() {
         Name = string.Empty;
         DescriptionShort = string.Empty;

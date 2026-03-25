@@ -23,7 +23,6 @@ public class OrderItem
     [Column(TypeName = "decimal(18, 2)")]
     public decimal UnitPrice { get; private set; }
 
-    // EF constructor
     protected OrderItem() { }
 
     public OrderItem(int idProduct, int quantity, decimal unitPrice, int idOrder = 0)

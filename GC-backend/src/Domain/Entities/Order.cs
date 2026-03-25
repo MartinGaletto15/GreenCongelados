@@ -47,11 +47,9 @@ public class Order
     [Required]
     public OrderStatus OrderStatus { get; private set; } 
     
-    // Navigation property - Encapsulated collection
     private readonly List<OrderItem> _orderItems = new();
     public ICollection<OrderItem> OrderItems => _orderItems.AsReadOnly();
 
-    // EF constructor
     protected Order() {
         ShippingStreet = string.Empty;
     }

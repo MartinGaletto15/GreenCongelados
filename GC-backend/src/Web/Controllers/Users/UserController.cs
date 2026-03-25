@@ -35,8 +35,6 @@ public class UserController : ControllerBase
         _orderReadOnlyService = orderReadOnlyService;
     }
 
-    // --- PROFILE ENDPOINTS ---
-
     [HttpGet("me")]
     public async Task<ActionResult<UserDTO>> GetMyUserAsync()
     {
@@ -76,8 +74,6 @@ public class UserController : ControllerBase
         return Ok(user);
     }
 
-    // --- ADMIN USER ENDPOINTS ---
-
     [HttpGet]
     [Authorize(Roles = "ADMIN,SUPERADMIN")]
     public async Task<ActionResult<IEnumerable<UserDTO>>> GetAllUsersAsync()
@@ -99,8 +95,6 @@ public class UserController : ControllerBase
         var user = await _userWriteService.UpdateUserRoleAsync(id, role, performerRole);
         return Ok(user);
     }
-
-    // --- CADET ENDPOINTS ---
 
     [HttpGet("cadets")]
     [Authorize(Roles = "ADMIN,SUPERADMIN,CADET")]

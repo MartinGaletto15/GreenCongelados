@@ -42,7 +42,7 @@ public class CartItemService : ICartItemReadOnlyService, ICartItemWriteService
     {
         var cart = await _repository.GetUserCartAsync(userId);
         
-        // UX: Si el usuario no tiene carrito, lo creamos automáticamente
+        // UX: If user doesn't have a cart, we create it automatically
         if (cart == null)
         {
             cart = await _repository.CreateCartAsync(userId);
@@ -51,7 +51,7 @@ public class CartItemService : ICartItemReadOnlyService, ICartItemWriteService
         var product = await _productRepository.GetByIdAsync(request.IdProduct);
         if (product == null) throw new AppValidationException("Producto no encontrado", "PRODUCT_NOT_FOUND");
 
-        // Buscar si el producto ya está en el carrito
+        // Check if product is already in the cart
         var cartItems = await _repository.GetByUserIdAsync(userId);
         var existingItem = cartItems.FirstOrDefault(ci => ci.IdProduct == request.IdProduct);
 

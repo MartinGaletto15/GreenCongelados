@@ -31,10 +31,8 @@ public class Promotion
     [Required]
     public DateTime EndDate { get; private set; }
 
-    // Collection Navigation Property (1:N Relationship with Order)
     public ICollection<Order> Orders { get; private set; } = new List<Order>();
 
-    // EF constructor
     protected Promotion() {
         CouponCode = string.Empty;
     }

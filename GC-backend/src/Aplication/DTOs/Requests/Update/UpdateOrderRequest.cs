@@ -6,7 +6,5 @@ namespace Applications.dtos.Requests;
 public record UpdateOrderRequest(
     string? ShippingStreet,
     string? ShippingDpto,
-    string? ShippingReference,
-    decimal? ShippingCost,
-    OrderStatus? OrderStatus
+    string? ShippingReference
 );

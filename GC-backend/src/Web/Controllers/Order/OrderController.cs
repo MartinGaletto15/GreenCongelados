@@ -24,8 +24,6 @@ public class OrderController : ControllerBase
         _writeService = writeService;
     }
 
-    // --- CLIENT ENDPOINTS ---
-
     [HttpGet("me")]
     public async Task<ActionResult<IEnumerable<OrderDTO>>> GetMyOrders()
     {
@@ -50,14 +48,12 @@ public class OrderController : ControllerBase
         return Ok(result);
     }
 
-    // --- SHARED ENDPOINTS ---
-
     [HttpGet("{id}")]
     public async Task<ActionResult<OrderDTO>> GetOrderById(int id)
     {
         var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
         var role = User.FindFirstValue(ClaimTypes.Role) ?? "";
-        // El servicio valida internamente si el usuario puede acceder a este pedido basado en su ID y Rol
+        // Service internally validates if the user can access this order based on their ID and Role
         var result = await _readOnlyService.GetOrderByIdAsync(id, userId, role);
         return Ok(result);
     }
@@ -67,12 +63,10 @@ public class OrderController : ControllerBase
     {
         var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
         var role = User.FindFirstValue(ClaimTypes.Role) ?? "";
-        // El servicio maneja si es un usuario cancelando o un admin eliminando
+        // Service handles whether it's a user canceling or an admin deleting
         var result = await _writeService.DeleteAsync(id, userId, role);
         return Ok(result);
     }
-
-    // --- ADMIN ENDPOINTS ---
 
     [HttpGet]
     [Authorize(Roles = "ADMIN,SUPERADMIN")]
@@ -83,7 +77,7 @@ public class OrderController : ControllerBase
     }
 
     [HttpPut("{id}/status")]
-    [Authorize(Roles = "ADMIN,SUPERADMIN")]
+    [Authorize(Roles = "ADMIN,SUPERADMIN,CADET")]
     public async Task<ActionResult<OrderDTO>> UpdateStatus(int id, [FromBody] OrderStatus status)
     {
         var result = await _writeService.UpdateOrderStatusAsync(id, status);

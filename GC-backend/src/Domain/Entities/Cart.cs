@@ -14,6 +14,5 @@ public class Cart
     [ForeignKey("IdUser")]
     public User User { get; set; } = null!;
 
-    // Navigation property
     public ICollection<CartItem> CartItems { get; set; } = new List<CartItem>();
 }

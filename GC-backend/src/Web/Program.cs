@@ -26,14 +26,13 @@ using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// --- 1. Service Configuration (Add Services to the container) ---
-// Here you add services like Entity Framework, CORS, Authentication, etc.
+// 1. Service Configuration
 builder.Services.AddControllers()
     .AddJsonOptions(options =>
     {
         options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
-    }); // If using MVC/API controllers
-builder.Services.AddEndpointsApiExplorer(); // For Swagger/OpenAPI
+    });
+builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
 builder.Services.AddScoped<IUserRepository, UserRepository>();
@@ -71,7 +70,7 @@ builder.Services.AddScoped<ICadetWriteService, CadetService>();
 builder.Services.AddTransient<GlobalExceptionHandlingMiddleware>();
 
 var jwtSecret = builder.Configuration["JwtSettings:Secret"] 
-                ?? throw new InvalidOperationException("La clave secreta JWT no está configurada.");
+                ?? throw new InvalidOperationException("JWT secret key is not configured.");
 
 builder.Services.AddAuthentication(options =>
 {
@@ -83,8 +82,8 @@ builder.Services.AddAuthentication(options =>
 {
     options.TokenValidationParameters = new TokenValidationParameters
     {
-        ValidateIssuer = false, // true en producción
-        ValidateAudience = false, // true en producción
+        ValidateIssuer = false, // true in production
+        ValidateAudience = false, // true in production
         ValidateLifetime = true,
         ValidateIssuerSigningKey = true,
         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSecret))
@@ -104,7 +103,7 @@ builder.Services.AddSwaggerGen(c =>
         Scheme = "bearer",
         BearerFormat = "JWT",
         In = ParameterLocation.Header,
-        Description = "Ingrese el token JWT usando: Bearer {token}"
+        Description = "Enter the JWT token using: Bearer {token}"
     });
 
 
@@ -124,7 +123,6 @@ builder.Services.AddSwaggerGen(c =>
     });
 });
 
-// Database
 var connectionString = builder.Configuration.GetConnectionString("DbConnectionString");
 builder.Services.AddDbContext<GCContext>(options => 
 {
@@ -133,9 +131,8 @@ builder.Services.AddDbContext<GCContext>(options =>
 
 var app = builder.Build();
 
-// --- 2. Middleware Configuration (Configure the HTTP request pipeline) ---
+// 2. Middleware Configuration
 
-// Development environment configuration
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -147,10 +144,8 @@ app.UseMiddleware<GlobalExceptionHandlingMiddleware>();
 app.UseAuthentication();
 app.UseAuthorization();
 
-// Controller mapping (if AddControllers was used above)
 app.MapControllers(); 
 
 app.MapGet("/", () => "Hello World!"); 
 
-// --- 3. Application Execution ---
 app.Run();

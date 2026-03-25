@@ -14,6 +14,5 @@ public class Category
     [Required]
     public required string ImageUrl { get; set; }
 
-    // Navigation property
     public ICollection<ProductCategory> ProductCategories { get; set; } = new List<ProductCategory>();
 }
