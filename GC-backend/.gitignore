@@ -68,7 +68,7 @@ nunit-*.xml
 # Agent / Project Specific
 #-------------------------------------------------
 .agents/
-*.txt
+Notas.txt
 GEMINI.md
 *.db
 *.db-shm

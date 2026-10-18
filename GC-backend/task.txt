@@ -1,7 +1,0 @@
-Necesario
-[] Mailing
-[] Cadetes:
-    1 - Tratar diferente a los pedidos cancelados (O solo filtrar por pedidos no cancelados)
-
-Futuro
-[] Pasarela de pagos (?)
