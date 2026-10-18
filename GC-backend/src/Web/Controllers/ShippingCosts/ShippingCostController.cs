@@ -1,6 +1,6 @@
-using Aplication.Interfaces.ShippingCost;
-using Applications.dtos;
-using Applications.dtos.Requests;
+using Application.Interfaces.ShippingCost;
+using Application.DTOs;
+using Application.DTOs.Requests;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 

@@ -1,7 +1,7 @@
-using Aplication.Interfaces.Product;
-using Aplication.Interfaces.ProductCategory;
-using Applications.dtos;
-using Applications.dtos.Requests;
+using Application.Interfaces.Product;
+using Application.Interfaces.ProductCategory;
+using Application.DTOs;
+using Application.DTOs.Requests;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 

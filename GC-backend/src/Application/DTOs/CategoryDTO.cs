@@ -1,0 +1,28 @@
+namespace Application.DTOs;
+
+public record CategoryDTO(
+    int IdCategory,
+    string Name,
+    string? UrlImage
+)
+{
+    public static CategoryDTO Create(Domain.Entities.Category entity)
+    {
+        var dto = new CategoryDTO(
+            entity.IdCategory,
+            entity.Name,
+            entity.ImageUrl
+        );
+        return dto;
+    }
+
+    public static List<CategoryDTO> Create(IEnumerable<Domain.Entities.Category> entities)
+    {
+        var listDto = new List<CategoryDTO>();
+        foreach (var entity in entities)
+        {
+            listDto.Add(Create(entity));
+        }
+        return listDto;
+    }
+}

@@ -1,6 +1,6 @@
-using Aplication.Interfaces.Categories;
-using Applications.dtos;
-using Applications.dtos.Requests;
+using Application.Interfaces.Categories;
+using Application.DTOs;
+using Application.DTOs.Requests;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 

@@ -1,6 +1,6 @@
-using Aplication.Interfaces.Order;
-using Applications.dtos;
-using Applications.dtos.Requests;
+using Application.Interfaces.Order;
+using Application.DTOs;
+using Application.DTOs.Requests;
 using Domain.Entities.Enums;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;

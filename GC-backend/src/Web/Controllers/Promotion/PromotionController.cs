@@ -1,8 +1,8 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
-using Aplication.Interfaces.Promotion;
-using Applications.dtos;
-using Applications.dtos.Requests;
+using Application.Interfaces.Promotion;
+using Application.DTOs;
+using Application.DTOs.Requests;
 
 namespace Web.Controllers.Promotion;
 

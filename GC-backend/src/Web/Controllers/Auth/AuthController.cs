@@ -1,6 +1,6 @@
-using Aplication.Interfaces.UserServices;
-using Applications.dtos.Requests;
-using Applications.dtos;
+using Application.Interfaces.UserServices;
+using Application.DTOs.Requests;
+using Application.DTOs;
 using Domain.Entities;
 using Domain.Exceptions;
 using Microsoft.AspNetCore.Mvc;

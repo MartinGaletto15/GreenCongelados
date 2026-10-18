@@ -1,6 +1,6 @@
-using Aplication.Interfaces.Address;
-using Applications.dtos;
-using Applications.dtos.Requests;
+using Application.Interfaces.Address;
+using Application.DTOs;
+using Application.DTOs.Requests;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;

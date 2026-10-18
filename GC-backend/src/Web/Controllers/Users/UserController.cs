@@ -1,9 +1,9 @@
 using System.Security.Claims;
-using Aplication.Interfaces.UserServices;
-using Aplication.Interfaces.User;
-using Aplication.Interfaces.Order;
-using Applications.dtos;
-using Applications.dtos.Requests;
+using Application.Interfaces.UserServices;
+using Application.Interfaces.User;
+using Application.Interfaces.Order;
+using Application.DTOs;
+using Application.DTOs.Requests;
 using Domain.Entities.Enums;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
