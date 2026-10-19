@@ -14,7 +14,7 @@ public class PasswordResetToken {
 
     [Required]
     [NotNull]
-    public int Token { get; private set; }
+    public string Token { get; private set; }
 
     [Required]
     [NotNull]
@@ -25,26 +25,33 @@ public class PasswordResetToken {
     public DateTime CreateAt { get; private set; }
 
     [NotNull]
-    public bool Used { get; private set; }
+    public bool IsUsed { get; private set; }
 
-    protected PasswordResetToken() {}
+    protected PasswordResetToken()
+    {
+        Token = string.Empty;
+    }
 
-    public PasswordResetToken(int idUser, int token, int expirationMinutes = 15)
+    public PasswordResetToken(int idUser, string token, int expirationMinutes)
     {
         if (idUser <= 0) 
             throw new ArgumentException("IdUser inválido", nameof(idUser));
+        if (string.IsNullOrWhiteSpace(token))
+            throw new ArgumentException("El token no puede estar vacío", nameof(token));
+        if (expirationMinutes <= 0)
+            throw new ArgumentOutOfRangeException(nameof(expirationMinutes), "La expiración debe ser mayor que cero.");
 
         IdUser = idUser;
         Token = token;
         CreateAt = DateTime.UtcNow;
         ExpiresAt = CreateAt.AddMinutes(expirationMinutes);
-        Used = false;
+        IsUsed = false;
     }
 
     public bool IsExpired() => DateTime.UtcNow > ExpiresAt;
 
     public void MarkAsUsed()
     {
-        Used = true;
+        IsUsed = true;
     }
 }

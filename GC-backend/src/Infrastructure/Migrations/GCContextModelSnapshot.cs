@@ -47,7 +47,8 @@ namespace Infrastructure.Migrations
 
                     b.HasKey("IdAddress");
 
-                    b.HasIndex("IdUser");
+                    b.HasIndex("IdUser")
+                        .IsUnique();
 
                     b.ToTable("Addresses");
                 });
@@ -204,6 +205,37 @@ namespace Infrastructure.Migrations
                     b.HasIndex("IdProduct");
 
                     b.ToTable("OrderItems");
+                });
+
+            modelBuilder.Entity("Domain.Entities.PasswordResetToken", b =>
+                {
+                    b.Property<int>("IdPasswordResetToken")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("IdPasswordResetToken"));
+
+                    b.Property<DateTime>("CreateAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("ExpiresAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("IdUser")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("IsUsed")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Token")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("IdPasswordResetToken");
+
+                    b.HasIndex("IdUser");
+
+                    b.ToTable("PasswordResetTokens");
                 });
 
             modelBuilder.Entity("Domain.Entities.Product", b =>
@@ -451,6 +483,15 @@ namespace Infrastructure.Migrations
                     b.Navigation("Order");
 
                     b.Navigation("Product");
+                });
+
+            modelBuilder.Entity("Domain.Entities.PasswordResetToken", b =>
+                {
+                    b.HasOne("Domain.Entities.User", null)
+                        .WithMany()
+                        .HasForeignKey("IdUser")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("Domain.Entities.ProductCategory", b =>

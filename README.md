@@ -2,7 +2,7 @@
 
 Bienvenido al repositorio principal de **GreenCongelados**, un sistema integral diseñado para la gestión y comercialización de productos congelados.
 
-Este proyecto utiliza una estructura de monorepositorio para mantener sincronizados el backend y el futuro frontend.
+Este repositorio contiene actualmente el backend y prevé incorporar el frontend como otro módulo del proyecto.
 
 ## 🏗️ Estructura del Proyecto
 
@@ -25,8 +25,9 @@ Para ver detalles técnicos, requisitos de instalación y cómo ejecutar la API,
 ## 🛠️ Tecnologías Principales
 
 - **Backend:** .NET 8, EF Core, SQL Server.
-- **Base de Datos:** Diseñada con [Patrones de Dominio](https://en.wikipedia.org/wiki/Domain-driven_design).
-- **Documentación:** Swagger / OpenAPI en el backend.
+- **Base de datos:** SQL Server, gestionada con Entity Framework Core.
+- **Diseño:** El backend sigue principios de Clean Architecture e incluye una capa de dominio.
+- **Documentación:** Swagger / OpenAPI está habilitado en el entorno de desarrollo del backend.
 
 ---
 *Este proyecto es parte de la solución GreenCongelados.*
