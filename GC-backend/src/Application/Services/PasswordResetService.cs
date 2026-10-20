@@ -17,34 +17,34 @@ public class PasswordResetService : IPasswordResetService
     private readonly IUserTokenRepository _userTokenRepository;
     private readonly IEmailSenderService _emailSenderService;
     private readonly IPasswordHasher _passwordHasher;
-    private readonly IPasswordResetTokenProvider _passwordResetTokenProvider;
+    private readonly IUserTokenProvider _userTokenProvider;
     private readonly IUnitOfWork _unitOfWork;
-    private readonly int _tokenExpirationMinutes;
+    private readonly int _passwordResetExpirationMinutes;
 
     public PasswordResetService(
         IUserRepository userRepository,
-        IUserTokenRepository passwordResetTokenRepository,
+        IUserTokenRepository userTokenRepository,
         IEmailSenderService emailSender,
         IPasswordHasher passwordHasher,
-        IPasswordResetTokenProvider passwordResetTokenProvider,
+        IUserTokenProvider userTokenProvider,
         IUnitOfWork unitOfWork,
         IConfiguration configuration
     )
     {
         _userRepository = userRepository;
-        _userTokenRepository = passwordResetTokenRepository;
+        _userTokenRepository = userTokenRepository;
         _emailSenderService = emailSender;
         _passwordHasher = passwordHasher;
-        _passwordResetTokenProvider = passwordResetTokenProvider;
+        _userTokenProvider = userTokenProvider;
         _unitOfWork = unitOfWork;
 
-        if (!int.TryParse(configuration["PasswordReset:TokenExpirationMinutes"], out int tokenExpirationMinutes)
-            || tokenExpirationMinutes <= 0)
+        if (!int.TryParse(configuration["UserTokens:PasswordResetExpirationMinutes"], out int passwordResetExpirationMinutes)
+            || passwordResetExpirationMinutes <= 0)
         {
-            throw new InvalidOperationException("PasswordReset:TokenExpirationMinutes debe configurarse con un valor mayor que cero.");
+            throw new InvalidOperationException("UserTokens:PasswordResetExpirationMinutes debe configurarse con un valor mayor que cero.");
         }
 
-        _tokenExpirationMinutes = tokenExpirationMinutes;
+        _passwordResetExpirationMinutes = passwordResetExpirationMinutes;
     }
 
     public async Task RequestPasswordResetAsync(ForgotPasswordRequest request)
@@ -59,9 +59,9 @@ public class PasswordResetService : IPasswordResetService
         // Invalidar tokens previos del usuario
         await _userTokenRepository.InvalidateAllForUserAsync(user.IdUser, TokenType.PasswordReset);
         // Generar nuevo token seguro y guardarlo
-        var secureToken = _passwordResetTokenProvider.GenerateToken();
-        var hashToken = _passwordResetTokenProvider.HashToken(secureToken);
-        var resetToken = new UserToken(user.IdUser, hashToken, _tokenExpirationMinutes, TokenType.PasswordReset);
+        var secureToken = _userTokenProvider.GenerateToken();
+        var hashToken = _userTokenProvider.HashToken(secureToken);
+        var resetToken = new UserToken(user.IdUser, hashToken, _passwordResetExpirationMinutes, TokenType.PasswordReset);
         await _userTokenRepository.AddAsync(resetToken);
         await _unitOfWork.SaveChangesAsync();
         // Enviar email con el enlace
@@ -72,17 +72,11 @@ public class PasswordResetService : IPasswordResetService
     public async Task ResetPasswordAsync(ResetPasswordRequest request)
     {
         // Hashear el token recibido y buscarlo en la BD
-        string hashToken = _passwordResetTokenProvider.HashToken(request.Token);
+        string hashToken = _userTokenProvider.HashToken(request.Token);
 
         // Obtener y validar token (que exista, no esté usado y no haya expirado)
-        UserToken? validToken = await FindValidTokenAsync(hashToken, TokenType.PasswordReset);
+        UserToken? validToken = await FindValidTokenAsync(hashToken);
         if (validToken is null)
-        {
-            throw new InvalidOperationException("El token es inválido o ha expirado.");
-        }
-
-        // Verificar si el type de token es de cambio de contraseña
-        if (validToken.Type is not TokenType.PasswordReset)
         {
             throw new InvalidOperationException("El token es inválido o ha expirado.");
         }
@@ -111,20 +105,20 @@ public class PasswordResetService : IPasswordResetService
             throw new InvalidOperationException("El token es inválido o ha expirado.");
         }
 
-        string hashToken = _passwordResetTokenProvider.HashToken(token);
-        UserToken? validToken = await FindValidTokenAsync(hashToken, TokenType.PasswordReset);
+        string hashToken = _userTokenProvider.HashToken(token);
+        UserToken? validToken = await FindValidTokenAsync(hashToken);
         return validToken ?? throw new InvalidOperationException("El token es inválido o ha expirado.");
     }
 
-    private async Task<UserToken?> FindValidTokenAsync(string hashToken, TokenType tokenType)
+    private async Task<UserToken?> FindValidTokenAsync(string hashToken)
     {
-        UserToken? resetToken = await _userTokenRepository.GetByTokenAsync(hashToken, tokenType);
-        if (resetToken is null || resetToken.IsExpired() || resetToken.IsUsed)
+        UserToken? userToken = await _userTokenRepository.GetByTokenAsync(hashToken, TokenType.PasswordReset);
+        if (userToken is null || userToken.IsExpired() || userToken.IsUsed)
         {
             return null;
         }
 
-        return resetToken;
+        return userToken;
     }
 
 }

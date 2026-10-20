@@ -374,11 +374,11 @@ namespace Infrastructure.Migrations
 
             modelBuilder.Entity("Domain.Entities.UserToken", b =>
                 {
-                    b.Property<int>("IdPasswordResetToken")
+                    b.Property<int>("IdUserToken")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("IdPasswordResetToken"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("IdUserToken"));
 
                     b.Property<DateTime>("CreateAt")
                         .HasColumnType("datetime2");
@@ -399,7 +399,7 @@ namespace Infrastructure.Migrations
                     b.Property<int>("Type")
                         .HasColumnType("int");
 
-                    b.HasKey("IdPasswordResetToken");
+                    b.HasKey("IdUserToken");
 
                     b.HasIndex("IdUser");
 

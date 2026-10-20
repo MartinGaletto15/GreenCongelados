@@ -1,10 +1,10 @@
-using Application.Interfaces.PasswordReset;
+using Application.Interfaces.Security;
 using System.Security.Cryptography;
 using System.Text;
 
 namespace Infrastructure.Security;
 
-public class PasswordResetTokenProvider : IPasswordResetTokenProvider
+public class UserTokenProvider : IUserTokenProvider
 {
     public string GenerateToken()
     {

@@ -100,7 +100,7 @@ namespace Infrastructure.Persistence
                 .HasIndex(a => a.IdUser)
                 .IsUnique();
 
-            // Password reset tokens belong to a user
+            // Tokens belong to a user
             modelBuilder.Entity<UserToken>()
                 .HasOne<User>()
                 .WithMany(user => user.UserTokens)

@@ -7,7 +7,7 @@ public class UserToken {
     [Key]
     [Required]
     [NotNull]
-    public int IdPasswordResetToken { get; private set; }
+    public int IdUserToken { get; private set; }
 
     [Required]
     [NotNull]

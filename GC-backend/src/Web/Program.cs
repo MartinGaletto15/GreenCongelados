@@ -46,7 +46,7 @@ builder.Services.AddScoped<IOrderRepository, OrderRepository>();
 builder.Services.AddScoped<IOrderItemRepository, OrderItemRepository>();
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<IPasswordHasher, BcryptPasswordHasher>();
-builder.Services.AddScoped<IPasswordResetTokenProvider, PasswordResetTokenProvider>();
+builder.Services.AddScoped<IUserTokenProvider, UserTokenProvider>();
 builder.Services.AddScoped<IPasswordResetService, PasswordResetService>();
 builder.Services.AddScoped<IJwtProvider, JwtProvider>();
 builder.Services.AddScoped<IEmailSenderService, SmtpEmailSender>();
