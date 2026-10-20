@@ -14,20 +14,20 @@ public class UserTokenRepository : GenericRepository<UserToken>, IUserTokenRepos
 
     public async Task<UserToken?> GetByTokenAsync(string token, TokenType typeToken)
     {
-        return await _context.PasswordResetTokens
+        return await _context.UserTokens
             .FirstOrDefaultAsync(x => x.Token == token && x.Type == typeToken);
     }
 
     public async Task<IEnumerable<UserToken>> GetActiveByUserIdAsync(int userId, TokenType typeToken)
     {
-        return await _context.PasswordResetTokens
+        return await _context.UserTokens
             .Where(x => x.IdUser == userId && x.Type == typeToken && !x.IsUsed && x.ExpiresAt > DateTime.UtcNow)
             .ToListAsync();
     }
 
     public async Task InvalidateAllForUserAsync(int userId, TokenType typeToken)
     {
-        var activeTokens = await _context.PasswordResetTokens
+        var activeTokens = await _context.UserTokens
             .Where(x => x.IdUser == userId && x.Type == typeToken && !x.IsUsed)
             .ToListAsync();
 
@@ -39,7 +39,7 @@ public class UserTokenRepository : GenericRepository<UserToken>, IUserTokenRepos
 
     public async Task DeleteExpiredAsync(TokenType typeToken)
     {
-        var expiredTokens = await _context.PasswordResetTokens
+        var expiredTokens = await _context.UserTokens
             .Where(x => x.Type == typeToken && x.ExpiresAt < DateTime.UtcNow)
             .ToListAsync();
 
@@ -48,6 +48,6 @@ public class UserTokenRepository : GenericRepository<UserToken>, IUserTokenRepos
             return;
         }
 
-        _context.PasswordResetTokens.RemoveRange(expiredTokens);
+        _context.UserTokens.RemoveRange(expiredTokens);
     }
 }

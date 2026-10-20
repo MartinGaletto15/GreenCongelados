@@ -46,7 +46,7 @@ public class User
     // Cart belonging to the user
     public Cart? Cart { get; private set; }
 
-    public ICollection<UserToken> PasswordResetTokens { get; private set; } = new List<UserToken>();
+    public ICollection<UserToken> UserTokens { get; private set; } = new List<UserToken>();
 
     protected User() {
         Name = string.Empty;

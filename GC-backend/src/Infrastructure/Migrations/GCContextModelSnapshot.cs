@@ -403,7 +403,7 @@ namespace Infrastructure.Migrations
 
                     b.HasIndex("IdUser");
 
-                    b.ToTable("PasswordResetTokens");
+                    b.ToTable("UserTokens");
                 });
 
             modelBuilder.Entity("Domain.Entities.Address", b =>
@@ -513,7 +513,7 @@ namespace Infrastructure.Migrations
             modelBuilder.Entity("Domain.Entities.UserToken", b =>
                 {
                     b.HasOne("Domain.Entities.User", null)
-                        .WithMany("PasswordResetTokens")
+                        .WithMany("UserTokens")
                         .HasForeignKey("IdUser")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -556,7 +556,7 @@ namespace Infrastructure.Migrations
 
                     b.Navigation("OrdersToDeliver");
 
-                    b.Navigation("PasswordResetTokens");
+                    b.Navigation("UserTokens");
                 });
 #pragma warning restore 612, 618
         }
