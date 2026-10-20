@@ -210,7 +210,7 @@ namespace Infrastructure.Migrations
                     b.ToTable("OrderItems");
                 });
 
-            modelBuilder.Entity("Domain.Entities.PasswordResetToken", b =>
+            modelBuilder.Entity("Domain.Entities.UserToken", b =>
                 {
                     b.Property<int>("IdPasswordResetToken")
                         .ValueGeneratedOnAdd()
@@ -488,7 +488,7 @@ namespace Infrastructure.Migrations
                     b.Navigation("Product");
                 });
 
-            modelBuilder.Entity("Domain.Entities.PasswordResetToken", b =>
+            modelBuilder.Entity("Domain.Entities.UserToken", b =>
                 {
                     b.HasOne("Domain.Entities.User", null)
                         .WithMany()

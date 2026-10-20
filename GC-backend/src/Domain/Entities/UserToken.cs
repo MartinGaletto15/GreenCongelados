@@ -1,8 +1,9 @@
 using System.ComponentModel.DataAnnotations;
 using System.Diagnostics.CodeAnalysis;
+using Domain.Entities.Enums;
 
 namespace Domain.Entities;
-public class PasswordResetToken {
+public class UserToken {
     [Key]
     [Required]
     [NotNull]
@@ -24,15 +25,18 @@ public class PasswordResetToken {
     [NotNull]
     public DateTime CreateAt { get; private set; }
 
+    [Required]
+    public TokenType Type { get; private set; }
+
     [NotNull]
     public bool IsUsed { get; private set; }
 
-    protected PasswordResetToken()
+    protected UserToken()
     {
         Token = string.Empty;
     }
 
-    public PasswordResetToken(int idUser, string token, int expirationMinutes)
+    public UserToken(int idUser, string token, int expirationMinutes, TokenType type)
     {
         if (idUser <= 0) 
             throw new ArgumentException("IdUser inválido", nameof(idUser));
@@ -45,6 +49,7 @@ public class PasswordResetToken {
         Token = token;
         CreateAt = DateTime.UtcNow;
         ExpiresAt = CreateAt.AddMinutes(expirationMinutes);
+        Type = type;
         IsUsed = false;
     }
 

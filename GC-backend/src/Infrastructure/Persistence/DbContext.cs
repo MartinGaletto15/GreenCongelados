@@ -20,7 +20,7 @@ namespace Infrastructure.Persistence
         public DbSet<ShippingCost> ShippingCost { get; set; }
         public DbSet<Cart> Carts { get; set; }
         public DbSet<CartItem> CartItems { get; set; }
-        public DbSet<PasswordResetToken> PasswordResetTokens { get; set; }
+        public DbSet<UserToken> PasswordResetTokens { get; set; }
 
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -101,7 +101,7 @@ namespace Infrastructure.Persistence
                 .IsUnique();
 
             // Password reset tokens belong to a user
-            modelBuilder.Entity<PasswordResetToken>()
+            modelBuilder.Entity<UserToken>()
                 .HasOne<User>()
                 .WithMany(user => user.PasswordResetTokens)
                 .HasForeignKey(token => token.IdUser)

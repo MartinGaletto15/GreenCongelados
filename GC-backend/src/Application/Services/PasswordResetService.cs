@@ -1,6 +1,7 @@
 using Application.Interfaces;
 using Domain.Interfaces;
 using Domain.Entities;
+using Domain.Entities.Enums;
 using Application.DTOs.Requests;
 using Application.Interfaces.PasswordReset;
 using Application.Interfaces.Security;
@@ -13,7 +14,7 @@ public class PasswordResetService : IPasswordResetService
 {
 
     private readonly IUserRepository _userRepository;
-    private readonly IPasswordResetTokenRepository _passwordResetTokenRepository;
+    private readonly IUserTokenRepository _userTokenRepository;
     private readonly IEmailSenderService _emailSenderService;
     private readonly IPasswordHasher _passwordHasher;
     private readonly IPasswordResetTokenProvider _passwordResetTokenProvider;
@@ -22,7 +23,7 @@ public class PasswordResetService : IPasswordResetService
 
     public PasswordResetService(
         IUserRepository userRepository,
-        IPasswordResetTokenRepository passwordResetTokenRepository,
+        IUserTokenRepository passwordResetTokenRepository,
         IEmailSenderService emailSender,
         IPasswordHasher passwordHasher,
         IPasswordResetTokenProvider passwordResetTokenProvider,
@@ -31,7 +32,7 @@ public class PasswordResetService : IPasswordResetService
     )
     {
         _userRepository = userRepository;
-        _passwordResetTokenRepository = passwordResetTokenRepository;
+        _userTokenRepository = passwordResetTokenRepository;
         _emailSenderService = emailSender;
         _passwordHasher = passwordHasher;
         _passwordResetTokenProvider = passwordResetTokenProvider;
@@ -56,12 +57,12 @@ public class PasswordResetService : IPasswordResetService
             return;
         }
         // Invalidar tokens previos del usuario
-        await _passwordResetTokenRepository.InvalidateAllForUserAsync(user.IdUser);
+        await _userTokenRepository.InvalidateAllForUserAsync(user.IdUser, TokenType.PasswordReset);
         // Generar nuevo token seguro y guardarlo
         var secureToken = _passwordResetTokenProvider.GenerateToken();
         var hashToken = _passwordResetTokenProvider.HashToken(secureToken);
-        var resetToken = new PasswordResetToken(user.IdUser, hashToken, _tokenExpirationMinutes);
-        await _passwordResetTokenRepository.AddAsync(resetToken);
+        var resetToken = new UserToken(user.IdUser, hashToken, _tokenExpirationMinutes, TokenType.PasswordReset);
+        await _userTokenRepository.AddAsync(resetToken);
         await _unitOfWork.SaveChangesAsync();
         // Enviar email con el enlace
         await _emailSenderService.SendPasswordResetEmailAsync(user.Email, secureToken);
@@ -74,8 +75,14 @@ public class PasswordResetService : IPasswordResetService
         string hashToken = _passwordResetTokenProvider.HashToken(request.Token);
 
         // Obtener y validar token (que exista, no esté usado y no haya expirado)
-        PasswordResetToken? validToken = await FindValidTokenAsync(hashToken);
+        UserToken? validToken = await FindValidTokenAsync(hashToken, TokenType.PasswordReset);
         if (validToken is null)
+        {
+            throw new InvalidOperationException("El token es inválido o ha expirado.");
+        }
+
+        // Verificar si el type de token es de cambio de contraseña
+        if (validToken.Type is not TokenType.PasswordReset)
         {
             throw new InvalidOperationException("El token es inválido o ha expirado.");
         }
@@ -93,11 +100,11 @@ public class PasswordResetService : IPasswordResetService
         validToken.MarkAsUsed();
 
         await _userRepository.UpdateAsync(user);
-        await _passwordResetTokenRepository.UpdateAsync(validToken);
+        await _userTokenRepository.UpdateAsync(validToken);
         await _unitOfWork.SaveChangesAsync();
     }
 
-    public async Task<PasswordResetToken> ValidateTokenAsync(string token)
+    public async Task<UserToken> ValidateTokenAsync(string token)
     {
         if (string.IsNullOrWhiteSpace(token))
         {
@@ -105,13 +112,13 @@ public class PasswordResetService : IPasswordResetService
         }
 
         string hashToken = _passwordResetTokenProvider.HashToken(token);
-        PasswordResetToken? validToken = await FindValidTokenAsync(hashToken);
+        UserToken? validToken = await FindValidTokenAsync(hashToken, TokenType.PasswordReset);
         return validToken ?? throw new InvalidOperationException("El token es inválido o ha expirado.");
     }
 
-    private async Task<PasswordResetToken?> FindValidTokenAsync(string hashToken)
+    private async Task<UserToken?> FindValidTokenAsync(string hashToken, TokenType tokenType)
     {
-        PasswordResetToken? resetToken = await _passwordResetTokenRepository.GetByTokenAsync(hashToken);
+        UserToken? resetToken = await _userTokenRepository.GetByTokenAsync(hashToken, tokenType);
         if (resetToken is null || resetToken.IsExpired() || resetToken.IsUsed)
         {
             return null;

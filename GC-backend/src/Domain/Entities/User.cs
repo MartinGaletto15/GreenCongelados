@@ -23,6 +23,9 @@ public class User
     public string Email { get; private set; }
 
     [Required]
+    public bool EmailConfirmed { get; private set; }
+
+    [Required]
     [MaxLength(100)]
     public string Password { get; private set; }
     
@@ -43,7 +46,7 @@ public class User
     // Cart belonging to the user
     public Cart? Cart { get; private set; }
 
-    public ICollection<PasswordResetToken> PasswordResetTokens { get; private set; } = new List<PasswordResetToken>();
+    public ICollection<UserToken> PasswordResetTokens { get; private set; } = new List<UserToken>();
 
     protected User() {
         Name = string.Empty;
@@ -78,6 +81,11 @@ public class User
         }
 
         Phone = phone ?? Phone;
+    }
+
+    public void EmailConfirm()
+    {
+        EmailConfirmed = true;
     }
 
     public void UpdatePassword(string passwordHash)

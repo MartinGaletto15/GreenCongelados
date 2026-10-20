@@ -7,5 +7,5 @@ public interface IPasswordResetService
 {
     Task RequestPasswordResetAsync(ForgotPasswordRequest request);
     Task ResetPasswordAsync(ResetPasswordRequest request);
-    Task<PasswordResetToken> ValidateTokenAsync(string token);
+    Task<UserToken> ValidateTokenAsync(string token);
 }
