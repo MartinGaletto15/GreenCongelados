@@ -69,6 +69,7 @@ nunit-*.xml
 #-------------------------------------------------
 .agents/
 Notas.txt
+registerconfirmation.txt
 GEMINI.md
 *.db
 *.db-shm

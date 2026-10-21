@@ -53,6 +53,7 @@ La solución actualmente no incluye proyectos de pruebas automatizadas.
     | `MailKit:PasswordGmail` | Contraseña de aplicación de Gmail; no uses la contraseña habitual de la cuenta. |
     | `MailKit:Server` | Servidor SMTP del proveedor de correo (por ejemplo, `smtp.gmail.com` para Gmail). |
     | `MailKit:Port` | Puerto SMTP; el remitente usa STARTTLS. |
+    | `MailKit:TimeoutSeconds` | Opcional. Timeout de la conexión/envío SMTP en segundos (por defecto `15`). |
 
     Para evitar filtrar credenciales, la contraseña de Gmail no debe dejarse en `appsettings*.json` versionados. Lo recomendado es usar User Secrets o variables de entorno:
 
@@ -65,6 +66,8 @@ La solución actualmente no incluye proyectos de pruebas automatizadas.
     ```bash
     setx MailKit__PasswordGmail "TU_CONTRASEÑA_DE_APLICACION"
     ```
+
+    Si ejecutas la API en `Development` sin `MailKit:PasswordGmail`, se usa un sender de consola: no se envían correos reales, pero el token de confirmación o restablecimiento aparece en el log de la aplicación. Así puedes probar el flujo completo sin configurar Gmail. En `Production` la configuración SMTP es obligatoria y la API falla al arrancar si falta.
 
     En el caso de variables de entorno, también se admite `MailKit__Email`, `MailKit__Server` y `MailKit__Port`. Si prefieres mantener el desarrollo local más seguro, usa `dotnet user-secrets` y deja `PasswordGmail` vacío o omitido en los archivos de configuración guardados en el repositorio. El código solo leerá la clave `MailKit:PasswordGmail`/`MailKit__PasswordGmail`; un nombre distinto no será interpretado.
 

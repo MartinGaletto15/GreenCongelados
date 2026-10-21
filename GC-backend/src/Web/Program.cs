@@ -7,6 +7,7 @@ using Application.Services;
 using Application.Interfaces;
 using Application.Interfaces.EmailSender;
 using Application.Interfaces.PasswordReset;
+using Application.Interfaces.EmailVerification;
 using Application.Interfaces.Address;
 using Application.Interfaces.Categories;
 using Application.Interfaces.Order;
@@ -48,8 +49,39 @@ builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<IPasswordHasher, BcryptPasswordHasher>();
 builder.Services.AddScoped<IUserTokenProvider, UserTokenProvider>();
 builder.Services.AddScoped<IPasswordResetService, PasswordResetService>();
+builder.Services.AddScoped<IEmailVerificationService, EmailVerificationTokenService>();
 builder.Services.AddScoped<IJwtProvider, JwtProvider>();
-builder.Services.AddScoped<IEmailSenderService, SmtpEmailSender>();
+
+// Email: en Development sin credenciales se usa un sender que solo registra el token en el log.
+var smtpSection = builder.Configuration.GetSection(SmtpOptions.SectionName);
+
+if (!builder.Environment.IsDevelopment())
+{
+    builder.Services.AddOptions<SmtpOptions>()
+        .Bind(smtpSection)
+        .Validate(o => !string.IsNullOrWhiteSpace(o.Email), "MailKit:Email es obligatorio.")
+        .Validate(o => !string.IsNullOrWhiteSpace(o.PasswordGmail), "MailKit:PasswordGmail es obligatorio.")
+        .Validate(o => !string.IsNullOrWhiteSpace(o.Server), "MailKit:Server es obligatorio.")
+        .Validate(o => o.Port > 0, "MailKit:Port debe ser mayor que cero.")
+        .ValidateOnStart();
+}
+else
+{
+    builder.Services.Configure<SmtpOptions>(smtpSection);
+}
+
+var hasSmtpPassword = !string.IsNullOrWhiteSpace(builder.Configuration["MailKit:PasswordGmail"]);
+
+if (builder.Environment.IsDevelopment() && !hasSmtpPassword)
+{
+    builder.Services.AddScoped<IEmailSenderService, ConsoleEmailSender>();
+}
+else
+{
+    builder.Services.AddScoped<SmtpEmailSender>();
+    builder.Services.AddScoped<IEmailSenderService, BestEffortEmailSender>();
+}
+
 builder.Services.AddScoped<IUserWriteService, UserService>();
 builder.Services.AddScoped<IUserReadOnlyService, UserService>();
 builder.Services.AddScoped<IAddressReadOnlyService, AddressService>();

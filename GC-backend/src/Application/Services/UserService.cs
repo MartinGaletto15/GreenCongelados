@@ -10,6 +10,8 @@ using Domain.Exceptions;
 using Domain.Interfaces;
 using Microsoft.Extensions.Configuration;
 using Application.Interfaces.CartItem;
+using Application.Interfaces.EmailSender;
+using Application.Interfaces.EmailVerification;
 
 
 namespace Application.Services;
@@ -17,29 +19,41 @@ namespace Application.Services;
 public class UserService : IUserWriteService, IUserReadOnlyService
 {
     private readonly IUserRepository _userRepository;
+    private readonly IUserTokenProvider _userTokenProvider;
     private readonly IConfiguration _configuration;
     private readonly IPasswordHasher _passwordHasher;
     private readonly IJwtProvider _jwtProvider;
     private readonly ICartItemWriteService _cartItemWriteService;
     private readonly IUnitOfWork _unitOfWork;
     private readonly IOrderRepository _orderRepository;
+    private readonly IUserTokenRepository _userTokenRepository;
+    private readonly IEmailSenderService _emailSenderService;
+    private readonly IEmailVerificationService _emailVerificationService;
 
     public UserService(
-        IUserRepository userRepository, 
-        IConfiguration configuration, 
+        IUserRepository userRepository,
+        IUserTokenProvider userTokenProvider,
+        IConfiguration configuration,
         IPasswordHasher passwordHasher,
         IJwtProvider jwtProvider,
         ICartItemWriteService cartItemWriteService,
         IUnitOfWork unitOfWork,
-        IOrderRepository orderRepository)
+        IOrderRepository orderRepository,
+        IUserTokenRepository userTokenRepository,
+        IEmailSenderService emailSenderService,
+        IEmailVerificationService emailVerificationService)
     {
         _userRepository = userRepository;
+        _userTokenProvider = userTokenProvider;
         _configuration = configuration;
         _passwordHasher = passwordHasher;
         _jwtProvider = jwtProvider;
         _cartItemWriteService = cartItemWriteService;
         _unitOfWork = unitOfWork;
         _orderRepository = orderRepository;
+        _userTokenRepository = userTokenRepository;
+        _emailSenderService = emailSenderService;
+        _emailVerificationService = emailVerificationService;
     }
 
     public async Task<string> LoginAsync(LoginRequest request)
@@ -49,27 +63,68 @@ public class UserService : IUserWriteService, IUserReadOnlyService
         if (user == null || !_passwordHasher.Verify(request.Password, user.Password))
             throw new AppValidationException("Credenciales inválidas");
 
+        if (!user.EmailConfirmed)
+            throw new AppValidationException("Email no confirmado", "USER_EMAIL_NOT_CONFIRMED");
+
         return _jwtProvider.GenerateToken(user);
     }
 
-    public async Task<UserDTO> CreateUserAsync(CreateUserRequest request)
+    public async Task<UserDTO> CreateUserAsync(CreateUserRequest request, CancellationToken cancellationToken = default)
     {
         await UserValidator.ValidateCreateAsync(request, _userRepository);
 
         string passwordHash = _passwordHasher.Hash(request.Password);
+        var existingUser = await _userRepository.GetByEmailAsync(request.Email);
+        User user;
 
-        var newUser = new User(
-            request.Name,
-            request.LastName,
-            request.Email,
-            passwordHash
-        );
+        // Usuario y carrito se confirman juntos; el correo se envía después del commit.
+        await _unitOfWork.BeginTransactionAsync();
+        try
+        {
+            if (existingUser is not null)
+            {
+                // Invalidar tokens de confirmación previos
+                await _userTokenRepository.InvalidateAllForUserAsync(existingUser.IdUser, TokenType.EmailConfirmation);
 
-        await _userRepository.AddAsync(newUser);
-        await _unitOfWork.SaveChangesAsync();
-        // Create user's cart here
-        await _cartItemWriteService.CreateCartAsync(newUser.IdUser);
-        return UserDTO.Create(newUser);
+                // Sobrescribir datos del usuario no confirmado
+                existingUser.UpdateUnconfirmedUserData(request.Name, request.LastName, passwordHash);
+                await _userRepository.UpdateAsync(existingUser);
+
+                user = existingUser;
+            }
+            else
+            {
+                // Crear nuevo usuario
+                user = new User(
+                    request.Name,
+                    request.LastName,
+                    request.Email,
+                    passwordHash
+                );
+                await _userRepository.AddAsync(user);
+            }
+
+            await _unitOfWork.SaveChangesAsync();
+
+            // Crear carrito solo si es un usuario estrictamente nuevo
+            if (existingUser is null)
+            {
+                await _cartItemWriteService.CreateCartAsync(user.IdUser);
+            }
+
+            await _unitOfWork.CommitTransactionAsync();
+        }
+        catch
+        {
+            await _unitOfWork.RollbackTransactionAsync();
+            throw;
+        }
+
+        // Generar token y enviar correo de confirmación (después del commit).
+        // Un fallo de SMTP no revierte el registro ni invalida la petición.
+        await _emailVerificationService.SendVerificationEmailAsync(user, cancellationToken);
+
+        return UserDTO.Create(user);
     }
 
     public async Task<UserDTO> UpdateUserAsync(int id, UpdateUserRequest request)
@@ -85,7 +140,7 @@ public class UserService : IUserWriteService, IUserReadOnlyService
             string passwordHash = _passwordHasher.Hash(request.Password);
             user.UpdatePassword(passwordHash);
         }
-        
+
         user.UpdateDetails(request.Name, request.LastName, request.Phone);
 
         await _userRepository.UpdateAsync(user);
@@ -96,7 +151,7 @@ public class UserService : IUserWriteService, IUserReadOnlyService
     public async Task<UserDTO> UpdateUserRoleAsync(int id, Role role, Role performerRole)
     {
         var user = await _userRepository.GetByIdAsync(id);
-        
+
         if (user == null)
             throw new AppValidationException("El usuario no existe.", "USER_NOT_FOUND");
 
@@ -111,7 +166,7 @@ public class UserService : IUserWriteService, IUserReadOnlyService
     public async Task<UserDTO> DeleteUserAsync(int id)
     {
         var user = await _userRepository.GetByIdAsync(id);
-        
+
         if (user == null)
             throw new AppValidationException($"No se puede eliminar: El usuario con ID {id} no existe.", "USER_NOT_FOUND");
 
@@ -123,7 +178,7 @@ public class UserService : IUserWriteService, IUserReadOnlyService
     public async Task<UserDTO> GetUserByIdAsync(int id)
     {
         var user = await _userRepository.GetByIdAsync(id);
-        
+
         if (user == null)
             throw new AppValidationException($"Usuario con ID {id} no encontrado", "USER_NOT_FOUND");
 
@@ -133,7 +188,7 @@ public class UserService : IUserWriteService, IUserReadOnlyService
     public async Task<IEnumerable<UserDTO>> GetAllUsersAsync()
     {
         var users = await _userRepository.GetAllAsync();
-        
+
         if (users == null || !users.Any())
             throw new AppValidationException("No hay usuarios registrados en el sistema", "USER_LIST_EMPTY");
 

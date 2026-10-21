@@ -4,6 +4,7 @@ using Domain.Entities.Enums;
 using Domain.Exceptions;
 
 namespace Domain.Entities;
+
 public class User
 {
     [Key]
@@ -28,7 +29,7 @@ public class User
     [Required]
     [MaxLength(100)]
     public string Password { get; private set; }
-    
+
     [MaxLength(25)]
     public string? Phone { get; private set; }
 
@@ -36,11 +37,11 @@ public class User
 
 
     // Orders the user PLACED (as Client)
-    [InverseProperty("User")] 
+    [InverseProperty("User")]
     public ICollection<Order> OrdersPlaced { get; private set; } = new List<Order>();
 
     // Orders the user DELIVERS (as Courier)
-    [InverseProperty("Courier")] 
+    [InverseProperty("Courier")]
     public ICollection<Order> OrdersToDeliver { get; private set; } = new List<Order>();
 
     // Cart belonging to the user
@@ -48,7 +49,8 @@ public class User
 
     public ICollection<UserToken> UserTokens { get; private set; } = new List<UserToken>();
 
-    protected User() {
+    protected User()
+    {
         Name = string.Empty;
         LastName = string.Empty;
         Email = string.Empty;
@@ -58,7 +60,7 @@ public class User
     public User(string name, string lastName, string email, string passwordHash, Role role = Role.USER)
     {
         ValidateData(name, lastName, email);
-        
+
         Name = name;
         LastName = lastName;
         Email = email;
@@ -104,5 +106,24 @@ public class User
         if (string.IsNullOrWhiteSpace(name)) throw new AppValidationException("Name cannot be empty", "INVALID_NAME");
         if (string.IsNullOrWhiteSpace(lastName)) throw new AppValidationException("Last name cannot be empty", "INVALID_LASTNAME");
         if (string.IsNullOrWhiteSpace(email)) throw new AppValidationException("Email cannot be empty", "INVALID_EMAIL");
+    }
+
+    public void UpdateUnconfirmedUserData(string name, string lastName, string passwordHash)
+    {
+        if (EmailConfirmed)
+        {
+            throw new AppValidationException("No se pueden sobrescribir los datos de una cuenta ya confirmada.", "USER_ALREADY_CONFIRMED");
+        }
+
+        ValidateData(name, lastName, Email);
+
+        if (string.IsNullOrWhiteSpace(passwordHash))
+        {
+            throw new AppValidationException("Password cannot be empty", "INVALID_PASSWORD");
+        }
+
+        Name = name;
+        LastName = lastName;
+        Password = passwordHash;
     }
 }

@@ -7,6 +7,7 @@ using Application.Interfaces.PasswordReset;
 using Application.Interfaces.Security;
 using Application.Interfaces.EmailSender;
 using Microsoft.Extensions.Configuration;
+using Domain.Exceptions;
 
 namespace Application.Services;
 
@@ -47,7 +48,7 @@ public class PasswordResetService : IPasswordResetService
         _passwordResetExpirationMinutes = passwordResetExpirationMinutes;
     }
 
-    public async Task RequestPasswordResetAsync(ForgotPasswordRequest request)
+    public async Task RequestPasswordResetAsync(ForgotPasswordRequest request, CancellationToken cancellationToken = default)
     {
         // Buscar usuario por email
         User? user = await _userRepository.GetByEmailAsync(request.Email);
@@ -65,7 +66,7 @@ public class PasswordResetService : IPasswordResetService
         await _userTokenRepository.AddAsync(resetToken);
         await _unitOfWork.SaveChangesAsync();
         // Enviar email con el enlace
-        await _emailSenderService.SendPasswordResetEmailAsync(user.Email, secureToken);
+        await _emailSenderService.SendPasswordResetEmailAsync(user.Email, secureToken, cancellationToken);
 
     }
 
@@ -78,14 +79,15 @@ public class PasswordResetService : IPasswordResetService
         UserToken? validToken = await FindValidTokenAsync(hashToken);
         if (validToken is null)
         {
-            throw new InvalidOperationException("El token es inválido o ha expirado.");
+            throw new AppValidationException("El token es inválido o ha expirado.", "INVALID_OR_EXPIRED_TOKEN");
+
         }
-        
+
         // Obtener usuario asociado
         User? user = await _userRepository.GetByIdAsync(validToken.IdUser);
         if (user is null)
         {
-            throw new InvalidOperationException("El token es inválido o ha expirado.");
+            throw new AppValidationException("El token es inválido o ha expirado.", "INVALID_OR_EXPIRED_TOKEN");
         }
 
         // Hashear y actualizar contraseña
@@ -102,12 +104,12 @@ public class PasswordResetService : IPasswordResetService
     {
         if (string.IsNullOrWhiteSpace(token))
         {
-            throw new InvalidOperationException("El token es inválido o ha expirado.");
+            throw new AppValidationException("El token es inválido o ha expirado.", "INVALID_OR_EXPIRED_TOKEN");
         }
 
         string hashToken = _userTokenProvider.HashToken(token);
         UserToken? validToken = await FindValidTokenAsync(hashToken);
-        return validToken ?? throw new InvalidOperationException("El token es inválido o ha expirado.");
+        return validToken ?? throw new AppValidationException("El token es inválido o ha expirado.");
     }
 
     private async Task<UserToken?> FindValidTokenAsync(string hashToken)

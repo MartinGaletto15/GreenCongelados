@@ -23,8 +23,10 @@ public static class UserValidator
             throw new AppValidationException("El apellido es obligatorio y debe tener entre 2 y 50 caracteres.", "USER_LASTNAME_INVALID");
 
         var existingUser = await repository.GetByEmailAsync(request.Email);
-        if (existingUser != null)
-            throw new AppValidationException("El email ya existe en la base de datos.", "USER_EMAIL_EXISTS");
+        if (existingUser != null && existingUser.EmailConfirmed)
+        {
+            throw new AppValidationException("El email ya está registrado.", "USER_EMAIL_EXISTS");
+        }
     }
 
     public static async Task ValidateUpdateAsync(int id, UpdateUserRequest request, IUserRepository repository, User currentUser)
