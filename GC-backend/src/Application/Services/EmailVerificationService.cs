@@ -12,7 +12,7 @@ using Domain.Exceptions;
 
 namespace Application.Services;
 
-public class EmailVerificationTokenService : IEmailVerificationService
+public class EmailVerificationService : IEmailVerificationService
 {
 
     private readonly IUserRepository _userRepository;
@@ -22,7 +22,7 @@ public class EmailVerificationTokenService : IEmailVerificationService
     private readonly IUnitOfWork _unitOfWork;
     private readonly int _emailConfirmationExpirationMinutes;
 
-    public EmailVerificationTokenService(
+    public EmailVerificationService(
         IUserRepository userRepository,
         IUserTokenRepository userTokenRepository,
         IEmailSenderService emailSender,
@@ -46,7 +46,7 @@ public class EmailVerificationTokenService : IEmailVerificationService
         _emailConfirmationExpirationMinutes = emailConfirmationExpirationMinutes;
     }
 
-    public async Task RequestEmailVerificationAsync(ResendEmailConfirmationRequest request, CancellationToken cancellationToken = default)
+    public async Task RequestEmailVerificationAsync(ResendEmailConfirmationRequest request)
     {
         // Buscar usuario por email
         User? user = await _userRepository.GetByEmailAsync(request.Email);
@@ -57,10 +57,10 @@ public class EmailVerificationTokenService : IEmailVerificationService
             return;
         }
 
-        await SendVerificationEmailAsync(user, cancellationToken);
+        await SendVerificationEmailAsync(user);
     }
 
-    public async Task SendVerificationEmailAsync(User user, CancellationToken cancellationToken = default)
+    public async Task SendVerificationEmailAsync(User user)
     {
         // Si ya está confirmado, no generar un nuevo token
         if (user.EmailConfirmed)
@@ -85,8 +85,9 @@ public class EmailVerificationTokenService : IEmailVerificationService
         await _userTokenRepository.AddAsync(confirmationToken);
         await _unitOfWork.SaveChangesAsync();
 
-        // Enviar correo de confirmación
-        await _emailSenderService.SendEmailConfirmationAsync(user.Email, secureToken, cancellationToken);
+        // Enviar correo de confirmación (después de persistir el token y sin
+        // cancelación: si el envío falla, el usuario puede solicitar un reenvío)
+        await _emailSenderService.SendEmailConfirmationAsync(user.Email, secureToken);
     }
 
     public async Task ConfirmEmailAsync(ConfirmEmailRequest request)

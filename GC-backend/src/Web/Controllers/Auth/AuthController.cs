@@ -30,7 +30,7 @@ public class AuthController : ControllerBase
     [HttpPost("register")]
     public async Task<ActionResult<UserDTO>> RegisterAsync(CreateUserRequest request)
     {
-        var user = await _userWriteService.CreateUserAsync(request, HttpContext.RequestAborted);
+        var user = await _userWriteService.CreateUserAsync(request);
         return StatusCode(StatusCodes.Status201Created, user);
     }
 
@@ -44,7 +44,7 @@ public class AuthController : ControllerBase
     [HttpPost("forgot-password")]
     public async Task<IActionResult> ForgotPasswordAsync([FromBody] ForgotPasswordRequest request)
     {
-        await _passwordResetService.RequestPasswordResetAsync(request, HttpContext.RequestAborted);
+        await _passwordResetService.RequestPasswordResetAsync(request);
         return Ok(new { message = "Si el correo existe, se envió el código." });
     }
 
@@ -65,7 +65,7 @@ public class AuthController : ControllerBase
     [HttpPost("resend-verification-email")]
     public async Task<IActionResult> ResendVerificationEmailAsync([FromBody] ResendEmailConfirmationRequest request)
     {
-        await _emailVerificationService.RequestEmailVerificationAsync(request, HttpContext.RequestAborted);
+        await _emailVerificationService.RequestEmailVerificationAsync(request);
         return Ok(new { message = "Si el correo existe y no está verificado, se envió el código." });
     }
 }

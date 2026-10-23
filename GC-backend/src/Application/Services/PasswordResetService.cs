@@ -48,7 +48,7 @@ public class PasswordResetService : IPasswordResetService
         _passwordResetExpirationMinutes = passwordResetExpirationMinutes;
     }
 
-    public async Task RequestPasswordResetAsync(ForgotPasswordRequest request, CancellationToken cancellationToken = default)
+    public async Task RequestPasswordResetAsync(ForgotPasswordRequest request)
     {
         // Buscar usuario por email
         User? user = await _userRepository.GetByEmailAsync(request.Email);
@@ -65,8 +65,9 @@ public class PasswordResetService : IPasswordResetService
         var resetToken = new UserToken(user.IdUser, hashToken, _passwordResetExpirationMinutes, TokenType.PasswordReset);
         await _userTokenRepository.AddAsync(resetToken);
         await _unitOfWork.SaveChangesAsync();
-        // Enviar email con el enlace
-        await _emailSenderService.SendPasswordResetEmailAsync(user.Email, secureToken, cancellationToken);
+        // Enviar email con el enlace (después del commit y sin cancelación:
+        // si el envío falla, el usuario puede solicitar un reenvío)
+        await _emailSenderService.SendPasswordResetEmailAsync(user.Email, secureToken);
 
     }
 

@@ -69,7 +69,7 @@ public class UserService : IUserWriteService, IUserReadOnlyService
         return _jwtProvider.GenerateToken(user);
     }
 
-    public async Task<UserDTO> CreateUserAsync(CreateUserRequest request, CancellationToken cancellationToken = default)
+    public async Task<UserDTO> CreateUserAsync(CreateUserRequest request)
     {
         await UserValidator.ValidateCreateAsync(request, _userRepository);
 
@@ -121,8 +121,9 @@ public class UserService : IUserWriteService, IUserReadOnlyService
         }
 
         // Generar token y enviar correo de confirmación (después del commit).
-        // Un fallo de SMTP no revierte el registro ni invalida la petición.
-        await _emailVerificationService.SendVerificationEmailAsync(user, cancellationToken);
+        // Un fallo de SMTP no revierte el registro ni invalida la petición, y el
+        // envío no se cancela aunque el cliente abandone la petición.
+        await _emailVerificationService.SendVerificationEmailAsync(user);
 
         return UserDTO.Create(user);
     }

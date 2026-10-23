@@ -16,13 +16,13 @@ public sealed class ConsoleEmailSender : IEmailSenderService
         _logger = logger;
     }
 
-    public Task SendPasswordResetEmailAsync(string to, string token, CancellationToken cancellationToken = default)
+    public Task SendPasswordResetEmailAsync(string to, string token)
     {
         _logger.LogWarning("[DEV] Correo de restablecimiento para {Email}. Token: {Token}", to, token);
         return Task.CompletedTask;
     }
 
-    public Task SendEmailConfirmationAsync(string to, string token, CancellationToken cancellationToken = default)
+    public Task SendEmailConfirmationAsync(string to, string token)
     {
         _logger.LogWarning("[DEV] Correo de confirmación para {Email}. Token: {Token}", to, token);
         return Task.CompletedTask;

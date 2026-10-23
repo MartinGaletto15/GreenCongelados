@@ -15,7 +15,7 @@ public class SmtpEmailSender : IEmailSenderService
         _options = options.Value;
     }
 
-    public async Task SendPasswordResetEmailAsync(string to, string token, CancellationToken cancellationToken = default)
+    public async Task SendPasswordResetEmailAsync(string to, string token)
     {
         string subject = "Restablecimiento de contraseña - GreenCongelados";
         string htmlBody = $@"
@@ -26,10 +26,10 @@ public class SmtpEmailSender : IEmailSenderService
             </p>
             <p>Si no solicitaste este cambio, puedes ignorar este correo.</p>";
 
-        await SendEmailAsync(to, subject, htmlBody, cancellationToken);
+        await SendEmailAsync(to, subject, htmlBody);
     }
 
-    public async Task SendEmailConfirmationAsync(string to, string token, CancellationToken cancellationToken = default)
+    public async Task SendEmailConfirmationAsync(string to, string token)
     {
         string subject = "Confirma tu cuenta - GreenCongelados";
         string htmlBody = $@"
@@ -40,10 +40,10 @@ public class SmtpEmailSender : IEmailSenderService
             </p>
             <p>Si no creaste una cuenta, puedes ignorar este correo.</p>";
 
-        await SendEmailAsync(to, subject, htmlBody, cancellationToken);
+        await SendEmailAsync(to, subject, htmlBody);
     }
 
-    private async Task SendEmailAsync(string to, string subject, string htmlBody, CancellationToken cancellationToken)
+    private async Task SendEmailAsync(string to, string subject, string htmlBody)
     {
         if (string.IsNullOrWhiteSpace(_options.Email))
             throw new InvalidOperationException("No se encontró MailKit:Email para enviar el correo.");
@@ -72,11 +72,14 @@ public class SmtpEmailSender : IEmailSenderService
             Timeout = Math.Max(1, _options.TimeoutSeconds) * 1000
         };
 
+        // El envío es best-effort y no admite cancelación: una vez confirmado el
+        // usuario y persistido el token, se intenta completar la entrega. La
+        // duración máxima la acota client.Timeout (MailKit:TimeoutSeconds).
         try
         {
-            await client.ConnectAsync(_options.Server, _options.Port, SecureSocketOptions.StartTls, cancellationToken);
-            await client.AuthenticateAsync(_options.Email, _options.PasswordGmail, cancellationToken);
-            await client.SendAsync(message, cancellationToken);
+            await client.ConnectAsync(_options.Server, _options.Port, SecureSocketOptions.StartTls);
+            await client.AuthenticateAsync(_options.Email, _options.PasswordGmail);
+            await client.SendAsync(message);
         }
         finally
         {
@@ -84,7 +87,7 @@ public class SmtpEmailSender : IEmailSenderService
             {
                 try
                 {
-                    await client.DisconnectAsync(true, CancellationToken.None);
+                    await client.DisconnectAsync(true);
                 }
                 catch
                 {
