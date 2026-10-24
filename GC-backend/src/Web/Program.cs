@@ -27,6 +27,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using System.Text.Json.Serialization;
+using System.Security.Claims;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -51,6 +52,7 @@ builder.Services.AddScoped<IUserTokenProvider, UserTokenProvider>();
 builder.Services.AddScoped<IPasswordResetService, PasswordResetService>();
 builder.Services.AddScoped<IEmailVerificationService, EmailVerificationService>();
 builder.Services.AddScoped<IJwtProvider, JwtProvider>();
+builder.Services.AddSingleton<IRevokedUserStore, RevokedUserStore>();
 
 // Email: en Development sin credenciales se usa un sender que solo registra el token en el log.
 var smtpSection = builder.Configuration.GetSection(SmtpOptions.SectionName);
@@ -126,6 +128,27 @@ builder.Services.AddAuthentication(options =>
         ValidateLifetime = true,
         ValidateIssuerSigningKey = true,
         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSecret))
+    };
+
+    options.Events = new JwtBearerEvents
+    {
+        OnTokenValidated = context =>
+        {
+            var userIdClaim = context.Principal?.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            if (int.TryParse(userIdClaim, out var userId))
+            {
+                var revokedUserStore = context.HttpContext.RequestServices
+                    .GetRequiredService<IRevokedUserStore>();
+
+                if (revokedUserStore.IsRevoked(userId))
+                {
+                    context.Fail("La cuenta fue eliminada.");
+                }
+            }
+
+            return Task.CompletedTask;
+        }
     };
 });
 

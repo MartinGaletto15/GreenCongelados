@@ -29,6 +29,7 @@ public class UserService : IUserWriteService, IUserReadOnlyService
     private readonly IUserTokenRepository _userTokenRepository;
     private readonly IEmailSenderService _emailSenderService;
     private readonly IEmailVerificationService _emailVerificationService;
+    private readonly IRevokedUserStore _revokedUserStore;
 
     public UserService(
         IUserRepository userRepository,
@@ -41,7 +42,8 @@ public class UserService : IUserWriteService, IUserReadOnlyService
         IOrderRepository orderRepository,
         IUserTokenRepository userTokenRepository,
         IEmailSenderService emailSenderService,
-        IEmailVerificationService emailVerificationService)
+        IEmailVerificationService emailVerificationService,
+        IRevokedUserStore revokedUserStore)
     {
         _userRepository = userRepository;
         _userTokenProvider = userTokenProvider;
@@ -54,6 +56,7 @@ public class UserService : IUserWriteService, IUserReadOnlyService
         _userTokenRepository = userTokenRepository;
         _emailSenderService = emailSenderService;
         _emailVerificationService = emailVerificationService;
+        _revokedUserStore = revokedUserStore;
     }
 
     public async Task<string> LoginAsync(LoginRequest request)
@@ -173,6 +176,10 @@ public class UserService : IUserWriteService, IUserReadOnlyService
 
         await _userRepository.DeleteAsync(user);
         await _unitOfWork.SaveChangesAsync();
+
+        // Rechazar cualquier JWT emitido para la cuenta eliminada hasta que venza.
+        _revokedUserStore.Revoke(user.IdUser);
+
         return UserDTO.Create(user);
     }
 
