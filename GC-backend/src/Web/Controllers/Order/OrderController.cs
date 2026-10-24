@@ -77,7 +77,7 @@ public class OrderController : ControllerBase
     }
 
     [HttpPut("{id}/status")]
-    [Authorize(Roles = "ADMIN,SUPERADMIN,CADET")]
+    [Authorize(Roles = "ADMIN,SUPERADMIN")]
     public async Task<ActionResult<OrderDTO>> UpdateStatus(int id, [FromBody] OrderStatus status)
     {
         var result = await _writeService.UpdateOrderStatusAsync(id, status);

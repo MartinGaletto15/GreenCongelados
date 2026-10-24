@@ -1,4 +1,5 @@
 using Domain.Entities;
+using Domain.Entities.Enums;
 using Domain.Interfaces;
 using Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
@@ -49,7 +50,7 @@ public class OrderRepository : GenericRepository<Order>, IOrderRepository
             .Include(o => o.Promotion)
             .Include(o => o.OrderItems)
                 .ThenInclude(oi => oi.Product)
-            .Where(o => o.IdCourier == courierId)
+            .Where(o => o.IdCourier == courierId && o.OrderStatus != OrderStatus.Cancelled)
             .ToListAsync();
     }
 }

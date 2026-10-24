@@ -1,3 +1,4 @@
+using Application.Interfaces.Order;
 using Application.Interfaces.User;
 using Application.Interfaces.UserServices;
 using Application.DTOs;
@@ -11,17 +12,20 @@ namespace Application.Services;
 public class CadetService : ICadetReadOnlyService, ICadetWriteService
 {
     private readonly IOrderRepository _orderRepository;
+    private readonly IOrderWriteService _orderWriteService;
     private readonly IUserRepository _userRepository;
     private readonly IUnitOfWork _unitOfWork;
     private readonly IUserReadOnlyService _userReadOnlyService;
     
     public CadetService(
         IOrderRepository orderRepository, 
+        IOrderWriteService orderWriteService,
         IUserRepository userRepository,
         IUnitOfWork unitOfWork, 
         IUserReadOnlyService userReadOnlyService)
     {
         _orderRepository = orderRepository;
+        _orderWriteService = orderWriteService;
         _userRepository = userRepository;
         _unitOfWork = unitOfWork;
         _userReadOnlyService = userReadOnlyService;
@@ -74,10 +78,7 @@ public class CadetService : ICadetReadOnlyService, ICadetWriteService
         if (order.IdCourier != idCadet)
             throw new AppValidationException("No tienes permiso para actualizar esta orden", "FORBIDDEN");
 
-        order.UpdateStatus(status);
-        await _orderRepository.UpdateAsync(order);
-        await _unitOfWork.SaveChangesAsync();
-
-        return OrderDTO.Create(order);
+        // Reuse the order workflow so stock restoration on cancellation stays centralized.
+        return await _orderWriteService.UpdateOrderStatusAsync(idOrder, status);
     }
 }
