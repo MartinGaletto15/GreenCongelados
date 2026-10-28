@@ -78,6 +78,11 @@ public class CadetService : ICadetReadOnlyService, ICadetWriteService
         if (order.IdCourier != idCadet)
             throw new AppValidationException("No tienes permiso para actualizar esta orden", "FORBIDDEN");
 
+        // Only the customer or an admin can cancel an order. If delivery fails, the cadet
+        // must return it to LogisticsPending so it can be reassigned.
+        if (status == OrderStatus.Cancelled)
+            throw new AppValidationException("Un cadete no puede cancelar una orden; debe devolverla a LogisticsPending", "FORBIDDEN");
+
         // Reuse the order workflow so stock restoration on cancellation stays centralized.
         return await _orderWriteService.UpdateOrderStatusAsync(idOrder, status);
     }

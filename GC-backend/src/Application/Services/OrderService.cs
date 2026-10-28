@@ -70,7 +70,11 @@ public class OrderService : IOrderReadOnlyService, IOrderWriteService
         var entity = await _repository.GetByIdWithDetailsAsync(id);
         if (entity == null) throw new AppValidationException("Order not found", "ORDER_NOT_FOUND");
 
-        if (entity.IdUser != userId && role != "ADMIN" && role != "SUPERADMIN" && role != "CADET")
+        var isAdmin = role == "ADMIN" || role == "SUPERADMIN";
+        var isOwner = entity.IdUser == userId;
+        var isAssignedCourier = entity.IdCourier.HasValue && entity.IdCourier == userId;
+
+        if (!isAdmin && !isOwner && !isAssignedCourier)
             throw new AppValidationException("Not authorized to view this order", "FORBIDDEN");
 
         return OrderDTO.Create(entity);

@@ -115,6 +115,22 @@ public class Order
         OrderStatus = OrderStatus.Delivered;
     }
 
+    public void ReturnToLogisticsPending()
+    {
+        if (OrderStatus == OrderStatus.Delivered)
+            throw new AppValidationException("Cannot return a delivered order to logistics", "INVALID_STATUS_TRANSITION");
+
+        if (OrderStatus == OrderStatus.Cancelled)
+            throw new AppValidationException("Cannot return a cancelled order to logistics", "INVALID_STATUS_TRANSITION");
+
+        if (OrderStatus == OrderStatus.LogisticsPending)
+            return;
+
+        // The order goes back to the logistics queue and must be reassigned.
+        IdCourier = null;
+        OrderStatus = OrderStatus.LogisticsPending;
+    }
+
     public void UpdateShippingDetails(string? street, string? dpto, string? reference)
     {
         if (OrderStatus == OrderStatus.Delivered || OrderStatus == OrderStatus.Cancelled)
@@ -173,8 +189,7 @@ public class Order
                 OrderStatus = OrderStatus.InDelivery;
                 break;
             case OrderStatus.LogisticsPending:
-                if (OrderStatus != OrderStatus.LogisticsPending)
-                    throw new AppValidationException("Cannot transition back to LogisticsPending", "INVALID_STATUS_TRANSITION");
+                ReturnToLogisticsPending();
                 break;
         }
     }
