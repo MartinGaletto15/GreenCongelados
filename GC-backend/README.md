@@ -40,10 +40,25 @@ La solución actualmente no incluye proyectos de pruebas automatizadas.
     cd GC-backend
     ```
 
-2.  **Configurar la base de datos:**
-    Configura `ConnectionStrings:DbConnectionString` en `src/Web/appsettings.Development.json` con una cadena de conexión válida para tu instancia de SQL Server.
+2.  **Configurar la configuración local y los secretos:**
+    La API lee la configuración de `appsettings.json`, `appsettings.Development.json`, User Secrets (solo en `Development`) y variables de entorno. Los valores sensibles o específicos de tu máquina (`ConnectionStrings:DbConnectionString`, `JwtSettings:Secret` y `MailKit:PasswordGmail`) se configuran con User Secrets y no se versionan:
 
-    La API también requiere `JwtSettings:Secret`. Configúrala en el mismo archivo para desarrollo local o mediante la variable de entorno `JwtSettings__Secret`. No guardes secretos reales en el control de versiones.
+    ```bash
+    dotnet user-secrets set "ConnectionStrings:DbConnectionString" "Server=localhost;Database=GreenCongelados;Trusted_Connection=True;MultipleActiveResultSets=true;TrustServerCertificate=True;" --project src/Web/Web.csproj
+    dotnet user-secrets set "JwtSettings:Secret" "UNA_CLAVE_ALEATORIA_DE_AL_MENOS_32_CARACTERES" --project src/Web/Web.csproj
+    dotnet user-secrets set "MailKit:PasswordGmail" "TU_CONTRASEÑA_DE_APLICACION" --project src/Web/Web.csproj
+    ```
+
+    En producción usa las variables de entorno equivalentes (`ConnectionStrings__DbConnectionString`, `JwtSettings__Secret`, `MailKit__PasswordGmail`). Genera una clave JWT nueva: no reutilices valores que hayan estado versionados en el repositorio.
+
+    `appsettings.json` define los valores por defecto (no secretos) de `UserTokens`, que controla la vigencia de los tokens de usuario:
+
+    | Clave | Descripción |
+    | --- | --- |
+    | `UserTokens:PasswordResetExpirationMinutes` | Vigencia del token de restablecimiento de contraseña, en minutos. Entero mayor que cero (por defecto `15`). |
+    | `UserTokens:EmailConfirmationExpirationMinutes` | Vigencia del token de confirmación de email, en minutos. Entero mayor que cero (por defecto `1440`). |
+
+    La API valida `UserTokens:*`, `ConnectionStrings:DbConnectionString` y `JwtSettings:Secret` al arrancar: si falta alguno o la expiración no es mayor que cero, la aplicación falla con un mensaje que indica la clave a corregir. También se pueden sobrescribir con variables de entorno (`UserTokens__PasswordResetExpirationMinutes`, etc.).
 
     Para enviar correos de restablecimiento de contraseña, `SmtpEmailSender` requiere estos valores de configuración:
 
@@ -55,21 +70,9 @@ La solución actualmente no incluye proyectos de pruebas automatizadas.
     | `MailKit:Port` | Puerto SMTP; el remitente usa STARTTLS. |
     | `MailKit:TimeoutSeconds` | Opcional. Timeout de la conexión/envío SMTP en segundos (por defecto `15`). |
 
-    Para evitar filtrar credenciales, la contraseña de Gmail no debe dejarse en `appsettings*.json` versionados. Lo recomendado es usar User Secrets o variables de entorno:
-
-    ```bash
-    dotnet user-secrets set "MailKit:PasswordGmail" "TU_CONTRASEÑA_DE_APLICACION" --project src/Web/Web.csproj
-    ```
-
-    O bien:
-
-    ```bash
-    setx MailKit__PasswordGmail "TU_CONTRASEÑA_DE_APLICACION"
-    ```
-
     Si ejecutas la API en `Development` sin `MailKit:PasswordGmail`, se usa un sender de consola: no se envían correos reales, pero el token de confirmación o restablecimiento aparece en el log de la aplicación. Así puedes probar el flujo completo sin configurar Gmail. En `Production` la configuración SMTP es obligatoria y la API falla al arrancar si falta.
 
-    En el caso de variables de entorno, también se admite `MailKit__Email`, `MailKit__Server` y `MailKit__Port`. Si prefieres mantener el desarrollo local más seguro, usa `dotnet user-secrets` y deja `PasswordGmail` vacío o omitido en los archivos de configuración guardados en el repositorio. El código solo leerá la clave `MailKit:PasswordGmail`/`MailKit__PasswordGmail`; un nombre distinto no será interpretado.
+    En el caso de variables de entorno, también se admite `MailKit__Email`, `MailKit__Server` y `MailKit__Port`. El código solo leerá la clave `MailKit:PasswordGmail`/`MailKit__PasswordGmail`; un nombre distinto no será interpretado.
 
 3.  **Aplicar Migraciones:**
     Ejecuta el siguiente comando para crear las tablas en tu base de datos:

@@ -6,7 +6,8 @@ using Application.DTOs.Requests;
 using Application.Interfaces.PasswordReset;
 using Application.Interfaces.Security;
 using Application.Interfaces.EmailSender;
-using Microsoft.Extensions.Configuration;
+using Application.Configuration;
+using Microsoft.Extensions.Options;
 using Domain.Exceptions;
 using Application.Validators;
 
@@ -30,7 +31,7 @@ public class PasswordResetService : IPasswordResetService
         IPasswordHasher passwordHasher,
         IUserTokenProvider userTokenProvider,
         IUnitOfWork unitOfWork,
-        IConfiguration configuration
+        IOptions<UserTokenOptions> userTokenOptions
     )
     {
         _userRepository = userRepository;
@@ -39,14 +40,7 @@ public class PasswordResetService : IPasswordResetService
         _passwordHasher = passwordHasher;
         _userTokenProvider = userTokenProvider;
         _unitOfWork = unitOfWork;
-
-        if (!int.TryParse(configuration["UserTokens:PasswordResetExpirationMinutes"], out int passwordResetExpirationMinutes)
-            || passwordResetExpirationMinutes <= 0)
-        {
-            throw new InvalidOperationException("UserTokens:PasswordResetExpirationMinutes debe configurarse con un valor mayor que cero.");
-        }
-
-        _passwordResetExpirationMinutes = passwordResetExpirationMinutes;
+        _passwordResetExpirationMinutes = userTokenOptions.Value.PasswordResetExpirationMinutes;
     }
 
     public async Task RequestPasswordResetAsync(ForgotPasswordRequest request)

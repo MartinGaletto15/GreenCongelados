@@ -21,6 +21,7 @@ using Infrastructure.Notifications;
 using Application.Interfaces.Security;
 using Application.Interfaces.CartItem;
 using Application.Interfaces.User;
+using Application.Configuration;
 using Web.Middlewares;
 using Microsoft.OpenApi.Models;
 using Microsoft.AspNetCore.Mvc;
@@ -70,6 +71,13 @@ builder.Services.AddScoped<IPasswordResetService, PasswordResetService>();
 builder.Services.AddScoped<IEmailVerificationService, EmailVerificationService>();
 builder.Services.AddScoped<IJwtProvider, JwtProvider>();
 builder.Services.AddSingleton<IRevokedUserStore, RevokedUserStore>();
+
+// Tokens de usuario: expiraciones obligatorias, validadas al arrancar.
+builder.Services.AddOptions<UserTokenOptions>()
+    .Bind(builder.Configuration.GetSection(UserTokenOptions.SectionName))
+    .Validate(o => o.PasswordResetExpirationMinutes > 0, "UserTokens:PasswordResetExpirationMinutes debe configurarse con un valor mayor que cero.")
+    .Validate(o => o.EmailConfirmationExpirationMinutes > 0, "UserTokens:EmailConfirmationExpirationMinutes debe configurarse con un valor mayor que cero.")
+    .ValidateOnStart();
 
 // Email: en Development sin credenciales se usa un sender que solo registra el token en el log.
 var smtpSection = builder.Configuration.GetSection(SmtpOptions.SectionName);
@@ -128,7 +136,7 @@ builder.Services.AddScoped<ICadetWriteService, CadetService>();
 builder.Services.AddTransient<GlobalExceptionHandlingMiddleware>();
 
 var jwtSecret = builder.Configuration["JwtSettings:Secret"] 
-                ?? throw new InvalidOperationException("JWT secret key is not configured.");
+                ?? throw new InvalidOperationException("JwtSettings:Secret no está configurado. Defínelo con User Secrets o la variable de entorno JwtSettings__Secret.");
 
 builder.Services.AddAuthentication(options =>
 {
@@ -202,7 +210,8 @@ builder.Services.AddSwaggerGen(c =>
     });
 });
 
-var connectionString = builder.Configuration.GetConnectionString("DbConnectionString");
+var connectionString = builder.Configuration.GetConnectionString("DbConnectionString")
+    ?? throw new InvalidOperationException("ConnectionStrings:DbConnectionString no está configurada. Defínela con User Secrets o la variable de entorno ConnectionStrings__DbConnectionString.");
 builder.Services.AddDbContext<GCContext>(options => 
 {
     options.UseSqlServer(connectionString);

@@ -7,7 +7,8 @@ using Application.DTOs.Requests;
 using Application.Interfaces.PasswordReset;
 using Application.Interfaces.Security;
 using Application.Interfaces.EmailSender;
-using Microsoft.Extensions.Configuration;
+using Application.Configuration;
+using Microsoft.Extensions.Options;
 using Application.Interfaces.EmailVerification;
 using Domain.Exceptions;
 using Application.Validators;
@@ -32,7 +33,7 @@ public class EmailVerificationService : IEmailVerificationService
         IUserTokenProvider userTokenProvider,
         IPasswordHasher passwordHasher,
         IUnitOfWork unitOfWork,
-        IConfiguration configuration
+        IOptions<UserTokenOptions> userTokenOptions
     )
     {
         _userRepository = userRepository;
@@ -41,14 +42,7 @@ public class EmailVerificationService : IEmailVerificationService
         _userTokenProvider = userTokenProvider;
         _passwordHasher = passwordHasher;
         _unitOfWork = unitOfWork;
-
-        if (!int.TryParse(configuration["UserTokens:EmailConfirmationExpirationMinutes"], out int emailConfirmationExpirationMinutes)
-            || emailConfirmationExpirationMinutes <= 0)
-        {
-            throw new InvalidOperationException("UserTokens:emailConfirmationExpirationMinutes debe configurarse con un valor mayor que cero.");
-        }
-
-        _emailConfirmationExpirationMinutes = emailConfirmationExpirationMinutes;
+        _emailConfirmationExpirationMinutes = userTokenOptions.Value.EmailConfirmationExpirationMinutes;
     }
 
     public async Task RequestEmailVerificationAsync(ResendEmailConfirmationRequest request)
