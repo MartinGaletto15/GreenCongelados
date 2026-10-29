@@ -9,7 +9,8 @@ public static class ProductValidator
 {
     public static async Task ValidateCreateAsync(CreateProductRequest request, IProductRepository repository)
     {
-        if (!Validations.ValidateString(request.Name, 2, 100))
+        var productName = request.Name.Trim();
+        if (!Validations.ValidateString(productName, 2, 100))
             throw new AppValidationException("El nombre es obligatorio y debe tener entre 2 y 100 caracteres.", "PRODUCT_NAME_INVALID");
 
         if (!Validations.ValidateString(request.DescriptionShort, 2, 255))
@@ -27,14 +28,15 @@ public static class ProductValidator
         if (!Enum.IsDefined(typeof(ProductStatus), request.Status))
             throw new AppValidationException("El estado del producto no es válido.", "PRODUCT_STATUS_INVALID");
 
-        var existingProduct = await repository.GetByNameAsync(request.Name);
+        var existingProduct = await repository.GetByNameAsync(productName);
         if (existingProduct != null)
             throw new AppValidationException("Ya existe un producto con ese nombre.", "PRODUCT_NAME_EXISTS");
     }
 
     public static async Task ValidateUpdateAsync(int id, UpdateProductRequest request, IProductRepository repository, Domain.Entities.Product currentEntity)
     {
-        if (request.Name != null && !Validations.ValidateString(request.Name, 2, 100))
+        var productName = request.Name?.Trim();
+        if (request.Name != null && !Validations.ValidateString(productName, 2, 100))
             throw new AppValidationException("El nombre debe tener entre 2 y 100 caracteres.", "PRODUCT_NAME_INVALID");
 
         if (request.DescriptionShort != null && !Validations.ValidateString(request.DescriptionShort, 2, 255))
@@ -52,9 +54,9 @@ public static class ProductValidator
         if (request.Status.HasValue && !Enum.IsDefined(typeof(ProductStatus), request.Status.Value))
             throw new AppValidationException("El estado del producto no es válido.", "PRODUCT_STATUS_INVALID");
 
-        if (request.Name != null && currentEntity.Name != request.Name)
+        if (productName != null && !string.Equals(currentEntity.Name, productName, StringComparison.OrdinalIgnoreCase))
         {
-            var existingProduct = await repository.GetByNameAsync(request.Name);
+            var existingProduct = await repository.GetByNameAsync(productName);
             if (existingProduct != null)
                 throw new AppValidationException("Ya existe un producto con ese nombre.", "PRODUCT_NAME_EXISTS");
         }

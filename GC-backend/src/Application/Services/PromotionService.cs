@@ -34,12 +34,15 @@ public class PromotionService : IPromotionReadOnlyService, IPromotionWriteServic
     public async Task<PromotionDTO?> GetByCodeAsync(string couponCode)
     {
         var entities = await _repository.GetAllAsync();
-        var entity = entities.FirstOrDefault(x => x.CouponCode == couponCode);
+        var normalizedCode = Promotion.NormalizeCouponCode(couponCode);
+        var entity = entities.FirstOrDefault(x => x.CouponCode == normalizedCode);
         return entity != null ? PromotionDTO.Create(entity) : null;
     }
 
     public async Task<PromotionDTO> CreateAsync(CreatePromotionRequest request)
     {
+        await EnsureCouponCodeIsUniqueAsync(request.CouponCode);
+
         var entity = new Promotion(
             request.CouponCode,
             request.DiscountValue,
@@ -58,6 +61,9 @@ public class PromotionService : IPromotionReadOnlyService, IPromotionWriteServic
     {
         var entity = await _repository.GetByIdAsync(id);
         if (entity == null) throw new AppValidationException("Promotion not found", "PROMOTION_NOT_FOUND");
+
+        if (request.CouponCode != null)
+            await EnsureCouponCodeIsUniqueAsync(request.CouponCode, id);
 
         entity.UpdateDetails(
             request.CouponCode,
@@ -79,5 +85,17 @@ public class PromotionService : IPromotionReadOnlyService, IPromotionWriteServic
         if (entity == null) throw new AppValidationException("Promotion not found", "PROMOTION_NOT_FOUND");
         await _repository.DeleteAsync(entity);
         await _unitOfWork.SaveChangesAsync();
+    }
+
+    private async Task EnsureCouponCodeIsUniqueAsync(string couponCode, int? excludedPromotionId = null)
+    {
+        var normalizedCode = Promotion.NormalizeCouponCode(couponCode);
+        var promotions = await _repository.GetAllAsync();
+        if (promotions.Any(promotion =>
+                promotion.IdPromotion != excludedPromotionId &&
+                promotion.CouponCode == normalizedCode))
+        {
+            throw new AppValidationException("Ya existe una promoción con ese código.", "PROMOTION_CODE_EXISTS");
+        }
     }
 }

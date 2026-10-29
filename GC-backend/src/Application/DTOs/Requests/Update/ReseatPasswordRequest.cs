@@ -7,6 +7,7 @@ public record ResetPasswordRequest(
     string Token,
 
     [Required(ErrorMessage = "La contraseña es obligatoria.")]
-    [MinLength(6, ErrorMessage = "La contraseña debe tener al menos 6 caracteres.")]
+    [StringLength(20, MinimumLength = 6, ErrorMessage = "La contraseña debe tener entre 6 y 20 caracteres.")]
+    [RegularExpression(@"^(?=.*\p{Lu})(?=.*\p{Nd})[\s\S]+$", ErrorMessage = "La contraseña debe incluir al menos una mayúscula y un número.")]
     string NewPassword
 );

@@ -27,6 +27,25 @@ namespace Infrastructure.Persistence
         {
             base.OnModelCreating(modelBuilder);
 
+            modelBuilder.Entity<User>()
+                .HasIndex(user => user.Email)
+                .IsUnique();
+
+            modelBuilder.Entity<Product>()
+                .HasIndex(product => product.Name)
+                .IsUnique();
+
+            modelBuilder.Entity<Promotion>()
+                .HasIndex(promotion => promotion.CouponCode)
+                .IsUnique();
+
+            modelBuilder.Entity<UserToken>()
+                .Property(token => token.Token)
+                .HasMaxLength(64);
+            modelBuilder.Entity<UserToken>()
+                .HasIndex(token => token.Token)
+                .IsUnique();
+
             // OrderItem (Order <-> Product)
             modelBuilder.Entity<OrderItem>()
                 .HasOne(oi => oi.Order).WithMany(o => o.OrderItems)

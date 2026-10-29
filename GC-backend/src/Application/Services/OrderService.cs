@@ -107,8 +107,11 @@ public class OrderService : IOrderReadOnlyService, IOrderWriteService
             productsWithQuantity.Add((product, cartItem.Quantity));
         }
 
-        var promotion = request.CouponCode != null 
-            ? (await _promotionRepository.GetAllAsync()).FirstOrDefault(x => x.CouponCode == request.CouponCode)
+        var normalizedCouponCode = request.CouponCode is not null
+            ? Promotion.NormalizeCouponCode(request.CouponCode)
+            : null;
+        var promotion = normalizedCouponCode != null
+            ? (await _promotionRepository.GetAllAsync()).FirstOrDefault(x => x.CouponCode == normalizedCouponCode)
             : null;
 
         var shippingCost = await _shippingCostService.GetActiveAsync();

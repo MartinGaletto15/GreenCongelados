@@ -52,7 +52,7 @@ public class Product
     {
         ValidateProductData(name, price, currentStock);
 
-        Name = name;
+        Name = name.Trim();
         UrlImagePrimary = urlImagePrimary;
         DescriptionShort = descriptionShort;
         DescriptionLong = descriptionLong;
@@ -68,7 +68,7 @@ public class Product
         if (name != null)
         {
             if (string.IsNullOrWhiteSpace(name)) throw new AppValidationException("Name cannot be empty", "INVALID_NAME");
-            Name = name;
+            Name = name.Trim();
         }
 
         if (price.HasValue)

@@ -41,7 +41,7 @@ public class Promotion
     {
         ValidateData(couponCode, discountValue, startDate, endDate);
 
-        CouponCode = couponCode;
+        CouponCode = NormalizeCouponCode(couponCode);
         DiscountValue = discountValue;
         DiscountType = discountType;
         MinAmount = minAmount;
@@ -62,7 +62,7 @@ public class Promotion
         if (couponCode != null)
         {
             if (string.IsNullOrWhiteSpace(couponCode)) throw new AppValidationException("Coupon code cannot be empty", "INVALID_COUPON");
-            CouponCode = couponCode;
+            CouponCode = NormalizeCouponCode(couponCode);
         }
 
         if (discountValue.HasValue)
@@ -85,4 +85,6 @@ public class Promotion
         if (discountValue < 0) throw new AppValidationException("Discount value cannot be negative", "INVALID_DISCOUNT");
         if (startDate > endDate) throw new AppValidationException("Start date cannot be after end date", "INVALID_DATES");
     }
+
+    public static string NormalizeCouponCode(string couponCode) => couponCode.Trim().ToUpperInvariant();
 }
