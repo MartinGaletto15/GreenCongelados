@@ -12,6 +12,5 @@ public record UpdateProductRequest(
     int? CurrentStock,
     decimal? Weight,
     decimal? PreparationTime,
-    [EnumDataType(typeof(ProductStatus))] ProductStatus? Status,
-    List<int>? CategoryIds = null
+    [EnumDataType(typeof(ProductStatus))] ProductStatus? Status
 );
