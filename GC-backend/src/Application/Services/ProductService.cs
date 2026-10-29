@@ -2,7 +2,6 @@ using Application.Interfaces.Product;
 using Application.DTOs;
 using Application.DTOs.Requests;
 using Domain.Entities;
-using Domain.Entities.Enums;
 using Domain.Interfaces;
 using Domain.Exceptions;
 using Application.Validators;
@@ -22,14 +21,15 @@ public class ProductService : IProductReadOnlyService, IProductWriteService
 
     public async Task<IEnumerable<ProductDTO>> GetAllAsync()
     {
-        var entities = await _repository.GetAllAsync();
+        var entities = await _repository.GetAllNotDeletedAsync();
         return ProductDTO.Create(entities);
     }
 
     public async Task<ProductDTO> GetByIdAsync(int id)
     {
-        var entity = await _repository.GetByIdAsync(id);
-        if (entity == null) throw new AppValidationException("Product not found", "PRODUCT_NOT_FOUND");
+        var entity = await _repository.GetByIdNotDeletedAsync(id);
+        if (entity == null)
+            throw new AppValidationException("Product not found", "PRODUCT_NOT_FOUND");
         return ProductDTO.Create(entity);
     }
 

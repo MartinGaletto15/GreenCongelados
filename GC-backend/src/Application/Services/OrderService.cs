@@ -103,7 +103,10 @@ public class OrderService : IOrderReadOnlyService, IOrderWriteService
         foreach (var cartItem in cartItems)
         {
             var product = await _productRepository.GetByIdAsync(cartItem.ProductId);
-            if (product == null) throw new AppValidationException($"Product {cartItem.ProductId} not found", "PRODUCT_NOT_FOUND");
+            if (product == null || product.Status == ProductStatus.Deleted)
+                throw new AppValidationException($"Product {cartItem.ProductId} not found", "PRODUCT_NOT_FOUND");
+            if (product.Status != ProductStatus.Available)
+                throw new AppValidationException($"Product {cartItem.ProductId} is not available", "PRODUCT_NOT_AVAILABLE");
             productsWithQuantity.Add((product, cartItem.Quantity));
         }
 

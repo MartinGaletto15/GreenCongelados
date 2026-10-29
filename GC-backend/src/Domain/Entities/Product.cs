@@ -106,6 +106,7 @@ public class Product
     public void ReduceStock(int quantity)
     {
         if (quantity <= 0) throw new AppValidationException("Quantity must be positive", "INVALID_QUANTITY");
+        if (Status != ProductStatus.Available) throw new AppValidationException($"Product is not available: {Name}", "PRODUCT_NOT_AVAILABLE");
         if (CurrentStock < quantity) throw new AppValidationException($"Insufficient stock for product: {Name}. Available: {CurrentStock}", "INSUFFICIENT_STOCK");
 
         CurrentStock -= quantity;

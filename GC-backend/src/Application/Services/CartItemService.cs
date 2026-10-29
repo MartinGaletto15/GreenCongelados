@@ -3,6 +3,7 @@ using Application.DTOs;
 using Application.DTOs.Requests.Create;
 using Application.DTOs.Requests.Update;
 using Domain.Entities;
+using Domain.Entities.Enums;
 using Domain.Interfaces;
 using Domain.Exceptions;
 using Application.Validators;
@@ -49,7 +50,11 @@ public class CartItemService : ICartItemReadOnlyService, ICartItemWriteService
         }
 
         var product = await _productRepository.GetByIdAsync(request.IdProduct);
-        if (product == null) throw new AppValidationException("Producto no encontrado", "PRODUCT_NOT_FOUND");
+        if (product == null || product.Status == ProductStatus.Deleted)
+            throw new AppValidationException("Producto no encontrado", "PRODUCT_NOT_FOUND");
+
+        if (product.Status != ProductStatus.Available)
+            throw new AppValidationException($"Producto no disponible: {product.Name}", "PRODUCT_NOT_AVAILABLE");
 
         // Check if product is already in the cart
         var cartItems = await _repository.GetByUserIdAsync(userId);
