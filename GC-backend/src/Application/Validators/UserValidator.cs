@@ -8,34 +8,34 @@ namespace Application.Validators;
 
 public static class UserValidator
 {
-    public static async Task ValidateCreateAsync(CreateUserRequest request, IUserRepository repository)
+    public static void ValidateCreate(CreateUserRequest request, User? existingUser)
     {
         if (!Validations.ValidateEmail(request.Email))
-            throw new AppValidationException("El email provisto no es válido.", "USER_EMAIL_INVALID");
+            throw new AppValidationException("Ingresa un email válido.", "USER_EMAIL_INVALID");
 
+        if (existingUser is not null && existingUser.EmailConfirmed)
+            throw new AppValidationException("Ese email ya tiene una cuenta. Inicia sesión o restablece tu contraseña.", "USER_EMAIL_EXISTS");
+    }
+
+    public static void ValidateCompleteRegistration(CompleteRegistrationRequest request)
+    {
         if (!Validations.ValidatePassword(request.Password, 6, 20, true, true))
-            throw new AppValidationException("La contraseña debe tener entre 6 y 20 caracteres, e incluir al menos una mayúscula y un número.", "USER_PASSWORD_INVALID");
+            throw new AppValidationException("La contraseña debe tener entre 6 y 20 caracteres e incluir al menos una mayúscula y un número.", "USER_PASSWORD_INVALID");
 
         if (!Validations.ValidateString(request.Name, 2, 50))
             throw new AppValidationException("El nombre es obligatorio y debe tener entre 2 y 50 caracteres.", "USER_NAME_INVALID");
 
         if (!Validations.ValidateString(request.LastName, 2, 50))
             throw new AppValidationException("El apellido es obligatorio y debe tener entre 2 y 50 caracteres.", "USER_LASTNAME_INVALID");
-
-        var existingUser = await repository.GetByEmailAsync(request.Email);
-        if (existingUser != null && existingUser.EmailConfirmed)
-        {
-            throw new AppValidationException("El email ya está registrado.", "USER_EMAIL_EXISTS");
-        }
     }
 
-    public static async Task ValidateUpdateAsync(int id, UpdateUserRequest request, IUserRepository repository, User currentUser)
+    public static async Task ValidateUpdateAsync(UpdateUserRequest request, IUserRepository repository, User currentUser)
     {
         if (request.Email != null && !Validations.ValidateEmail(request.Email))
-            throw new AppValidationException("El email de referencia provisto no es válido.", "USER_EMAIL_INVALID");
+            throw new AppValidationException("Ingresa un email válido.", "USER_EMAIL_INVALID");
 
         if (!string.IsNullOrEmpty(request.Password) && !Validations.ValidatePassword(request.Password, 6, 20, true, true))
-            throw new AppValidationException("La contraseña debe tener entre 6 y 20 caracteres, e incluir al menos una mayúscula y un número.", "USER_PASSWORD_INVALID");
+            throw new AppValidationException("La contraseña debe tener entre 6 y 20 caracteres e incluir al menos una mayúscula y un número.", "USER_PASSWORD_INVALID");
 
         if (!string.IsNullOrEmpty(request.Name) && !Validations.ValidateString(request.Name, 2, 50))
             throw new AppValidationException("El nombre debe tener entre 2 y 50 caracteres.", "USER_NAME_INVALID");
@@ -47,7 +47,7 @@ public static class UserValidator
         {
             var existingUser = await repository.GetByEmailAsync(request.Email);
             if (existingUser != null)
-                throw new AppValidationException("El email ya existe en la base de datos.", "USER_EMAIL_EXISTS");
+                throw new AppValidationException("Ese email ya está en uso.", "USER_EMAIL_EXISTS");
         }
     }
 

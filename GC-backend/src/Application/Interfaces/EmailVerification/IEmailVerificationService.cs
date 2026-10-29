@@ -1,3 +1,4 @@
+using Application.DTOs;
 using Application.DTOs.Requests;
 using Domain.Entities;
 
@@ -7,6 +8,6 @@ public interface IEmailVerificationService
 {
     Task RequestEmailVerificationAsync(ResendEmailConfirmationRequest request);
     Task SendVerificationEmailAsync(Domain.Entities.User user);
-    Task ConfirmEmailAsync(ConfirmEmailRequest request);
-    Task<UserToken> ValidateTokenAsync(string token);
+    Task<EmailConfirmationTokenDTO> ValidateEmailConfirmationTokenAsync(ConfirmEmailRequest request);
+    Task CompleteRegistrationAsync(CompleteRegistrationRequest request);
 }

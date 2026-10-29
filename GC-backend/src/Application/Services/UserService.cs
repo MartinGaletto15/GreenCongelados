@@ -63,21 +63,22 @@ public class UserService : IUserWriteService, IUserReadOnlyService
     {
         var user = await _userRepository.GetByEmailAsync(request.Email);
 
-        if (user == null || !_passwordHasher.Verify(request.Password, user.Password))
-            throw new AppValidationException("Credenciales inválidas");
+        if (user == null)
+            throw new AppValidationException("Email o contraseña incorrectos.", "AUTH_INVALID_CREDENTIALS");
 
-        if (!user.EmailConfirmed)
-            throw new AppValidationException("Email no confirmado", "USER_EMAIL_NOT_CONFIRMED");
+        if (!user.EmailConfirmed || user.Password == null)
+            throw new AppValidationException("Tu cuenta todavía no está confirmada. Revisa tu correo y completa el registro.", "USER_EMAIL_NOT_CONFIRMED");
+
+        if (!_passwordHasher.Verify(request.Password, user.Password))
+            throw new AppValidationException("Email o contraseña incorrectos.", "AUTH_INVALID_CREDENTIALS");
 
         return _jwtProvider.GenerateToken(user);
     }
 
     public async Task<UserDTO> CreateUserAsync(CreateUserRequest request)
     {
-        await UserValidator.ValidateCreateAsync(request, _userRepository);
-
-        string passwordHash = _passwordHasher.Hash(request.Password);
         var existingUser = await _userRepository.GetByEmailAsync(request.Email);
+        UserValidator.ValidateCreate(request, existingUser);
         User user;
 
         // Usuario y carrito se confirman juntos; el correo se envía después del commit.
@@ -89,20 +90,16 @@ public class UserService : IUserWriteService, IUserReadOnlyService
                 // Invalidar tokens de confirmación previos
                 await _userTokenRepository.InvalidateAllForUserAsync(existingUser.IdUser, TokenType.EmailConfirmation);
 
-                // Sobrescribir datos del usuario no confirmado
-                existingUser.UpdateUnconfirmedUserData(request.Name, request.LastName, passwordHash);
-                await _userRepository.UpdateAsync(existingUser);
-
+                // Buscar usuario existente
                 user = existingUser;
+
+                // Reenviar nuevo token al final del metodo
             }
             else
             {
                 // Crear nuevo usuario
                 user = new User(
-                    request.Name,
-                    request.LastName,
-                    request.Email,
-                    passwordHash
+                    request.Email
                 );
                 await _userRepository.AddAsync(user);
             }
@@ -137,7 +134,7 @@ public class UserService : IUserWriteService, IUserReadOnlyService
         if (user == null)
             throw new AppValidationException("El usuario no existe.", "USER_NOT_FOUND");
 
-        await UserValidator.ValidateUpdateAsync(id, request, _userRepository, user);
+        await UserValidator.ValidateUpdateAsync(request, _userRepository, user);
 
         if (!string.IsNullOrEmpty(request.Password))
         {

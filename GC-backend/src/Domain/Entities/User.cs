@@ -10,13 +10,11 @@ public class User
     [Key]
     public int IdUser { get; private set; }
 
-    [Required]
     [MaxLength(50)]
-    public string Name { get; private set; }
+    public string? Name { get; private set; }
 
-    [Required]
     [MaxLength(50)]
-    public string LastName { get; private set; }
+    public string? LastName { get; private set; }
 
     [Required]
     [MaxLength(100)]
@@ -26,9 +24,8 @@ public class User
     [Required]
     public bool EmailConfirmed { get; private set; }
 
-    [Required]
     [MaxLength(100)]
-    public string Password { get; private set; }
+    public string? Password { get; private set; }
 
     [MaxLength(25)]
     public string? Phone { get; private set; }
@@ -57,37 +54,25 @@ public class User
         Password = string.Empty;
     }
 
-    public User(string name, string lastName, string email, string passwordHash, Role role = Role.USER)
+    public User(string email, Role role = Role.USER)
     {
-        ValidateData(name, lastName, email);
+        if (string.IsNullOrWhiteSpace(email)) throw new AppValidationException("Email cannot be empty", "INVALID_EMAIL");
 
-        Name = name;
-        LastName = lastName;
         Email = email;
-        Password = passwordHash;
         Role = role;
     }
 
-    public void UpdateDetails(string? name, string? lastName, string? phone)
+    public void UpdateDetails(string? name, string? lastName, string? phone = null)
     {
-        if (name != null)
-        {
-            if (string.IsNullOrWhiteSpace(name)) throw new AppValidationException("Name cannot be empty", "INVALID_NAME");
-            Name = name;
-        }
+        if (name != null && string.IsNullOrWhiteSpace(name))
+            throw new AppValidationException("Name cannot be empty", "INVALID_NAME");
 
-        if (lastName != null)
-        {
-            if (string.IsNullOrWhiteSpace(lastName)) throw new AppValidationException("Last name cannot be empty", "INVALID_LASTNAME");
-            LastName = lastName;
-        }
+        if (lastName != null && string.IsNullOrWhiteSpace(lastName))
+            throw new AppValidationException("Last name cannot be empty", "INVALID_LASTNAME");
 
+        if (name != null) Name = name;
+        if (lastName != null) LastName = lastName;
         Phone = phone ?? Phone;
-    }
-
-    public void EmailConfirm()
-    {
-        EmailConfirmed = true;
     }
 
     public void UpdatePassword(string passwordHash)
@@ -96,34 +81,27 @@ public class User
         Password = passwordHash;
     }
 
+    public void CompleteRegistration(string name, string lastName, string passwordHash)
+    {
+        if (Password is not null)
+        {
+            throw new AppValidationException("Tu cuenta ya está completa. Inicia sesión.", "USER_REGISTRATION_ALREADY_COMPLETED");
+        }
+
+        UpdateDetails(name, lastName);
+        UpdatePassword(passwordHash);
+
+        // La cuenta recién queda confirmada cuando el usuario completa el registro.
+        EmailConfirm();
+    }
+
+    public void EmailConfirm()
+    {
+        EmailConfirmed = true;
+    }
+
     public void ChangeRole(Role newRole)
     {
         Role = newRole;
-    }
-
-    private void ValidateData(string name, string lastName, string email)
-    {
-        if (string.IsNullOrWhiteSpace(name)) throw new AppValidationException("Name cannot be empty", "INVALID_NAME");
-        if (string.IsNullOrWhiteSpace(lastName)) throw new AppValidationException("Last name cannot be empty", "INVALID_LASTNAME");
-        if (string.IsNullOrWhiteSpace(email)) throw new AppValidationException("Email cannot be empty", "INVALID_EMAIL");
-    }
-
-    public void UpdateUnconfirmedUserData(string name, string lastName, string passwordHash)
-    {
-        if (EmailConfirmed)
-        {
-            throw new AppValidationException("No se pueden sobrescribir los datos de una cuenta ya confirmada.", "USER_ALREADY_CONFIRMED");
-        }
-
-        ValidateData(name, lastName, Email);
-
-        if (string.IsNullOrWhiteSpace(passwordHash))
-        {
-            throw new AppValidationException("Password cannot be empty", "INVALID_PASSWORD");
-        }
-
-        Name = name;
-        LastName = lastName;
-        Password = passwordHash;
     }
 }

@@ -28,10 +28,12 @@ public class AuthController : ControllerBase
     }
 
     [HttpPost("register")]
-    public async Task<ActionResult<UserDTO>> RegisterAsync(CreateUserRequest request)
+    public async Task<IActionResult> RegisterAsync(CreateUserRequest request)
     {
-        var user = await _userWriteService.CreateUserAsync(request);
-        return StatusCode(StatusCodes.Status201Created, user);
+        await _userWriteService.CreateUserAsync(request);
+        return StatusCode(
+            StatusCodes.Status201Created,
+            new { message = "Te enviamos un código de verificación. Revisa tu correo y completa tu registro." });
     }
 
     [HttpPost("login")]
@@ -45,7 +47,7 @@ public class AuthController : ControllerBase
     public async Task<IActionResult> ForgotPasswordAsync([FromBody] ForgotPasswordRequest request)
     {
         await _passwordResetService.RequestPasswordResetAsync(request);
-        return Ok(new { message = "Si el correo existe, se envió el código." });
+        return Ok(new { message = "Si el email está registrado, te enviamos un código." });
     }
 
     [HttpPost("reset-password")]
@@ -56,9 +58,16 @@ public class AuthController : ControllerBase
     }
 
     [HttpPost("verify-email")]
-    public async Task<IActionResult> VerifyEmailAsync([FromBody] ConfirmEmailRequest request)
+    public async Task<ActionResult<EmailConfirmationTokenDTO>> VerifyEmailAsync([FromBody] ConfirmEmailRequest request)
     {
-        await _emailVerificationService.ConfirmEmailAsync(request);
+        var result = await _emailVerificationService.ValidateEmailConfirmationTokenAsync(request);
+        return Ok(result);
+    }
+
+    [HttpPost("complete-registration")]
+    public async Task<IActionResult> CompleteRegistrationAsync([FromBody] CompleteRegistrationRequest request)
+    {
+        await _emailVerificationService.CompleteRegistrationAsync(request);
         return Ok();
     }
 
@@ -66,6 +75,6 @@ public class AuthController : ControllerBase
     public async Task<IActionResult> ResendVerificationEmailAsync([FromBody] ResendEmailConfirmationRequest request)
     {
         await _emailVerificationService.RequestEmailVerificationAsync(request);
-        return Ok(new { message = "Si el correo existe y no está verificado, se envió el código." });
+        return Ok(new { message = "Si el email está registrado y no está verificado, te enviamos un código." });
     }
 }

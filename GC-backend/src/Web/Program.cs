@@ -23,6 +23,7 @@ using Application.Interfaces.CartItem;
 using Application.Interfaces.User;
 using Web.Middlewares;
 using Microsoft.OpenApi.Models;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
@@ -37,6 +38,22 @@ builder.Services.AddControllers()
     {
         options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
     });
+
+// Respuesta uniforme para errores de DataAnnotations, igual al contrato del middleware.
+builder.Services.Configure<ApiBehaviorOptions>(options =>
+{
+    options.InvalidModelStateResponseFactory = context =>
+    {
+        string message = context.ModelState
+            .Where(entry => entry.Value?.Errors.Count > 0)
+            .SelectMany(entry => entry.Value!.Errors)
+            .Select(error => error.ErrorMessage)
+            .FirstOrDefault(errorMessage => !string.IsNullOrWhiteSpace(errorMessage))
+            ?? "Los datos enviados no son válidos.";
+
+        return new BadRequestObjectResult(new { error = message, code = "VALIDATION_ERROR" });
+    };
+});
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
