@@ -20,6 +20,7 @@ public class PromotionController : ControllerBase
         _readPromotionService = readPromotionService;
     }
 
+    [AllowAnonymous]
     [HttpGet]
     public async Task<ActionResult<IEnumerable<PromotionDTO>>> GetAllAsync()
     {
@@ -27,6 +28,7 @@ public class PromotionController : ControllerBase
         return Ok(result);
     }
 
+    [AllowAnonymous]
     [HttpGet("{id}")]
     public async Task<ActionResult<PromotionDTO>> GetByIdAsync(int id)
     {

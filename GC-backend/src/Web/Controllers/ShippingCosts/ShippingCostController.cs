@@ -20,6 +20,7 @@ public class ShippingCostController : ControllerBase
         _readService = readService;
     }
 
+    [AllowAnonymous]
     [HttpGet]
     public async Task<ActionResult<IEnumerable<ShippingCostDTO>>> GetAllAsync()
     {
@@ -27,6 +28,7 @@ public class ShippingCostController : ControllerBase
         return Ok(result);
     }
 
+    [AllowAnonymous]
     [HttpGet("{id}")]
     public async Task<ActionResult<ShippingCostDTO>> GetByIdAsync(int id)
     {

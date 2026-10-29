@@ -33,6 +33,7 @@ public class Product
     [Column(TypeName = "decimal(10, 2)")]
     public decimal? Weight { get; private set; }
 
+    [Column(TypeName = "decimal(18, 2)")]
     public decimal? PreparationTime { get; private set; }
 
     [MaxLength(25)]

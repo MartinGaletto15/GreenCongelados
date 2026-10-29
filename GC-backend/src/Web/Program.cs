@@ -173,7 +173,7 @@ builder.Services.AddAuthorization();
 
 builder.Services.AddSwaggerGen(c =>
 {
-    c.SwaggerDoc("v1", new OpenApiInfo { Title = "CineClub API", Version = "v1" });
+    c.SwaggerDoc("v1", new OpenApiInfo { Title = "GreenCongelados", Version = "v1" });
 
     c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
