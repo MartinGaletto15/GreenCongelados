@@ -31,7 +31,8 @@ public class JwtProvider : IJwtProvider
             new(ClaimTypes.Name, user.Name),
             new(ClaimTypes.Surname, user.LastName),
             new(ClaimTypes.Email, user.Email),
-            new(ClaimTypes.Role, user.Role.ToString())
+            new(ClaimTypes.Role, user.Role.ToString()),
+            new(JwtClaimNames.SecurityStamp, user.SecurityStamp.ToString())
         };
 
         var token = new JwtSecurityToken(

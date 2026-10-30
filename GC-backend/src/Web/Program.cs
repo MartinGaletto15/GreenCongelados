@@ -70,7 +70,7 @@ builder.Services.AddScoped<IUserTokenProvider, UserTokenProvider>();
 builder.Services.AddScoped<IPasswordResetService, PasswordResetService>();
 builder.Services.AddScoped<IEmailVerificationService, EmailVerificationService>();
 builder.Services.AddScoped<IJwtProvider, JwtProvider>();
-builder.Services.AddSingleton<IRevokedUserStore, RevokedUserStore>();
+builder.Services.AddScoped<IUserSessionValidator, UserSessionValidator>();
 
 // Tokens de usuario: expiraciones obligatorias, validadas al arrancar.
 builder.Services.AddOptions<UserTokenOptions>()
@@ -157,22 +157,26 @@ builder.Services.AddAuthentication(options =>
 
     options.Events = new JwtBearerEvents
     {
-        OnTokenValidated = context =>
+        OnTokenValidated = async context =>
         {
             var userIdClaim = context.Principal?.FindFirstValue(ClaimTypes.NameIdentifier);
+            var securityStamp = context.Principal?.FindFirstValue(JwtClaimNames.SecurityStamp);
 
-            if (int.TryParse(userIdClaim, out var userId))
+            if (!int.TryParse(userIdClaim, out var userId))
             {
-                var revokedUserStore = context.HttpContext.RequestServices
-                    .GetRequiredService<IRevokedUserStore>();
-
-                if (revokedUserStore.IsRevoked(userId))
-                {
-                    context.Fail("La cuenta fue eliminada.");
-                }
+                context.Fail("El token no identifica a un usuario.");
+                return;
             }
 
-            return Task.CompletedTask;
+            var sessionValidator = context.HttpContext.RequestServices
+                .GetRequiredService<IUserSessionValidator>();
+
+            // Se consulta la versión persistida: los tokens emitidos antes de un
+            // cambio de contraseña/rol (o de eliminar la cuenta) dejan de valer.
+            if (!await sessionValidator.IsTokenValidAsync(userId, securityStamp))
+            {
+                context.Fail("La sesión expiró. Inicia sesión nuevamente.");
+            }
         }
     };
 });

@@ -13,7 +13,7 @@ public static class UserValidator
         if (!Validations.ValidateEmail(request.Email))
             throw new AppValidationException("Ingresa un email válido.", "USER_EMAIL_INVALID");
 
-        if (existingUser is not null && existingUser.EmailConfirmed)
+        if (existingUser is not null && existingUser.EmailConfirmed && existingUser.IsActive)
             throw new AppValidationException("Ese email ya tiene una cuenta. Inicia sesión o restablece tu contraseña.", "USER_EMAIL_EXISTS");
     }
 

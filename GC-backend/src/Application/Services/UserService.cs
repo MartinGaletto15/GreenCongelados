@@ -29,7 +29,6 @@ public class UserService : IUserWriteService, IUserReadOnlyService
     private readonly IUserTokenRepository _userTokenRepository;
     private readonly IEmailSenderService _emailSenderService;
     private readonly IEmailVerificationService _emailVerificationService;
-    private readonly IRevokedUserStore _revokedUserStore;
 
     public UserService(
         IUserRepository userRepository,
@@ -42,8 +41,7 @@ public class UserService : IUserWriteService, IUserReadOnlyService
         IOrderRepository orderRepository,
         IUserTokenRepository userTokenRepository,
         IEmailSenderService emailSenderService,
-        IEmailVerificationService emailVerificationService,
-        IRevokedUserStore revokedUserStore)
+        IEmailVerificationService emailVerificationService)
     {
         _userRepository = userRepository;
         _userTokenProvider = userTokenProvider;
@@ -56,14 +54,13 @@ public class UserService : IUserWriteService, IUserReadOnlyService
         _userTokenRepository = userTokenRepository;
         _emailSenderService = emailSenderService;
         _emailVerificationService = emailVerificationService;
-        _revokedUserStore = revokedUserStore;
     }
 
     public async Task<string> LoginAsync(LoginRequest request)
     {
         var user = await _userRepository.GetByEmailAsync(request.Email);
 
-        if (user == null)
+        if (user == null || !user.IsActive)
             throw new AppValidationException("Email o contraseña incorrectos.", "AUTH_INVALID_CREDENTIALS");
 
         if (!user.EmailConfirmed || user.Password == null)
@@ -171,11 +168,9 @@ public class UserService : IUserWriteService, IUserReadOnlyService
         if (user == null)
             throw new AppValidationException($"No se puede eliminar: El usuario con ID {id} no existe.", "USER_NOT_FOUND");
 
-        await _userRepository.DeleteAsync(user);
+        user.SetInactiveAccount();
+        await _userRepository.UpdateAsync(user);
         await _unitOfWork.SaveChangesAsync();
-
-        // Rechazar cualquier JWT emitido para la cuenta eliminada hasta que venza.
-        _revokedUserStore.Revoke(user.IdUser);
 
         return UserDTO.Create(user);
     }

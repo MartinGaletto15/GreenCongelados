@@ -232,7 +232,7 @@ namespace Infrastructure.Migrations
                         .HasColumnType("nvarchar(100)");
 
                     b.Property<decimal?>("PreparationTime")
-                        .HasColumnType("decimal(18,2)");
+                        .HasColumnType("decimal(18, 2)");
 
                     b.Property<decimal>("Price")
                         .HasColumnType("decimal(18, 2)");
@@ -250,6 +250,9 @@ namespace Infrastructure.Migrations
                         .HasColumnType("decimal(10, 2)");
 
                     b.HasKey("IdProduct");
+
+                    b.HasIndex("Name")
+                        .IsUnique();
 
                     b.ToTable("Products");
                 });
@@ -302,6 +305,9 @@ namespace Infrastructure.Migrations
 
                     b.HasKey("IdPromotion");
 
+                    b.HasIndex("CouponCode")
+                        .IsUnique();
+
                     b.ToTable("Promotions");
                 });
 
@@ -345,6 +351,9 @@ namespace Infrastructure.Migrations
                     b.Property<bool>("EmailConfirmed")
                         .HasColumnType("bit");
 
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
                     b.Property<string>("LastName")
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
@@ -364,7 +373,15 @@ namespace Infrastructure.Migrations
                     b.Property<int>("Role")
                         .HasColumnType("int");
 
+                    b.Property<Guid>("SecurityStamp")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier")
+                        .HasDefaultValueSql("NEWID()");
+
                     b.HasKey("IdUser");
+
+                    b.HasIndex("Email")
+                        .IsUnique();
 
                     b.ToTable("Users");
                 });
@@ -391,7 +408,8 @@ namespace Infrastructure.Migrations
 
                     b.Property<string>("Token")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(64)
+                        .HasColumnType("nvarchar(64)");
 
                     b.Property<int>("Type")
                         .HasColumnType("int");
@@ -399,6 +417,9 @@ namespace Infrastructure.Migrations
                     b.HasKey("IdUserToken");
 
                     b.HasIndex("IdUser");
+
+                    b.HasIndex("Token")
+                        .IsUnique();
 
                     b.ToTable("UserTokens");
                 });

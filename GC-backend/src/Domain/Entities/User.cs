@@ -32,6 +32,12 @@ public class User
 
     public Role Role { get; private set; } = Role.USER;
 
+    /// <summary>
+    /// Versión de seguridad del usuario. Se incluye en cada JWT y se rota ante
+    /// cambios de contraseña o rol, invalidando los tokens ya emitidos.
+    /// </summary>
+    public Guid SecurityStamp { get; private set; } = Guid.NewGuid();
+
 
     // Orders the user PLACED (as Client)
     [InverseProperty("User")]
@@ -43,6 +49,8 @@ public class User
 
     // Cart belonging to the user
     public Cart? Cart { get; private set; }
+
+    public bool IsActive  { get; private set; }
 
     public ICollection<UserToken> UserTokens { get; private set; } = new List<UserToken>();
 
@@ -79,17 +87,21 @@ public class User
     {
         if (string.IsNullOrWhiteSpace(passwordHash)) throw new AppValidationException("Password cannot be empty", "INVALID_PASSWORD");
         Password = passwordHash;
+
+        // Cambiar la contraseña cierra las sesiones abiertas con la anterior.
+        RotateSecurityStamp();
     }
 
     public void CompleteRegistration(string name, string lastName, string passwordHash)
     {
-        if (Password is not null)
+        if (EmailConfirmed && IsActive)
         {
             throw new AppValidationException("Tu cuenta ya está completa. Inicia sesión.", "USER_REGISTRATION_ALREADY_COMPLETED");
         }
 
         UpdateDetails(name, lastName);
         UpdatePassword(passwordHash);
+        SetActiveAccount();
 
         // La cuenta recién queda confirmada cuando el usuario completa el registro.
         EmailConfirm();
@@ -102,6 +114,31 @@ public class User
 
     public void ChangeRole(Role newRole)
     {
+        if (Role == newRole) return;
+
         Role = newRole;
+
+        // Un token emitido con el rol anterior no debe conservar sus permisos.
+        RotateSecurityStamp();
+    }
+
+    /// <summary>
+    /// Genera una nueva versión de seguridad. Los JWT emitidos antes dejan de
+    /// ser aceptados en la siguiente validación.
+    /// </summary>
+    public void RotateSecurityStamp()
+    {
+        SecurityStamp = Guid.NewGuid();
+    }
+
+    public void SetInactiveAccount()
+    {
+        IsActive = false;
+        RotateSecurityStamp();
+    }
+
+    public void SetActiveAccount()
+    {
+        IsActive = true;
     }
 }

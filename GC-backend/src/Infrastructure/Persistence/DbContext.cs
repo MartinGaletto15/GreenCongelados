@@ -31,6 +31,11 @@ namespace Infrastructure.Persistence
                 .HasIndex(user => user.Email)
                 .IsUnique();
 
+            // Las filas existentes reciben una versión única al aplicar la migración.
+            modelBuilder.Entity<User>()
+                .Property(user => user.SecurityStamp)
+                .HasDefaultValueSql("NEWID()");
+
             modelBuilder.Entity<Product>()
                 .HasIndex(product => product.Name)
                 .IsUnique();

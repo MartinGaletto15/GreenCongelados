@@ -51,7 +51,7 @@ public class EmailVerificationService : IEmailVerificationService
         User? user = await _userRepository.GetByEmailAsync(request.Email);
 
         // Si no existe o ya está confirmado, salir sin error (anti-enumeración)
-        if (user == null || user.EmailConfirmed)
+        if (user == null || (user.EmailConfirmed && user.IsActive))
         {
             return;
         }
@@ -67,7 +67,7 @@ public class EmailVerificationService : IEmailVerificationService
     public async Task SendVerificationEmailAsync(User user)
     {
         // Si ya está confirmado, no generar un nuevo token
-        if (user.EmailConfirmed)
+        if (user.EmailConfirmed && user.IsActive)
         {
             return;
         }
@@ -96,7 +96,7 @@ public class EmailVerificationService : IEmailVerificationService
 
     public async Task<EmailConfirmationTokenDTO> ValidateEmailConfirmationTokenAsync(ConfirmEmailRequest request)
     {
-        // Solo se valida el token y que el usuario asociado exista.
+        // Solo se valida el token y que el usuario asociado exista. Endpoint pensado para respuesta a la UI
         // El email no se confirma ni el token se consume; eso ocurre en
         // CompleteRegistrationAsync, cuando también se define la contraseña.
         UserToken validToken = await ValidateTokenAsync(request.Token);
@@ -152,6 +152,7 @@ public class EmailVerificationService : IEmailVerificationService
             throw new AppValidationException("El código no es válido o venció. Solicita uno nuevo.", "INVALID_OR_EXPIRED_TOKEN");
         }
 
+        token = token.Trim();
         string hashToken = _userTokenProvider.HashToken(token);
         UserToken? validToken = await FindValidTokenAsync(hashToken);
         return validToken ?? throw new AppValidationException("El código no es válido o venció. Solicita uno nuevo.", "INVALID_OR_EXPIRED_TOKEN");
