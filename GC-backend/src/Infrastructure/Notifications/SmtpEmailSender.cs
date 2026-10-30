@@ -3,6 +3,7 @@ using MailKit.Net.Smtp;
 using MailKit.Security;
 using Microsoft.Extensions.Options;
 using MimeKit;
+using System.Net;
 
 namespace Infrastructure.Notifications;
 
@@ -18,13 +19,32 @@ public class SmtpEmailSender : IEmailSenderService
     public async Task SendPasswordResetEmailAsync(string to, string token)
     {
         string subject = "Restablecimiento de contraseña - GreenCongelados";
+        string safeToken = WebUtility.HtmlEncode(token);
         string htmlBody = $@"
-            <p>Hola,</p>
-            <p>Has solicitado restablecer tu contraseña. Aquí está tu token de recuperación:</p>
-            <p style=""font-family: monospace; font-size: 16px; background-color: #f4f4f4; padding: 10px; border-radius: 4px;"">
-                <b>{token}</b>
-            </p>
-            <p>Si no solicitaste este cambio, puedes ignorar este correo.</p>";
+            <!DOCTYPE html>
+            <html lang=""es"">
+            <body style=""margin: 0; padding: 32px 16px; background-color: #f3f7f4; font-family: Arial, Helvetica, sans-serif; color: #26352b;"">
+                <table role=""presentation"" width=""100%"" cellspacing=""0"" cellpadding=""0"" style=""max-width: 560px; margin: 0 auto; background-color: #ffffff; border-radius: 12px;"">
+                    <tr>
+                        <td style=""padding: 32px 36px;"">
+                            <p style=""margin: 0 0 8px; color: #287a45; font-size: 14px; font-weight: bold; letter-spacing: 1px;"">GREENCONGELADOS</p>
+                            <h1 style=""margin: 0 0 20px; font-size: 24px; color: #203b2a;"">Restablece tu contraseña</h1>
+                            <p style=""margin: 0 0 16px; font-size: 16px; line-height: 1.6;"">Hola,</p>
+                            <p style=""margin: 0 0 24px; font-size: 16px; line-height: 1.6;"">
+                                Has solicitado restablecer tu contraseña. Usa este código para continuar:
+                            </p>
+                            <div style=""margin: 0 0 24px; padding: 18px; border: 1px solid #dce9df; border-radius: 8px; background-color: #f5faf6; text-align: center;"">
+                                <span style=""font-family: Consolas, Monaco, monospace; font-size: 24px; font-weight: bold; letter-spacing: 3px; color: #287a45;"">{safeToken}</span>
+                            </div>
+                            <hr style=""border: 0; border-top: 1px solid #e8eee9; margin: 0 0 20px;"" />
+                            <p style=""margin: 0; font-size: 13px; line-height: 1.6; color: #718076;"">
+                                ¿No solicitaste este cambio? Puedes ignorar este mensaje; tu contraseña no cambiará.
+                            </p>
+                        </td>
+                    </tr>
+                </table>
+            </body>
+            </html>";
 
         await SendEmailAsync(to, subject, htmlBody);
     }
@@ -32,13 +52,35 @@ public class SmtpEmailSender : IEmailSenderService
     public async Task SendEmailConfirmationAsync(string to, string token)
     {
         string subject = "Confirma tu cuenta - GreenCongelados";
+        string safeToken = WebUtility.HtmlEncode(token);
         string htmlBody = $@"
-            <p>Hola,</p>
-            <p>Gracias por registrarte en GreenCongelados. Usa el siguiente token para confirmar tu dirección de correo electrónico:</p>
-            <p style=""font-family: monospace; font-size: 16px; background-color: #f4f4f4; padding: 10px; border-radius: 4px;"">
-                <b>{token}</b>
-            </p>
-            <p>Si no creaste una cuenta, puedes ignorar este correo.</p>";
+            <!DOCTYPE html>
+            <html lang=""es"">
+            <body style=""margin: 0; padding: 32px 16px; background-color: #f3f7f4; font-family: Arial, Helvetica, sans-serif; color: #26352b;"">
+                <table role=""presentation"" width=""100%"" cellspacing=""0"" cellpadding=""0"" style=""max-width: 560px; margin: 0 auto; background-color: #ffffff; border-radius: 12px;"">
+                    <tr>
+                        <td style=""padding: 32px 36px;"">
+                            <p style=""margin: 0 0 8px; color: #287a45; font-size: 14px; font-weight: bold; letter-spacing: 1px;"">GREENCONGELADOS</p>
+                            <h1 style=""margin: 0 0 20px; font-size: 24px; color: #203b2a;"">¡Un paso más para empezar!</h1>
+                            <p style=""margin: 0 0 16px; font-size: 16px; line-height: 1.6;"">Hola,</p>
+                            <p style=""margin: 0 0 24px; font-size: 16px; line-height: 1.6;"">
+                                Gracias por sumarte a GreenCongelados. Confirma tu correo electrónico con este código:
+                            </p>
+                            <div style=""margin: 0 0 24px; padding: 18px; border: 1px solid #dce9df; border-radius: 8px; background-color: #f5faf6; text-align: center;"">
+                                <span style=""font-family: Consolas, Monaco, monospace; font-size: 24px; font-weight: bold; letter-spacing: 3px; color: #287a45;"">{safeToken}</span>
+                            </div>
+                            <p style=""margin: 0 0 24px; font-size: 14px; line-height: 1.6; color: #5b6b60;"">
+                                Copia el código y pégalo en la pantalla de confirmación para activar tu cuenta.
+                            </p>
+                            <hr style=""border: 0; border-top: 1px solid #e8eee9; margin: 0 0 20px;"" />
+                            <p style=""margin: 0; font-size: 13px; line-height: 1.6; color: #718076;"">
+                                ¿No creaste una cuenta? Puedes ignorar este mensaje; no se realizará ningún cambio.
+                            </p>
+                        </td>
+                    </tr>
+                </table>
+            </body>
+            </html>";
 
         await SendEmailAsync(to, subject, htmlBody);
     }
