@@ -179,6 +179,17 @@ builder.Services.AddAuthentication(options =>
 
 builder.Services.AddAuthorization();
 
+// CORS para la demo frontend local (auth-demo).
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AuthDemo", policy =>
+    {
+        policy.WithOrigins("http://localhost:5500", "http://127.0.0.1:5500")
+            .AllowAnyHeader()
+            .AllowAnyMethod();
+    });
+});
+
 builder.Services.AddSwaggerGen(c =>
 {
     c.SwaggerDoc("v1", new OpenApiInfo { Title = "GreenCongelados", Version = "v1" });
@@ -228,6 +239,8 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseMiddleware<GlobalExceptionHandlingMiddleware>();
+
+app.UseCors("AuthDemo");
 
 app.UseAuthentication();
 app.UseAuthorization();

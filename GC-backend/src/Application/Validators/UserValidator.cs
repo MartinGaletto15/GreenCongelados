@@ -31,8 +31,6 @@ public static class UserValidator
 
     public static async Task ValidateUpdateAsync(UpdateUserRequest request, IUserRepository repository, User currentUser)
     {
-        if (request.Email != null && !Validations.ValidateEmail(request.Email))
-            throw new AppValidationException("Ingresa un email válido.", "USER_EMAIL_INVALID");
 
         if (!string.IsNullOrEmpty(request.Password) && !Validations.ValidatePassword(request.Password, 6, 20, true, true))
             throw new AppValidationException("La contraseña debe tener entre 6 y 20 caracteres e incluir al menos una mayúscula y un número.", "USER_PASSWORD_INVALID");
@@ -42,13 +40,6 @@ public static class UserValidator
 
         if (!string.IsNullOrEmpty(request.LastName) && !Validations.ValidateString(request.LastName, 2, 50))
             throw new AppValidationException("El apellido debe tener entre 2 y 50 caracteres.", "USER_LASTNAME_INVALID");
-
-        if (request.Email != null && currentUser.Email != request.Email)
-        {
-            var existingUser = await repository.GetByEmailAsync(request.Email);
-            if (existingUser != null)
-                throw new AppValidationException("Ese email ya está en uso.", "USER_EMAIL_EXISTS");
-        }
     }
 
     public static void ValidateRoleUpdate(Role newRole, Role currentTargetRole, Role performerRole)

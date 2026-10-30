@@ -2,8 +2,8 @@ namespace Application.DTOs;
 
 public record UserDTO(
     int IdUser,
-    string Name,
-    string LastName,
+    string? Name,
+    string? LastName,
     string Email,
     string? Phone,
     string Role
