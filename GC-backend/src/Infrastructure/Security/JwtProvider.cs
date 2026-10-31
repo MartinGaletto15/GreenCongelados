@@ -28,8 +28,8 @@ public class JwtProvider : IJwtProvider
         var claims = new List<Claim>
         {
             new(ClaimTypes.NameIdentifier, user.IdUser.ToString()),
-            new(ClaimTypes.Name, user.Name),
-            new(ClaimTypes.Surname, user.LastName),
+            new(ClaimTypes.Name, user.Name ?? string.Empty),
+            new(ClaimTypes.Surname, user.LastName ?? string.Empty),
             new(ClaimTypes.Email, user.Email),
             new(ClaimTypes.Role, user.Role.ToString()),
             new(JwtClaimNames.SecurityStamp, user.SecurityStamp.ToString())
