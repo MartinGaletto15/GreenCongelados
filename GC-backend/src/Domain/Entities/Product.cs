@@ -68,19 +68,19 @@ public class Product
     {
         if (name != null)
         {
-            if (string.IsNullOrWhiteSpace(name)) throw new AppValidationException("Name cannot be empty", "INVALID_NAME");
+            if (string.IsNullOrWhiteSpace(name)) throw new AppValidationException("El nombre no puede estar vacío.", "INVALID_NAME");
             Name = name.Trim();
         }
 
         if (price.HasValue)
         {
-            if (price.Value < 0) throw new AppValidationException("Price cannot be negative", "INVALID_PRICE");
+            if (price.Value < 0) throw new AppValidationException("El precio no puede ser negativo.", "INVALID_PRICE");
             Price = price.Value;
         }
 
         if (currentStock.HasValue)
         {
-            if (currentStock.Value < 0) throw new AppValidationException("Stock cannot be negative", "INVALID_STOCK");
+            if (currentStock.Value < 0) throw new AppValidationException("El stock no puede ser negativo.", "INVALID_STOCK");
             
             // If stock was 0 (OutOfStock) and now it's > 0, we change status to Available
             if (CurrentStock == 0 && currentStock.Value > 0 && Status == ProductStatus.OutOfStock)
@@ -106,9 +106,9 @@ public class Product
 
     public void ReduceStock(int quantity)
     {
-        if (quantity <= 0) throw new AppValidationException("Quantity must be positive", "INVALID_QUANTITY");
-        if (Status != ProductStatus.Available) throw new AppValidationException($"Product is not available: {Name}", "PRODUCT_NOT_AVAILABLE");
-        if (CurrentStock < quantity) throw new AppValidationException($"Insufficient stock for product: {Name}. Available: {CurrentStock}", "INSUFFICIENT_STOCK");
+        if (quantity <= 0) throw new AppValidationException("La cantidad debe ser mayor que cero.", "INVALID_QUANTITY");
+        if (Status != ProductStatus.Available) throw new AppValidationException($"El producto no está disponible: {Name}.", "PRODUCT_NOT_AVAILABLE");
+        if (CurrentStock < quantity) throw new AppValidationException($"Stock insuficiente para el producto: {Name}. Disponible: {CurrentStock}.", "INSUFFICIENT_STOCK");
 
         CurrentStock -= quantity;
         
@@ -120,7 +120,7 @@ public class Product
 
     public void IncreaseStock(int quantity)
     {
-        if (quantity <= 0) throw new AppValidationException("Quantity must be positive", "INVALID_QUANTITY");
+        if (quantity <= 0) throw new AppValidationException("La cantidad debe ser mayor que cero.", "INVALID_QUANTITY");
         CurrentStock += quantity;
 
         if (CurrentStock > 0 && Status == ProductStatus.OutOfStock)
@@ -131,7 +131,7 @@ public class Product
 
     public void UpdatePrice(decimal newPrice)
     {
-        if (newPrice < 0) throw new AppValidationException("Price cannot be negative", "INVALID_PRICE");
+        if (newPrice < 0) throw new AppValidationException("El precio no puede ser negativo.", "INVALID_PRICE");
         Price = newPrice;
     }
 
@@ -142,8 +142,8 @@ public class Product
 
     private void ValidateProductData(string name, decimal price, int currentStock)
     {
-        if (string.IsNullOrWhiteSpace(name)) throw new AppValidationException("Name cannot be empty", "INVALID_NAME");
-        if (price < 0) throw new AppValidationException("Price cannot be negative", "INVALID_PRICE");
-        if (currentStock < 0) throw new AppValidationException("Stock cannot be negative", "INVALID_STOCK");
+        if (string.IsNullOrWhiteSpace(name)) throw new AppValidationException("El nombre no puede estar vacío.", "INVALID_NAME");
+        if (price < 0) throw new AppValidationException("El precio no puede ser negativo.", "INVALID_PRICE");
+        if (currentStock < 0) throw new AppValidationException("El stock no puede ser negativo.", "INVALID_STOCK");
     }
 }

@@ -30,7 +30,7 @@ public static class ProductValidator
 
         var existingProduct = await repository.GetByNameAsync(productName);
         if (existingProduct != null)
-            throw new AppValidationException("Ya existe un producto con ese nombre.", "PRODUCT_NAME_EXISTS");
+            throw new AppValidationException("Ya existe un producto con ese nombre.", "PRODUCT_NAME_EXISTS", 409);
     }
 
     public static async Task ValidateUpdateAsync(int id, UpdateProductRequest request, IProductRepository repository, Domain.Entities.Product currentEntity)
@@ -58,7 +58,7 @@ public static class ProductValidator
         {
             var existingProduct = await repository.GetByNameAsync(productName);
             if (existingProduct != null)
-                throw new AppValidationException("Ya existe un producto con ese nombre.", "PRODUCT_NAME_EXISTS");
+                throw new AppValidationException("Ya existe un producto con ese nombre.", "PRODUCT_NAME_EXISTS", 409);
         }
     }
 }

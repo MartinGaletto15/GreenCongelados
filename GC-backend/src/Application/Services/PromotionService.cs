@@ -27,7 +27,7 @@ public class PromotionService : IPromotionReadOnlyService, IPromotionWriteServic
     public async Task<PromotionDTO> GetByIdAsync(int id)
     {
         var entity = await _repository.GetByIdAsync(id);
-        if (entity == null) throw new AppValidationException("Promotion not found", "PROMOTION_NOT_FOUND");
+        if (entity == null) throw new AppValidationException("Promoción no encontrada.", "PROMOTION_NOT_FOUND", 404);
         return PromotionDTO.Create(entity);
     }
 
@@ -60,7 +60,7 @@ public class PromotionService : IPromotionReadOnlyService, IPromotionWriteServic
     public async Task<PromotionDTO> UpdateAsync(int id, UpdatePromotionRequest request)
     {
         var entity = await _repository.GetByIdAsync(id);
-        if (entity == null) throw new AppValidationException("Promotion not found", "PROMOTION_NOT_FOUND");
+        if (entity == null) throw new AppValidationException("Promoción no encontrada.", "PROMOTION_NOT_FOUND", 404);
 
         if (request.CouponCode != null)
             await EnsureCouponCodeIsUniqueAsync(request.CouponCode, id);
@@ -82,7 +82,7 @@ public class PromotionService : IPromotionReadOnlyService, IPromotionWriteServic
     public async Task DeleteAsync(int id)
     {
         var entity = await _repository.GetByIdAsync(id);
-        if (entity == null) throw new AppValidationException("Promotion not found", "PROMOTION_NOT_FOUND");
+        if (entity == null) throw new AppValidationException("Promoción no encontrada.", "PROMOTION_NOT_FOUND", 404);
         await _repository.DeleteAsync(entity);
         await _unitOfWork.SaveChangesAsync();
     }
@@ -95,7 +95,7 @@ public class PromotionService : IPromotionReadOnlyService, IPromotionWriteServic
                 promotion.IdPromotion != excludedPromotionId &&
                 promotion.CouponCode == normalizedCode))
         {
-            throw new AppValidationException("Ya existe una promoción con ese código.", "PROMOTION_CODE_EXISTS");
+            throw new AppValidationException("Ya existe una promoción con ese código.", "PROMOTION_CODE_EXISTS", 409);
         }
     }
 }

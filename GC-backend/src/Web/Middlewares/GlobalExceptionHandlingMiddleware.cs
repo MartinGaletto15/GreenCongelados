@@ -19,24 +19,17 @@ public class GlobalExceptionHandlingMiddleware: IMiddleware
         }
         catch (AppValidationException ex)
         {
-            _logger.LogError(ex, ex.Message);
-            
-            if (ex.ErrorCode == "PRODUCT_CATEGORY_CONFLICT")
-            {
-                context.Response.StatusCode = 409; // Conflict
-            }
-            else
-            {
-                context.Response.StatusCode = 400; // Bad Request
-            }
-            
+            _logger.LogWarning("Error de negocio [{Code}]: {Message}", ex.ErrorCode, ex.Message);
+
+            context.Response.StatusCode = ex.StatusCode;
             await context.Response.WriteAsJsonAsync(new { error = ex.Message, code = ex.ErrorCode });
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, ex.Message);
-            context.Response.StatusCode = 500; // Internal Server Error
-            await context.Response.WriteAsJsonAsync(new { error = "Ocurrió un error inesperado en el servidor." });
+            _logger.LogError(ex, "Error no controlado en el servidor");
+
+            context.Response.StatusCode = 500;
+            await context.Response.WriteAsJsonAsync(new { error = "Ocurrió un error inesperado en el servidor.", code = "INTERNAL_SERVER_ERROR" });
         }
     }
 }

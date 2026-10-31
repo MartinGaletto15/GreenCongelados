@@ -129,7 +129,7 @@ public class UserService : IUserWriteService, IUserReadOnlyService
     {
         var user = await _userRepository.GetByIdAsync(id);
         if (user == null)
-            throw new AppValidationException("El usuario no existe.", "USER_NOT_FOUND");
+            throw new AppValidationException("El usuario no existe.", "USER_NOT_FOUND", 404);
 
         await UserValidator.ValidateUpdateAsync(request, _userRepository, user);
 
@@ -151,7 +151,7 @@ public class UserService : IUserWriteService, IUserReadOnlyService
         var user = await _userRepository.GetByIdAsync(id);
 
         if (user == null)
-            throw new AppValidationException("El usuario no existe.", "USER_NOT_FOUND");
+            throw new AppValidationException("El usuario no existe.", "USER_NOT_FOUND", 404);
 
         UserValidator.ValidateRoleUpdate(role, user.Role, performerRole);
 
@@ -166,7 +166,7 @@ public class UserService : IUserWriteService, IUserReadOnlyService
         var user = await _userRepository.GetByIdAsync(id);
 
         if (user == null)
-            throw new AppValidationException($"No se puede eliminar: El usuario con ID {id} no existe.", "USER_NOT_FOUND");
+            throw new AppValidationException($"El usuario con ID {id} no existe.", "USER_NOT_FOUND", 404);
 
         user.SetInactiveAccount();
         await _userRepository.UpdateAsync(user);
@@ -180,7 +180,7 @@ public class UserService : IUserWriteService, IUserReadOnlyService
         var user = await _userRepository.GetByIdAsync(id);
 
         if (user == null)
-            throw new AppValidationException($"Usuario con ID {id} no encontrado", "USER_NOT_FOUND");
+            throw new AppValidationException($"El usuario con ID {id} no existe.", "USER_NOT_FOUND", 404);
 
         return UserDTO.Create(user);
     }
@@ -188,9 +188,6 @@ public class UserService : IUserWriteService, IUserReadOnlyService
     public async Task<IEnumerable<UserDTO>> GetAllUsersAsync()
     {
         var users = await _userRepository.GetAllAsync();
-
-        if (users == null || !users.Any())
-            throw new AppValidationException("No hay usuarios registrados en el sistema", "USER_LIST_EMPTY");
 
         return UserDTO.Create(users);
     }

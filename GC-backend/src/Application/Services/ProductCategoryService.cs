@@ -28,7 +28,7 @@ public class ProductCategoryService : IProductCategoryReadOnlyService, IProductC
     public async Task<IEnumerable<CategoryDTO>> GetCategoriesByProductIdAsync(int productId)
     {
         var product = await _productRepository.GetByIdAsync(productId);
-        if (product == null) throw new AppValidationException("Product not found", "PRODUCT_NOT_FOUND");
+        if (product == null) throw new AppValidationException("Producto no encontrado.", "PRODUCT_NOT_FOUND", 404);
 
         var categories = await _repository.GetCategoriesByProductIdAsync(productId);
         return CategoryDTO.Create(categories);
@@ -38,14 +38,14 @@ public class ProductCategoryService : IProductCategoryReadOnlyService, IProductC
     {
         // Check existence
         var product = await _productRepository.GetByIdAsync(productId);
-        if (product == null) throw new AppValidationException("Product not found", "PRODUCT_NOT_FOUND");
+        if (product == null) throw new AppValidationException("Producto no encontrado.", "PRODUCT_NOT_FOUND", 404);
 
         var category = await _categoryRepository.GetByIdAsync(categoryId);
-        if (category == null) throw new AppValidationException("Category not found", "CATEGORY_NOT_FOUND");
+        if (category == null) throw new AppValidationException("Categoría no encontrada.", "CATEGORY_NOT_FOUND", 404);
 
         // Check for conflict (duplicate)
         var existing = await _repository.GetByIdsAsync(productId, categoryId);
-        if (existing != null) throw new AppValidationException("The relationship already exists", "PRODUCT_CATEGORY_CONFLICT");
+        if (existing != null) throw new AppValidationException("El producto ya está asociado a esta categoría.", "PRODUCT_CATEGORY_CONFLICT", 409);
 
         var entity = new ProductCategory
         {
@@ -60,7 +60,7 @@ public class ProductCategoryService : IProductCategoryReadOnlyService, IProductC
     public async Task RemoveCategoryFromProductAsync(int productId, int categoryId)
     {
         var existing = await _repository.GetByIdsAsync(productId, categoryId);
-        if (existing == null) throw new AppValidationException("Product category association not found", "PRODUCT_CATEGORY_NOT_FOUND");
+        if (existing == null) throw new AppValidationException("La categoría no está asociada a este producto.", "PRODUCT_CATEGORY_NOT_FOUND", 404);
 
         await _repository.DeleteAsync(existing);
         await _unitOfWork.SaveChangesAsync();
@@ -69,7 +69,7 @@ public class ProductCategoryService : IProductCategoryReadOnlyService, IProductC
     public async Task SyncCategoriesToProductAsync(int productId, IEnumerable<int> categoryIds)
     {
         var product = await _productRepository.GetByIdAsync(productId);
-        if (product == null) throw new AppValidationException("Product not found", "PRODUCT_NOT_FOUND");
+        if (product == null) throw new AppValidationException("Producto no encontrado.", "PRODUCT_NOT_FOUND", 404);
 
         // Remove all current
         var current = await _repository.GetByProductIdAsync(productId);
@@ -82,7 +82,7 @@ public class ProductCategoryService : IProductCategoryReadOnlyService, IProductC
         foreach (var categoryId in categoryIds)
         {
             var category = await _categoryRepository.GetByIdAsync(categoryId);
-            if (category == null) throw new AppValidationException($"Category with id {categoryId} not found", "CATEGORY_NOT_FOUND");
+            if (category == null) throw new AppValidationException($"Categoría con ID {categoryId} no encontrada.", "CATEGORY_NOT_FOUND", 404);
 
             await _repository.AddAsync(new ProductCategory
             {

@@ -48,8 +48,9 @@ builder.Services.Configure<ApiBehaviorOptions>(options =>
         string message = context.ModelState
             .Where(entry => entry.Value?.Errors.Count > 0)
             .SelectMany(entry => entry.Value!.Errors)
+            .Where(error => error.Exception == null && !string.IsNullOrWhiteSpace(error.ErrorMessage))
             .Select(error => error.ErrorMessage)
-            .FirstOrDefault(errorMessage => !string.IsNullOrWhiteSpace(errorMessage))
+            .FirstOrDefault()
             ?? "Los datos enviados no son válidos.";
 
         return new BadRequestObjectResult(new { error = message, code = "VALIDATION_ERROR" });
@@ -251,6 +252,6 @@ app.UseAuthorization();
 
 app.MapControllers(); 
 
-app.MapGet("/", () => "Hello World!"); 
+app.MapGet("/", () => "API de GreenCongelados en funcionamiento.");
 
 app.Run();

@@ -35,9 +35,6 @@ public class CadetService : ICadetReadOnlyService, ICadetWriteService
     {
         var users = await _userRepository.GetAllAsync();
         var cadets = users.Where(u => u.Role == Role.CADET);
-        
-        if (!cadets.Any())
-            throw new AppValidationException("No hay cadetes registrados en el sistema", "CADET_LIST_EMPTY");
 
         return UserDTO.Create(cadets);
     }
@@ -46,7 +43,7 @@ public class CadetService : ICadetReadOnlyService, ICadetWriteService
     {
         var user = await _userRepository.GetByIdAsync(id);
         if (user == null || user.Role != Role.CADET)
-            throw new AppValidationException("El cadete no existe o el usuario no es un cadete", "CADET_NOT_FOUND");
+            throw new AppValidationException("El cadete no existe o el usuario no es un cadete.", "CADET_NOT_FOUND", 404);
             
         return UserDTO.Create(user);
     }
@@ -55,11 +52,11 @@ public class CadetService : ICadetReadOnlyService, ICadetWriteService
     {
         var user = await _userRepository.GetByIdAsync(id);
         if (user == null || user.Role != Role.CADET)
-            throw new AppValidationException("El cadete no existe o el usuario no es un cadete", "CADET_NOT_FOUND");
+            throw new AppValidationException("El cadete no existe o el usuario no es un cadete.", "CADET_NOT_FOUND", 404);
 
         var order = await _orderRepository.GetByIdAsync(idOrder);
         if (order == null)
-            throw new AppValidationException("La orden no existe", "ORDER_NOT_FOUND");
+            throw new AppValidationException("La orden no existe.", "ORDER_NOT_FOUND", 404);
             
         order.AssignCourier(id);
         
@@ -73,15 +70,15 @@ public class CadetService : ICadetReadOnlyService, ICadetWriteService
     {
         var order = await _orderRepository.GetByIdAsync(idOrder);
         if (order == null)
-            throw new AppValidationException("La orden no existe", "ORDER_NOT_FOUND");
+            throw new AppValidationException("La orden no existe.", "ORDER_NOT_FOUND", 404);
 
         if (order.IdCourier != idCadet)
-            throw new AppValidationException("No tienes permiso para actualizar esta orden", "FORBIDDEN");
+            throw new AppValidationException("No tienes permiso para actualizar esta orden.", "FORBIDDEN", 403);
 
         // Only the customer or an admin can cancel an order. If delivery fails, the cadet
         // must return it to LogisticsPending so it can be reassigned.
         if (status == OrderStatus.Cancelled)
-            throw new AppValidationException("Un cadete no puede cancelar una orden; debe devolverla a LogisticsPending", "FORBIDDEN");
+            throw new AppValidationException("Un cadete no puede cancelar una orden; debe devolverla a pendiente de logística.", "FORBIDDEN", 403);
 
         // Reuse the order workflow so stock restoration on cancellation stays centralized.
         return await _orderWriteService.UpdateOrderStatusAsync(idOrder, status);

@@ -27,7 +27,7 @@ public class ShippingCostService : IShippingCostReadOnlyService, IShippingCostWr
     public async Task<ShippingCostDTO> GetByIdAsync(int id)
     {
         var entity = await _repository.GetByIdAsync(id);
-        if (entity == null) throw new AppValidationException("ShippingCost not found", "SHIPPINGCOST_NOT_FOUND");
+        if (entity == null) throw new AppValidationException("Costo de envío no encontrado.", "SHIPPINGCOST_NOT_FOUND", 404);
         return ShippingCostDTO.Create(entity);
     }
 
@@ -73,7 +73,7 @@ public class ShippingCostService : IShippingCostReadOnlyService, IShippingCostWr
     public async Task<ShippingCostDTO> UpdateAsync(int id, UpdateShippingCostRequest request)
     {
         var entity = await _repository.GetByIdAsync(id);
-        if (entity == null) throw new AppValidationException("ShippingCost not found", "SHIPPINGCOST_NOT_FOUND");
+        if (entity == null) throw new AppValidationException("Costo de envío no encontrado.", "SHIPPINGCOST_NOT_FOUND", 404);
 
         if (request.IsActive.HasValue && request.IsActive.Value)
         {
@@ -95,7 +95,7 @@ public class ShippingCostService : IShippingCostReadOnlyService, IShippingCostWr
     public async Task DeleteAsync(int id)
     {
         var entity = await _repository.GetByIdAsync(id);
-        if (entity == null) throw new AppValidationException("ShippingCost not found", "SHIPPINGCOST_NOT_FOUND");
+        if (entity == null) throw new AppValidationException("Costo de envío no encontrado.", "SHIPPINGCOST_NOT_FOUND", 404);
         await _repository.DeleteAsync(entity);
         await _unitOfWork.SaveChangesAsync();
     }

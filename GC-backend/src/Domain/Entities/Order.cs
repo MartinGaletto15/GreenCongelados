@@ -67,7 +67,7 @@ public class Order
 
     public static Order Create(int userId, string street, string? dpto, string? reference, decimal baseShippingCost, IEnumerable<(Product Product, int Quantity)> items, Promotion? promotion)
     {
-        if (!items.Any()) throw new AppValidationException("Order must have at least one item", "EMPTY_ORDER");
+        if (!items.Any()) throw new AppValidationException("La orden debe tener al menos un producto.", "EMPTY_ORDER");
 
         var order = new Order(userId, street, dpto, reference, baseShippingCost);
 
@@ -90,7 +90,7 @@ public class Order
     public void Cancel()
     {
         if (OrderStatus == OrderStatus.Delivered)
-            throw new AppValidationException("Cannot cancel a delivered order", "INVALID_STATUS_TRANSITION");
+            throw new AppValidationException("No se puede cancelar una orden entregada.", "INVALID_STATUS_TRANSITION");
 
         if (OrderStatus == OrderStatus.Cancelled)
             return;
@@ -101,7 +101,7 @@ public class Order
     public void AssignCourier(int courierId)
     {
         if (OrderStatus != OrderStatus.LogisticsPending)
-            throw new AppValidationException("Order must be in LogisticsPending to assign a courier", "INVALID_STATUS_TRANSITION");
+            throw new AppValidationException("La orden debe estar en estado pendiente de logística para asignar un cadete.", "INVALID_STATUS_TRANSITION");
 
         IdCourier = courierId;
         OrderStatus = OrderStatus.InDelivery;
@@ -110,7 +110,7 @@ public class Order
     public void MarkAsDelivered()
     {
         if (OrderStatus != OrderStatus.InDelivery)
-            throw new AppValidationException("Order must be InDelivery to mark as delivered", "INVALID_STATUS_TRANSITION");
+            throw new AppValidationException("La orden debe estar en estado en camino para marcarse como entregada.", "INVALID_STATUS_TRANSITION");
 
         OrderStatus = OrderStatus.Delivered;
     }
@@ -118,10 +118,10 @@ public class Order
     public void ReturnToLogisticsPending()
     {
         if (OrderStatus == OrderStatus.Delivered)
-            throw new AppValidationException("Cannot return a delivered order to logistics", "INVALID_STATUS_TRANSITION");
+            throw new AppValidationException("No se puede devolver a logística una orden entregada.", "INVALID_STATUS_TRANSITION");
 
         if (OrderStatus == OrderStatus.Cancelled)
-            throw new AppValidationException("Cannot return a cancelled order to logistics", "INVALID_STATUS_TRANSITION");
+            throw new AppValidationException("No se puede devolver a logística una orden cancelada.", "INVALID_STATUS_TRANSITION");
 
         if (OrderStatus == OrderStatus.LogisticsPending)
             return;
@@ -134,7 +134,7 @@ public class Order
     public void UpdateShippingDetails(string? street, string? dpto, string? reference)
     {
         if (OrderStatus == OrderStatus.Delivered || OrderStatus == OrderStatus.Cancelled)
-            throw new AppValidationException("Cannot update shipping details of a completed or cancelled order", "INVALID_OPERATION");
+            throw new AppValidationException("No se pueden modificar los datos de envío de una orden completada o cancelada.", "INVALID_OPERATION");
 
         ShippingStreet = street ?? ShippingStreet;
         ShippingDpto = dpto ?? ShippingDpto;
@@ -147,10 +147,10 @@ public class Order
 
         var now = DateTime.Now;
         if (now < promotion.StartDate || now > promotion.EndDate)
-            throw new AppValidationException("The promotion coupon has expired or is not yet valid", "PROMOTION_EXPIRED");
+            throw new AppValidationException("El cupón de promoción expiró o todavía no es válido.", "PROMOTION_EXPIRED");
 
         if (promotion.MinAmount.HasValue && Subtotal < promotion.MinAmount.Value)
-            throw new AppValidationException($"Min amount for promotion is {promotion.MinAmount.Value}", "PROMOTION_MIN_AMOUNT");
+            throw new AppValidationException($"El monto mínimo para aplicar la promoción es {promotion.MinAmount.Value}.", "PROMOTION_MIN_AMOUNT");
 
         IdPromotion = promotion.IdPromotion;
 
@@ -185,7 +185,7 @@ public class Order
                 break;
             case OrderStatus.InDelivery:
                 if (OrderStatus != OrderStatus.LogisticsPending && OrderStatus != OrderStatus.InDelivery)
-                    throw new AppValidationException("Invalid status transition to InDelivery", "INVALID_STATUS_TRANSITION");
+                    throw new AppValidationException("No se puede pasar una orden a estado en camino desde su estado actual.", "INVALID_STATUS_TRANSITION");
                 OrderStatus = OrderStatus.InDelivery;
                 break;
             case OrderStatus.LogisticsPending:

@@ -14,7 +14,7 @@ public static class UserValidator
             throw new AppValidationException("Ingresa un email válido.", "USER_EMAIL_INVALID");
 
         if (existingUser is not null && existingUser.EmailConfirmed && existingUser.IsActive)
-            throw new AppValidationException("Ese email ya tiene una cuenta. Inicia sesión o restablece tu contraseña.", "USER_EMAIL_EXISTS");
+            throw new AppValidationException("Ese email ya tiene una cuenta. Inicia sesión o restablece tu contraseña.", "USER_EMAIL_EXISTS", 409);
     }
 
     public static void ValidateCompleteRegistration(CompleteRegistrationRequest request)
@@ -46,10 +46,10 @@ public static class UserValidator
     {
         // Performer must have a higher hierarchy (lower numerical value) than the target user's current role
         if (performerRole >= currentTargetRole)
-            throw new AppValidationException("No tienes permisos para modificar el rol de este usuario.", "USER_ROLE_INSUFFICIENT_PERMISSIONS");
+            throw new AppValidationException("No tienes permisos para modificar el rol de este usuario.", "USER_ROLE_INSUFFICIENT_PERMISSIONS", 403);
 
         // Performer can only assign roles with a lower hierarchy than their own
         if (performerRole >= newRole)
-            throw new AppValidationException("No tienes permisos para asignar este rol.", "USER_ROLE_INVALID_ASSIGNMENT");
+            throw new AppValidationException("No tienes permisos para asignar este rol.", "USER_ROLE_INVALID_ASSIGNMENT", 403);
     }
 }

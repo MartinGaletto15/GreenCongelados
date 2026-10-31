@@ -64,7 +64,7 @@ public class User
 
     public User(string email, Role role = Role.USER)
     {
-        if (string.IsNullOrWhiteSpace(email)) throw new AppValidationException("Email cannot be empty", "INVALID_EMAIL");
+        if (string.IsNullOrWhiteSpace(email)) throw new AppValidationException("El email no puede estar vacío.", "INVALID_EMAIL");
 
         Email = email;
         Role = role;
@@ -73,10 +73,10 @@ public class User
     public void UpdateDetails(string? name, string? lastName, string? phone = null)
     {
         if (name != null && string.IsNullOrWhiteSpace(name))
-            throw new AppValidationException("Name cannot be empty", "INVALID_NAME");
+            throw new AppValidationException("El nombre no puede estar vacío.", "INVALID_NAME");
 
         if (lastName != null && string.IsNullOrWhiteSpace(lastName))
-            throw new AppValidationException("Last name cannot be empty", "INVALID_LASTNAME");
+            throw new AppValidationException("El apellido no puede estar vacío.", "INVALID_LASTNAME");
 
         if (name != null) Name = name;
         if (lastName != null) LastName = lastName;
@@ -85,7 +85,7 @@ public class User
 
     public void UpdatePassword(string passwordHash)
     {
-        if (string.IsNullOrWhiteSpace(passwordHash)) throw new AppValidationException("Password cannot be empty", "INVALID_PASSWORD");
+        if (string.IsNullOrWhiteSpace(passwordHash)) throw new AppValidationException("La contraseña no puede estar vacía.", "INVALID_PASSWORD");
         Password = passwordHash;
 
         // Cambiar la contraseña cierra las sesiones abiertas con la anterior.
@@ -96,7 +96,7 @@ public class User
     {
         if (EmailConfirmed && IsActive)
         {
-            throw new AppValidationException("Tu cuenta ya está completa. Inicia sesión.", "USER_REGISTRATION_ALREADY_COMPLETED");
+            throw new AppValidationException("Tu cuenta ya está completa. Inicia sesión.", "USER_REGISTRATION_ALREADY_COMPLETED", 409);
         }
 
         UpdateDetails(name, lastName);

@@ -5,6 +5,7 @@ using Application.Interfaces.Order;
 using Application.DTOs;
 using Application.DTOs.Requests;
 using Domain.Entities.Enums;
+using Domain.Exceptions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 
@@ -67,7 +68,7 @@ public class UserController : ControllerBase
 
         if (currentUserId != id && role != "ADMIN" && role != "SUPERADMIN")
         {
-            return Forbid();
+            throw new AppValidationException("No tienes permiso para ver este usuario.", "FORBIDDEN", 403);
         }
 
         var user = await _userReadOnlyService.GetUserByIdAsync(id);
@@ -89,7 +90,7 @@ public class UserController : ControllerBase
         var roleClaim = User.FindFirst(ClaimTypes.Role)?.Value;
         if (!Enum.TryParse<Role>(roleClaim, out var performerRole))
         {
-            return Unauthorized();
+            throw new AppValidationException("No tienes permisos para modificar roles.", "FORBIDDEN", 403);
         }
 
         var user = await _userWriteService.UpdateUserRoleAsync(id, role, performerRole);

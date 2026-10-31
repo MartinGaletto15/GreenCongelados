@@ -68,14 +68,14 @@ public class OrderService : IOrderReadOnlyService, IOrderWriteService
     public async Task<OrderDTO> GetOrderByIdAsync(int id, int userId, string role)
     {
         var entity = await _repository.GetByIdWithDetailsAsync(id);
-        if (entity == null) throw new AppValidationException("Order not found", "ORDER_NOT_FOUND");
+        if (entity == null) throw new AppValidationException("Orden no encontrada.", "ORDER_NOT_FOUND", 404);
 
         var isAdmin = role == "ADMIN" || role == "SUPERADMIN";
         var isOwner = entity.IdUser == userId;
         var isAssignedCourier = entity.IdCourier.HasValue && entity.IdCourier == userId;
 
         if (!isAdmin && !isOwner && !isAssignedCourier)
-            throw new AppValidationException("Not authorized to view this order", "FORBIDDEN");
+            throw new AppValidationException("No tienes permiso para ver esta orden.", "FORBIDDEN", 403);
 
         return OrderDTO.Create(entity);
     }
@@ -97,16 +97,16 @@ public class OrderService : IOrderReadOnlyService, IOrderWriteService
         var address = await _addressService.GetByUserIdAsync(userId);
         
         var cartItems = await _cartItemReadOnlyService.GetCartItemsAsync(userId);
-        if (!cartItems.Any()) throw new AppValidationException("Cart is empty", "EMPTY_CART");
+        if (!cartItems.Any()) throw new AppValidationException("El carrito está vacío.", "EMPTY_CART");
 
         var productsWithQuantity = new List<(Product Product, int Quantity)>();
         foreach (var cartItem in cartItems)
         {
             var product = await _productRepository.GetByIdAsync(cartItem.ProductId);
             if (product == null || product.Status == ProductStatus.Deleted)
-                throw new AppValidationException($"Product {cartItem.ProductId} not found", "PRODUCT_NOT_FOUND");
+                throw new AppValidationException("Producto no encontrado.", "PRODUCT_NOT_FOUND", 404);
             if (product.Status != ProductStatus.Available)
-                throw new AppValidationException($"Product {cartItem.ProductId} is not available", "PRODUCT_NOT_AVAILABLE");
+                throw new AppValidationException($"El producto no está disponible: {product.Name}.", "PRODUCT_NOT_AVAILABLE");
             productsWithQuantity.Add((product, cartItem.Quantity));
         }
 
@@ -158,10 +158,10 @@ public class OrderService : IOrderReadOnlyService, IOrderWriteService
     public async Task<OrderDTO> UpdateMyOrderAsync(int id, UpdateOrderRequest request, int userId)
     {
         var entity = await _repository.GetByIdWithDetailsAsync(id);
-        if (entity == null) throw new AppValidationException("Order not found", "ORDER_NOT_FOUND");
+        if (entity == null) throw new AppValidationException("Orden no encontrada.", "ORDER_NOT_FOUND", 404);
 
         if (entity.IdUser != userId)
-            throw new AppValidationException("Not authorized to update this order", "FORBIDDEN");
+            throw new AppValidationException("No tienes permiso para actualizar esta orden.", "FORBIDDEN", 403);
 
         await _unitOfWork.BeginTransactionAsync();
         try
@@ -184,7 +184,7 @@ public class OrderService : IOrderReadOnlyService, IOrderWriteService
     public async Task<OrderDTO> UpdateOrderStatusAsync(int id, OrderStatus status)
     {
         var entity = await _repository.GetByIdWithDetailsAsync(id);
-        if (entity == null) throw new AppValidationException("Order not found", "ORDER_NOT_FOUND");
+        if (entity == null) throw new AppValidationException("Orden no encontrada.", "ORDER_NOT_FOUND", 404);
 
         await ChangeStatusAndHandleStockAsync(entity, status);
 
@@ -205,10 +205,10 @@ public class OrderService : IOrderReadOnlyService, IOrderWriteService
     public async Task<OrderDTO> DeleteAsync(int id, int userId, string role)
     {
         var entity = await _repository.GetByIdWithDetailsAsync(id);
-        if (entity == null) throw new AppValidationException("Order not found", "ORDER_NOT_FOUND");
+        if (entity == null) throw new AppValidationException("Orden no encontrada.", "ORDER_NOT_FOUND", 404);
 
         if (entity.IdUser != userId && role != "ADMIN" && role != "SUPERADMIN")
-            throw new AppValidationException("Not authorized to delete/cancel this order", "FORBIDDEN");
+            throw new AppValidationException("No tienes permiso para cancelar esta orden.", "FORBIDDEN", 403);
 
         await _unitOfWork.BeginTransactionAsync();
         try

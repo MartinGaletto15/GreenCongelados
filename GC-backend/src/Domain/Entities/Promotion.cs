@@ -61,13 +61,13 @@ public class Promotion
     {
         if (couponCode != null)
         {
-            if (string.IsNullOrWhiteSpace(couponCode)) throw new AppValidationException("Coupon code cannot be empty", "INVALID_COUPON");
+            if (string.IsNullOrWhiteSpace(couponCode)) throw new AppValidationException("El código de cupón no puede estar vacío.", "INVALID_COUPON");
             CouponCode = NormalizeCouponCode(couponCode);
         }
 
         if (discountValue.HasValue)
         {
-            if (discountValue.Value < 0) throw new AppValidationException("Discount value cannot be negative", "INVALID_DISCOUNT");
+            if (discountValue.Value < 0) throw new AppValidationException("El valor del descuento no puede ser negativo.", "INVALID_DISCOUNT");
             DiscountValue = discountValue.Value;
         }
 
@@ -76,14 +76,14 @@ public class Promotion
         StartDate = startDate ?? StartDate;
         EndDate = endDate ?? EndDate;
 
-        if (StartDate > EndDate) throw new AppValidationException("Start date cannot be after end date", "INVALID_DATES");
+        if (StartDate > EndDate) throw new AppValidationException("La fecha de inicio no puede ser posterior a la fecha de fin.", "INVALID_DATES");
     }
 
     private void ValidateData(string couponCode, decimal discountValue, DateTime startDate, DateTime endDate)
     {
-        if (string.IsNullOrWhiteSpace(couponCode)) throw new AppValidationException("Coupon code cannot be empty", "INVALID_COUPON");
-        if (discountValue < 0) throw new AppValidationException("Discount value cannot be negative", "INVALID_DISCOUNT");
-        if (startDate > endDate) throw new AppValidationException("Start date cannot be after end date", "INVALID_DATES");
+        if (string.IsNullOrWhiteSpace(couponCode)) throw new AppValidationException("El código de cupón no puede estar vacío.", "INVALID_COUPON");
+        if (discountValue < 0) throw new AppValidationException("El valor del descuento no puede ser negativo.", "INVALID_DISCOUNT");
+        if (startDate > endDate) throw new AppValidationException("La fecha de inicio no puede ser posterior a la fecha de fin.", "INVALID_DATES");
     }
 
     public static string NormalizeCouponCode(string couponCode) => couponCode.Trim().ToUpperInvariant();

@@ -27,14 +27,14 @@ public class AddressService : IAddressReadOnlyService, IAddressWriteService
     public async Task<AddressDTO> GetByIdAsync(int id)
     {
         var entity = await _repository.GetByIdAsync(id);
-        if (entity == null) throw new AppValidationException("Address not found", "ADDRESS_NOT_FOUND");
+        if (entity == null) throw new AppValidationException("Dirección no encontrada.", "ADDRESS_NOT_FOUND", 404);
         return AddressDTO.Create(entity);
     }
 
     public async Task<AddressDTO> GetByUserIdAsync(int userId)
     {
         var entity = await _repository.GetByUserIdAsync(userId);
-        if (entity == null) throw new AppValidationException("Address not found", "ADDRESS_NOT_FOUND");
+        if (entity == null) throw new AppValidationException("Dirección no encontrada.", "ADDRESS_NOT_FOUND", 404);
         return AddressDTO.Create(entity);
     }
 
@@ -43,7 +43,7 @@ public class AddressService : IAddressReadOnlyService, IAddressWriteService
         var existingAddress = await _repository.GetByUserIdAsync(idUser);
         if (existingAddress != null)
         {
-            throw new AppValidationException("User already has an address. Use update instead.", "ADDRESS_ALREADY_EXISTS");
+            throw new AppValidationException("El usuario ya tiene una dirección. Usa la actualización.", "ADDRESS_ALREADY_EXISTS", 409);
         }
 
         var entity = new Address
@@ -63,7 +63,7 @@ public class AddressService : IAddressReadOnlyService, IAddressWriteService
     public async Task<AddressDTO> UpdateMyAddressAsync(UpdateAddressRequest request, int idUser)
     {
         var entity = await _repository.GetByUserIdAsync(idUser);
-        if (entity == null) throw new AppValidationException("Address not found", "ADDRESS_NOT_FOUND");
+        if (entity == null) throw new AppValidationException("Dirección no encontrada.", "ADDRESS_NOT_FOUND", 404);
 
         entity.Street = request.Street ?? entity.Street;
         entity.Dpto = request.Dpto ?? entity.Dpto;
@@ -77,7 +77,7 @@ public class AddressService : IAddressReadOnlyService, IAddressWriteService
     public async Task DeleteMyAddressAsync(int idUser)
     {
         var entity = await _repository.GetByUserIdAsync(idUser);
-        if (entity == null) throw new AppValidationException("Address not found", "ADDRESS_NOT_FOUND");
+        if (entity == null) throw new AppValidationException("Dirección no encontrada.", "ADDRESS_NOT_FOUND", 404);
         await _repository.DeleteAsync(entity);
         await _unitOfWork.SaveChangesAsync();
     }

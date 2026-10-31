@@ -29,7 +29,7 @@ public class ProductService : IProductReadOnlyService, IProductWriteService
     {
         var entity = await _repository.GetByIdNotDeletedAsync(id);
         if (entity == null)
-            throw new AppValidationException("Product not found", "PRODUCT_NOT_FOUND");
+            throw new AppValidationException("Producto no encontrado.", "PRODUCT_NOT_FOUND", 404);
         return ProductDTO.Create(entity);
     }
 
@@ -57,7 +57,7 @@ public class ProductService : IProductReadOnlyService, IProductWriteService
     public async Task<ProductDTO> UpdateAsync(int id, UpdateProductRequest request)
     {
         var entity = await _repository.GetByIdAsync(id);
-        if (entity == null) throw new AppValidationException("Product not found", "PRODUCT_NOT_FOUND");
+        if (entity == null) throw new AppValidationException("Producto no encontrado.", "PRODUCT_NOT_FOUND", 404);
 
         await ProductValidator.ValidateUpdateAsync(id, request, _repository, entity);
 
@@ -81,7 +81,7 @@ public class ProductService : IProductReadOnlyService, IProductWriteService
     public async Task DeleteAsync(int id)
     {
         var entity = await _repository.GetByIdAsync(id);
-        if (entity == null) throw new AppValidationException("Product not found", "PRODUCT_NOT_FOUND");
+        if (entity == null) throw new AppValidationException("Producto no encontrado.", "PRODUCT_NOT_FOUND", 404);
         
         entity.Delete();
         await _repository.UpdateAsync(entity);

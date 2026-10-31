@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using Domain.Exceptions;
 
 namespace Domain.Entities;
 
@@ -27,8 +28,8 @@ public class OrderItem
 
     public OrderItem(int idProduct, int quantity, decimal unitPrice, int idOrder = 0)
     {
-        if (quantity <= 0) throw new ArgumentException("Quantity must be greater than zero", nameof(quantity));
-        if (unitPrice < 0) throw new ArgumentException("Unit price cannot be negative", nameof(unitPrice));
+        if (quantity <= 0) throw new AppValidationException("La cantidad debe ser mayor que cero.", "INVALID_QUANTITY");
+        if (unitPrice < 0) throw new AppValidationException("El precio unitario no puede ser negativo.", "INVALID_PRICE");
 
         IdOrder = idOrder;
         IdProduct = idProduct;
