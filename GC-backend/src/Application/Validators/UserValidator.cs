@@ -32,9 +32,6 @@ public static class UserValidator
     public static async Task ValidateUpdateAsync(UpdateUserRequest request, IUserRepository repository, User currentUser)
     {
 
-        if (!string.IsNullOrEmpty(request.Password) && !Validations.ValidatePassword(request.Password, 6, 20, true, true))
-            throw new AppValidationException("La contraseña debe tener entre 6 y 20 caracteres e incluir al menos una mayúscula y un número.", "USER_PASSWORD_INVALID");
-
         if (!string.IsNullOrEmpty(request.Name) && !Validations.ValidateString(request.Name, 2, 50))
             throw new AppValidationException("El nombre debe tener entre 2 y 50 caracteres.", "USER_NAME_INVALID");
 

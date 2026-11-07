@@ -133,12 +133,8 @@ public class UserService : IUserWriteService, IUserReadOnlyService
 
         await UserValidator.ValidateUpdateAsync(request, _userRepository, user);
 
-        if (!string.IsNullOrEmpty(request.Password))
-        {
-            string passwordHash = _passwordHasher.Hash(request.Password);
-            user.UpdatePassword(passwordHash);
-        }
-
+        // La contraseña no se actualiza por este endpoint: el cambio solo se permite
+        // mediante el flujo verificado con código (PasswordResetService).
         user.UpdateDetails(request.Name, request.LastName, request.Phone);
 
         await _userRepository.UpdateAsync(user);
