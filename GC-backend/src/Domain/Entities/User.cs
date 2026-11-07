@@ -133,7 +133,11 @@ public class User
 
     public void SetInactiveAccount()
     {
+        // La cuenta vuelve al estado "sin completar": no puede iniciar sesión ni
+        // restablecer contraseña, y solo se reactiva repitiendo el registro con
+        // un código de confirmación.
         IsActive = false;
+        EmailConfirmed = false;
         RotateSecurityStamp();
     }
 
