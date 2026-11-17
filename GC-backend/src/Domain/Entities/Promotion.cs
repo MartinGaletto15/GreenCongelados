@@ -39,7 +39,7 @@ public class Promotion
 
     public Promotion(string couponCode, decimal discountValue, DiscountType discountType, decimal? minAmount, DateTime startDate, DateTime endDate)
     {
-        ValidateData(couponCode, discountValue, startDate, endDate);
+        ValidateData(couponCode, discountValue, discountType, minAmount, startDate, endDate);
 
         CouponCode = NormalizeCouponCode(couponCode);
         DiscountValue = discountValue;
@@ -49,40 +49,51 @@ public class Promotion
         EndDate = endDate;
     }
 
-    public bool IsActive(decimal amount)
+    public decimal CalculateDiscount(decimal subtotal, decimal shippingCost)
     {
         var now = DateTime.Now;
-        if (now < StartDate || now > EndDate) return false;
-        if (MinAmount.HasValue && amount < MinAmount.Value) return false;
-        return true;
+        if (now < StartDate || now > EndDate)
+            throw new AppValidationException("El cupón de promoción expiró o todavía no es válido.", "PROMOTION_EXPIRED");
+
+        if (MinAmount.HasValue && subtotal < MinAmount.Value)
+            throw new AppValidationException($"El monto mínimo para aplicar la promoción es {MinAmount.Value}.", "PROMOTION_MIN_AMOUNT");
+
+        var discount = DiscountType switch
+        {
+            DiscountType.Percentage => Math.Round(subtotal * (DiscountValue / 100m), 2, MidpointRounding.AwayFromZero),
+            DiscountType.FixedAmount => DiscountValue,
+            DiscountType.FreeShipping => shippingCost,
+            _ => throw new AppValidationException("El tipo de descuento no es válido.", "INVALID_DISCOUNT_TYPE")
+        };
+
+        return Math.Min(discount, subtotal + shippingCost);
     }
 
     public void UpdateDetails(string? couponCode, decimal? discountValue, DiscountType? discountType, decimal? minAmount, DateTime? startDate, DateTime? endDate)
     {
-        if (couponCode != null)
-        {
-            if (string.IsNullOrWhiteSpace(couponCode)) throw new AppValidationException("El código de cupón no puede estar vacío.", "INVALID_COUPON");
-            CouponCode = NormalizeCouponCode(couponCode);
-        }
+        var newCoupon = couponCode != null ? NormalizeCouponCode(couponCode) : CouponCode;
+        var newValue = discountValue ?? DiscountValue;
+        var newType = discountType ?? DiscountType;
+        var newMin = minAmount ?? MinAmount;
+        var newStart = startDate ?? StartDate;
+        var newEnd = endDate ?? EndDate;
 
-        if (discountValue.HasValue)
-        {
-            if (discountValue.Value < 0) throw new AppValidationException("El valor del descuento no puede ser negativo.", "INVALID_DISCOUNT");
-            DiscountValue = discountValue.Value;
-        }
+        ValidateData(newCoupon, newValue, newType, newMin, newStart, newEnd);
 
-        DiscountType = discountType ?? DiscountType;
-        MinAmount = minAmount ?? MinAmount;
-        StartDate = startDate ?? StartDate;
-        EndDate = endDate ?? EndDate;
-
-        if (StartDate > EndDate) throw new AppValidationException("La fecha de inicio no puede ser posterior a la fecha de fin.", "INVALID_DATES");
+        CouponCode = newCoupon;
+        DiscountValue = newValue;
+        DiscountType = newType;
+        MinAmount = newMin;
+        StartDate = newStart;
+        EndDate = newEnd;
     }
 
-    private void ValidateData(string couponCode, decimal discountValue, DateTime startDate, DateTime endDate)
+    private static void ValidateData(string couponCode, decimal discountValue, DiscountType discountType, decimal? minAmount, DateTime startDate, DateTime endDate)
     {
         if (string.IsNullOrWhiteSpace(couponCode)) throw new AppValidationException("El código de cupón no puede estar vacío.", "INVALID_COUPON");
         if (discountValue < 0) throw new AppValidationException("El valor del descuento no puede ser negativo.", "INVALID_DISCOUNT");
+        if (discountType == DiscountType.Percentage && discountValue > 100) throw new AppValidationException("El porcentaje de descuento no puede superar 100.", "INVALID_DISCOUNT");
+        if (minAmount.HasValue && minAmount.Value < 0) throw new AppValidationException("El monto mínimo no puede ser negativo.", "INVALID_MIN_AMOUNT");
         if (startDate > endDate) throw new AppValidationException("La fecha de inicio no puede ser posterior a la fecha de fin.", "INVALID_DATES");
     }
 

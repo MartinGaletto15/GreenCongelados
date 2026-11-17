@@ -67,21 +67,21 @@ public class Order
 
     public static Order Create(int userId, string street, string? dpto, string? reference, decimal baseShippingCost, IEnumerable<(Product Product, int Quantity)> items, Promotion? promotion)
     {
-        if (!items.Any()) throw new AppValidationException("La orden debe tener al menos un producto.", "EMPTY_ORDER");
+        var itemList = items.ToList();
+        if (itemList.Count == 0) throw new AppValidationException("La orden debe tener al menos un producto.", "EMPTY_ORDER");
 
         var order = new Order(userId, street, dpto, reference, baseShippingCost);
 
-        decimal subtotal = 0;
-        foreach (var (product, quantity) in items)
+        order.Subtotal = itemList.Sum(x => x.Product.Price * x.Quantity);
+        order.ApplyPromotion(promotion);
+
+        foreach (var (product, quantity) in itemList)
         {
             product.ReduceStock(quantity);
             var orderItem = new OrderItem(product.IdProduct, quantity, product.Price);
             order._orderItems.Add(orderItem);
-            subtotal += product.Price * quantity;
         }
 
-        order.Subtotal = subtotal;
-        order.ApplyPromotion(promotion);
         order.CalculateTotal();
 
         return order;
@@ -145,27 +145,10 @@ public class Order
     {
         if (promotion == null) return;
 
-        var now = DateTime.Now;
-        if (now < promotion.StartDate || now > promotion.EndDate)
-            throw new AppValidationException("El cupón de promoción expiró o todavía no es válido.", "PROMOTION_EXPIRED");
-
-        if (promotion.MinAmount.HasValue && Subtotal < promotion.MinAmount.Value)
-            throw new AppValidationException($"El monto mínimo para aplicar la promoción es {promotion.MinAmount.Value}.", "PROMOTION_MIN_AMOUNT");
+        var discount = promotion.CalculateDiscount(Subtotal, ShippingCost);
 
         IdPromotion = promotion.IdPromotion;
-
-        switch (promotion.DiscountType)
-        {
-            case DiscountType.Percentage:
-                GlobalDiscount = Subtotal * (promotion.DiscountValue / 100);
-                break;
-            case DiscountType.FixedAmount:
-                GlobalDiscount = promotion.DiscountValue;
-                break;
-            case DiscountType.FreeShipping:
-                GlobalDiscount = ShippingCost;
-                break;
-        }
+        GlobalDiscount = discount;
     }
 
     private void CalculateTotal()
