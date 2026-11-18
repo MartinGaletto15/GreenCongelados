@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
-using System.Security.Claims;
+using Web.Extensions;
 using Application.Interfaces.CartItem;
 using Application.DTOs;
 using Application.DTOs.Requests.Create;
@@ -25,7 +25,7 @@ public class CartItemController : ControllerBase
     [HttpGet]
     public async Task<ActionResult<IEnumerable<CartItemDTO>>> GetCartItemsAsync()
     {
-        var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+        var userId = User.GetUserId();
         var cartItems = await _cartItemReadOnlyService.GetCartItemsAsync(userId);
         return Ok(cartItems);
     }
@@ -33,7 +33,7 @@ public class CartItemController : ControllerBase
     [HttpPost]
     public async Task<ActionResult<CartItemDTO>> AddCartItemAsync(CreateCartItemRequest request)
     {
-        var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+        var userId = User.GetUserId();
         var cartItem = await _cartItemWriteService.AddCartItemAsync(userId, request);
         return Ok(cartItem);
     }
@@ -41,7 +41,7 @@ public class CartItemController : ControllerBase
     [HttpPut("{id}")]
     public async Task<ActionResult<CartItemDTO>> UpdateCartItemAsync(int id, UpdateCartItemRequest request)
     {
-        var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+        var userId = User.GetUserId();
         var cartItem = await _cartItemWriteService.UpdateCartItemAsync(userId, id, request);
         return Ok(cartItem);
     }
@@ -49,7 +49,7 @@ public class CartItemController : ControllerBase
     [HttpDelete("{id}")]
     public async Task<ActionResult> DeleteCartItemAsync(int id)
     {
-        var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+        var userId = User.GetUserId();
         await _cartItemWriteService.DeleteCartItemAsync(userId, id);
         return NoContent();
     }

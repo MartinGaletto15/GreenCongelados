@@ -2,8 +2,9 @@ using Application.Interfaces.Address;
 using Application.DTOs;
 using Application.DTOs.Requests;
 using Microsoft.AspNetCore.Mvc;
-using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
+using Domain.Entities.Enums;
+using Web.Extensions;
 
 namespace Web.Controllers.Addresses;
 
@@ -21,7 +22,7 @@ public class AddressController : ControllerBase
     }
 
     [HttpGet]
-    [Authorize(Roles = "SUPERADMIN")]
+    [Authorize(Roles = Roles.SuperAdmin)]
     public async Task<ActionResult<IEnumerable<AddressDTO>>> GetAllAsync()
     {
         var result = await _readOnlyService.GetAllAsync();
@@ -29,7 +30,7 @@ public class AddressController : ControllerBase
     }
 
     [HttpGet("{id}")]
-    [Authorize(Roles = "ADMIN,SUPERADMIN")]
+    [Authorize(Roles = Roles.AdminOrSuperAdmin)]
     public async Task<ActionResult<AddressDTO>> GetByIdAsync(int id)
     {
         var result = await _readOnlyService.GetByIdAsync(id);
@@ -40,7 +41,7 @@ public class AddressController : ControllerBase
     [Authorize]
     public async Task<ActionResult<AddressDTO>> GetMyAddressAsync()
     {
-        var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+        var userId = User.GetUserId();
         var result = await _readOnlyService.GetByUserIdAsync(userId);
         return Ok(result);
     }
@@ -49,7 +50,7 @@ public class AddressController : ControllerBase
     [Authorize]
     public async Task<ActionResult<AddressDTO>> CreateAsync(CreateAddressRequest request)
     {
-        var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+        var userId = User.GetUserId();
         var result = await _writeService.CreateAsync(request, userId);
         return Ok(result);
     }
@@ -58,7 +59,7 @@ public class AddressController : ControllerBase
     [Authorize]
     public async Task<ActionResult<AddressDTO>> UpdateMyAddressAsync(UpdateAddressRequest request)
     {
-        var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+        var userId = User.GetUserId();
         var result = await _writeService.UpdateMyAddressAsync(request, userId);
         return Ok(result);
     }
@@ -67,7 +68,7 @@ public class AddressController : ControllerBase
     [Authorize]
     public async Task<ActionResult> DeleteMyAddressAsync()
     {
-        var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+        var userId = User.GetUserId();
         await _writeService.DeleteMyAddressAsync(userId);
         return NoContent();
     }

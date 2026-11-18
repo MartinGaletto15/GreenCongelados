@@ -1,4 +1,3 @@
-using System.Security.Claims;
 using Application.Interfaces.Order;
 using Application.Interfaces.Promotion;
 using Application.Interfaces.ShippingCost;
@@ -65,12 +64,12 @@ public class OrderService : IOrderReadOnlyService, IOrderWriteService
         return OrderDTO.Create(entities);
     }
 
-    public async Task<OrderDTO> GetOrderByIdAsync(int id, int userId, string role)
+    public async Task<OrderDTO> GetOrderByIdAsync(int id, int userId, Role role)
     {
         var entity = await _repository.GetByIdWithDetailsAsync(id);
         if (entity == null) throw new AppValidationException("Orden no encontrada.", "ORDER_NOT_FOUND", 404);
 
-        var isAdmin = role == "ADMIN" || role == "SUPERADMIN";
+        var isAdmin = Roles.IsAdmin(role);
         var isOwner = entity.IdUser == userId;
         var isAssignedCourier = entity.IdCourier.HasValue && entity.IdCourier == userId;
 
@@ -86,7 +85,7 @@ public class OrderService : IOrderReadOnlyService, IOrderWriteService
         return OrderDTO.Create(entities);
     }
 
-    public async Task<OrderDTO> GetMyOrderByIdAsync(int id, int userId, string role)
+    public async Task<OrderDTO> GetMyOrderByIdAsync(int id, int userId, Role role)
     {
         return await GetOrderByIdAsync(id, userId, role);
     }
@@ -202,12 +201,12 @@ public class OrderService : IOrderReadOnlyService, IOrderWriteService
         return OrderDTO.Create(entity);
     }
 
-    public async Task<OrderDTO> DeleteAsync(int id, int userId, string role)
+    public async Task<OrderDTO> DeleteAsync(int id, int userId, Role role)
     {
         var entity = await _repository.GetByIdWithDetailsAsync(id);
         if (entity == null) throw new AppValidationException("Orden no encontrada.", "ORDER_NOT_FOUND", 404);
 
-        if (entity.IdUser != userId && role != "ADMIN" && role != "SUPERADMIN")
+        if (entity.IdUser != userId && !Roles.IsAdmin(role))
             throw new AppValidationException("No tienes permiso para cancelar esta orden.", "FORBIDDEN", 403);
 
         await _unitOfWork.BeginTransactionAsync();

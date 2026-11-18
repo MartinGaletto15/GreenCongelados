@@ -3,6 +3,7 @@ using Application.DTOs;
 using Application.DTOs.Requests;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Domain.Entities.Enums;
 
 namespace Web.Controllers.Categories;
 
@@ -34,7 +35,7 @@ public class CategoryController : ControllerBase
     }
 
     [HttpPost]
-    [Authorize(Roles = "SUPERADMIN,ADMIN")]
+    [Authorize(Roles = Roles.AdminOrSuperAdmin)]
     public async Task<ActionResult<CategoryDTO>> CreateAsync(CreateCategoryRequest request)
     {
         var result = await _writeService.CreateAsync(request);
@@ -42,7 +43,7 @@ public class CategoryController : ControllerBase
     }
 
     [HttpPut("{id}")]
-    [Authorize(Roles = "SUPERADMIN,ADMIN")]
+    [Authorize(Roles = Roles.AdminOrSuperAdmin)]
     public async Task<ActionResult<CategoryDTO>> UpdateAsync(int id, UpdateCategoryRequest request)
     {
         var result = await _writeService.UpdateAsync(id, request);
@@ -50,7 +51,7 @@ public class CategoryController : ControllerBase
     }
 
     [HttpDelete("{id}")]
-    [Authorize(Roles = "SUPERADMIN,ADMIN")]
+    [Authorize(Roles = Roles.AdminOrSuperAdmin)]
     public async Task<ActionResult> DeleteAsync(int id)
     {
         await _writeService.DeleteAsync(id);

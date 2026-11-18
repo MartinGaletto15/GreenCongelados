@@ -3,12 +3,13 @@ using Application.DTOs;
 using Application.DTOs.Requests;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
+using Domain.Entities.Enums;
 
 namespace Web.Controllers.ShippingCosts;
 
 [ApiController]
 [Route("api/shipping-cost")]
-[Authorize(Roles = "ADMIN,SUPERADMIN")]
+[Authorize(Roles = Roles.AdminOrSuperAdmin)]
 public class ShippingCostController : ControllerBase
 {
     private readonly IShippingCostWriteService _writeService;

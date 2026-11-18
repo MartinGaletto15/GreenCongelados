@@ -3,10 +3,11 @@ using Microsoft.AspNetCore.Authorization;
 using Application.Interfaces.Promotion;
 using Application.DTOs;
 using Application.DTOs.Requests;
+using Domain.Entities.Enums;
 
 namespace Web.Controllers.Promotion;
 
-[Authorize(Roles = "ADMIN,SUPERADMIN")]
+[Authorize(Roles = Roles.AdminOrSuperAdmin)]
 [ApiController]
 [Route("api/promotions")]
 public class PromotionController : ControllerBase

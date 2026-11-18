@@ -4,10 +4,11 @@ using Application.DTOs;
 using Application.DTOs.Requests;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
+using Domain.Entities.Enums;
 
 namespace Web.Controllers.Products;
 
-[Authorize(Roles = "ADMIN,SUPERADMIN")]
+[Authorize(Roles = Roles.AdminOrSuperAdmin)]
 [ApiController]
 [Route("api/products")]
 public class ProductController : ControllerBase

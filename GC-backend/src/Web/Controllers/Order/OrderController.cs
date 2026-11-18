@@ -4,7 +4,7 @@ using Application.DTOs.Requests;
 using Domain.Entities.Enums;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System.Security.Claims;
+using Web.Extensions;
 
 namespace Web.Controllers.Order;
 
@@ -27,7 +27,7 @@ public class OrderController : ControllerBase
     [HttpGet("me")]
     public async Task<ActionResult<IEnumerable<OrderDTO>>> GetMyOrders()
     {
-        var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+        var userId = User.GetUserId();
         var result = await _readOnlyService.GetMyOrdersAsync(userId);
         return Ok(result);
     }
@@ -35,7 +35,7 @@ public class OrderController : ControllerBase
     [HttpPost]
     public async Task<ActionResult<OrderDTO>> Create([FromBody] CreateOrderRequest request)
     {
-        var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+        var userId = User.GetUserId();
         var result = await _writeService.CreateAsync(request, userId);
         return CreatedAtAction(nameof(GetOrderById), new { id = result.IdOrder }, result);
     }
@@ -43,7 +43,7 @@ public class OrderController : ControllerBase
     [HttpPut("me/{id}")]
     public async Task<ActionResult<OrderDTO>> UpdateMyOrder(int id, [FromBody] UpdateOrderRequest request)
     {
-        var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+        var userId = User.GetUserId();
         var result = await _writeService.UpdateMyOrderAsync(id, request, userId);
         return Ok(result);
     }
@@ -51,8 +51,8 @@ public class OrderController : ControllerBase
     [HttpGet("{id}")]
     public async Task<ActionResult<OrderDTO>> GetOrderById(int id)
     {
-        var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
-        var role = User.FindFirstValue(ClaimTypes.Role) ?? "";
+        var userId = User.GetUserId();
+        var role = User.GetRole();
         // Service internally validates if the user can access this order based on their ID and Role
         var result = await _readOnlyService.GetOrderByIdAsync(id, userId, role);
         return Ok(result);
@@ -61,15 +61,15 @@ public class OrderController : ControllerBase
     [HttpDelete("{id}")]
     public async Task<ActionResult<OrderDTO>> CancelOrder(int id)
     {
-        var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
-        var role = User.FindFirstValue(ClaimTypes.Role) ?? "";
+        var userId = User.GetUserId();
+        var role = User.GetRole();
         // Service handles whether it's a user canceling or an admin deleting
         var result = await _writeService.DeleteAsync(id, userId, role);
         return Ok(result);
     }
 
     [HttpGet]
-    [Authorize(Roles = "ADMIN,SUPERADMIN")]
+    [Authorize(Roles = Roles.AdminOrSuperAdmin)]
     public async Task<ActionResult<IEnumerable<OrderDTO>>> GetAllOrders()
     {
         var result = await _readOnlyService.GetAllOrdersAsync();
@@ -77,7 +77,7 @@ public class OrderController : ControllerBase
     }
 
     [HttpPut("{id}/status")]
-    [Authorize(Roles = "ADMIN,SUPERADMIN")]
+    [Authorize(Roles = Roles.AdminOrSuperAdmin)]
     public async Task<ActionResult<OrderDTO>> UpdateStatus(int id, [FromBody] OrderStatus status)
     {
         var result = await _writeService.UpdateOrderStatusAsync(id, status);
