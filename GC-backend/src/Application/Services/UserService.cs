@@ -121,9 +121,7 @@ public class UserService : IUserWriteService, IUserReadOnlyService
 
     public async Task<UserDTO> UpdateUserAsync(int id, UpdateUserRequest request)
     {
-        var user = await _userRepository.GetByIdAsync(id);
-        if (user == null)
-            throw new AppValidationException("El usuario no existe.", "USER_NOT_FOUND", 404);
+        var user = await GetRequiredUserAsync(id);
 
         // La contraseña no se actualiza por este endpoint: el cambio solo se permite
         // mediante el flujo verificado con código (PasswordResetService).
@@ -136,10 +134,7 @@ public class UserService : IUserWriteService, IUserReadOnlyService
 
     public async Task<UserDTO> UpdateUserRoleAsync(int id, Role role, Role performerRole)
     {
-        var user = await _userRepository.GetByIdAsync(id);
-
-        if (user == null)
-            throw new AppValidationException("El usuario no existe.", "USER_NOT_FOUND", 404);
+        var user = await GetRequiredUserAsync(id);
 
         UserValidator.ValidateRoleUpdate(role, user.Role, performerRole);
 
@@ -151,10 +146,7 @@ public class UserService : IUserWriteService, IUserReadOnlyService
 
     public async Task<UserDTO> DeleteUserAsync(int id)
     {
-        var user = await _userRepository.GetByIdAsync(id);
-
-        if (user == null)
-            throw new AppValidationException($"El usuario con ID {id} no existe.", "USER_NOT_FOUND", 404);
+        var user = await GetRequiredUserAsync(id);
 
         user.SetInactiveAccount();
         await _userRepository.UpdateAsync(user);
@@ -165,10 +157,7 @@ public class UserService : IUserWriteService, IUserReadOnlyService
 
     public async Task<UserDTO> GetUserByIdAsync(int id)
     {
-        var user = await _userRepository.GetByIdAsync(id);
-
-        if (user == null)
-            throw new AppValidationException($"El usuario con ID {id} no existe.", "USER_NOT_FOUND", 404);
+        var user = await GetRequiredUserAsync(id);
 
         return UserDTO.Create(user);
     }
@@ -178,5 +167,13 @@ public class UserService : IUserWriteService, IUserReadOnlyService
         var users = await _userRepository.GetAllAsync();
 
         return UserDTO.Create(users);
+    }
+
+    private async Task<User> GetRequiredUserAsync(int id)
+    {
+        var user = await _userRepository.GetByIdAsync(id);
+        if (user is null)
+            throw new AppValidationException($"El usuario con ID {id} no existe.", "USER_NOT_FOUND", 404);
+        return user;
     }
 }
