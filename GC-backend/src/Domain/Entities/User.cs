@@ -143,14 +143,17 @@ public class User
         IsActive = true;
     }
 
-    // El formato del email se valida en el DTO ([EmailAddress]). Aquí solo se
-    // garantiza el invariante: nunca vacío y siempre normalizado.
     private static string ValidateEmail(string? email)
     {
         if (string.IsNullOrWhiteSpace(email))
             throw new AppValidationException("Ingresa un email válido.", "USER_EMAIL_INVALID");
 
-        return NormalizeEmail(email);
+        string normalizedEmail = NormalizeEmail(email);
+
+        if (normalizedEmail.Length > 100)
+            throw new AppValidationException("El email no puede superar los 100 caracteres.", "USER_EMAIL_INVALID");
+
+        return normalizedEmail;
     }
 
     private static string ValidateName(string? str)

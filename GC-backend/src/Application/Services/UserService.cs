@@ -7,9 +7,7 @@ using Domain.Entities;
 using Domain.Entities.Enums;
 using Domain.Exceptions;
 using Domain.Interfaces;
-using Microsoft.Extensions.Configuration;
 using Application.Interfaces.CartItem;
-using Application.Interfaces.EmailSender;
 using Application.Interfaces.EmailVerification;
 
 
@@ -18,38 +16,28 @@ namespace Application.Services;
 public class UserService : IUserWriteService, IUserReadOnlyService
 {
     private readonly IUserRepository _userRepository;
-    private readonly IConfiguration _configuration;
     private readonly IPasswordHasher _passwordHasher;
     private readonly IJwtProvider _jwtProvider;
     private readonly ICartItemWriteService _cartItemWriteService;
     private readonly IUnitOfWork _unitOfWork;
-    private readonly IOrderRepository _orderRepository;
     private readonly IUserTokenRepository _userTokenRepository;
-    private readonly IEmailSenderService _emailSenderService;
     private readonly IEmailVerificationService _emailVerificationService;
 
     public UserService(
         IUserRepository userRepository,
-        IUserTokenProvider userTokenProvider,
-        IConfiguration configuration,
         IPasswordHasher passwordHasher,
         IJwtProvider jwtProvider,
         ICartItemWriteService cartItemWriteService,
         IUnitOfWork unitOfWork,
-        IOrderRepository orderRepository,
         IUserTokenRepository userTokenRepository,
-        IEmailSenderService emailSenderService,
         IEmailVerificationService emailVerificationService)
     {
         _userRepository = userRepository;
-        _configuration = configuration;
         _passwordHasher = passwordHasher;
         _jwtProvider = jwtProvider;
         _cartItemWriteService = cartItemWriteService;
         _unitOfWork = unitOfWork;
-        _orderRepository = orderRepository;
         _userTokenRepository = userTokenRepository;
-        _emailSenderService = emailSenderService;
         _emailVerificationService = emailVerificationService;
     }
 
