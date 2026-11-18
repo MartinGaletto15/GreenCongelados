@@ -68,8 +68,7 @@ public class PasswordResetService : IPasswordResetService
 
     public async Task ResetPasswordAsync(ResetPasswordRequest request)
     {
-        if (!Validations.ValidatePassword(request.NewPassword, 6, 20, true, true))
-            throw new AppValidationException("La contraseña debe tener entre 6 y 20 caracteres e incluir al menos una mayúscula y un número.", "USER_PASSWORD_INVALID");
+        UserValidator.ValidatePassword(request.NewPassword);
 
         // Hashear el token recibido y buscarlo en la BD
         string hashToken = _userTokenProvider.HashToken(request.Token);
