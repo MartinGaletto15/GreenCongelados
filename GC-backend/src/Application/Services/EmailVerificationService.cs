@@ -48,7 +48,7 @@ public class EmailVerificationService : IEmailVerificationService
     public async Task RequestEmailVerificationAsync(ResendEmailConfirmationRequest request)
     {
         // Buscar usuario por email
-        User? user = await _userRepository.GetByEmailAsync(request.Email);
+        User? user = await _userRepository.GetByEmailAsync(User.NormalizeEmail(request.Email));
 
         // Si no existe o ya está confirmado, salir sin error (anti-enumeración)
         if (user == null || (user.EmailConfirmed && user.IsActive))

@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Diagnostics.CodeAnalysis;
 using Domain.Entities.Enums;
 using Domain.Exceptions;
 
@@ -18,7 +19,6 @@ public class User
 
     [Required]
     [MaxLength(100)]
-    [EmailAddress]
     public string Email { get; private set; }
 
     [Required]
@@ -32,12 +32,7 @@ public class User
 
     public Role Role { get; private set; } = Role.USER;
 
-    /// <summary>
-    /// Versión de seguridad del usuario. Se incluye en cada JWT y se rota ante
-    /// cambios de contraseña o rol, invalidando los tokens ya emitidos.
-    /// </summary>
     public Guid SecurityStamp { get; private set; } = Guid.NewGuid();
-
 
     // Orders the user PLACED (as Client)
     [InverseProperty("User")]
@@ -50,7 +45,7 @@ public class User
     // Cart belonging to the user
     public Cart? Cart { get; private set; }
 
-    public bool IsActive  { get; private set; }
+    public bool IsActive { get; private set; }
 
     public ICollection<UserToken> UserTokens { get; private set; } = new List<UserToken>();
 
@@ -64,23 +59,24 @@ public class User
 
     public User(string email, Role role = Role.USER)
     {
-        if (string.IsNullOrWhiteSpace(email)) throw new AppValidationException("El email no puede estar vacío.", "INVALID_EMAIL");
+        string validateEmail = ValidateEmail(email);
 
-        Email = email;
+        Email = validateEmail;
         Role = role;
     }
 
+    // Actualización parcial: un valor null deja el campo como está.
     public void UpdateDetails(string? name, string? lastName, string? phone = null)
     {
-        if (name != null && string.IsNullOrWhiteSpace(name))
-            throw new AppValidationException("El nombre no puede estar vacío.", "INVALID_NAME");
+        if (name is not null)
+            Name = ValidateName(name);
 
-        if (lastName != null && string.IsNullOrWhiteSpace(lastName))
-            throw new AppValidationException("El apellido no puede estar vacío.", "INVALID_LASTNAME");
+        if (lastName is not null)
+            LastName = ValidateName(lastName);
 
-        if (name != null) Name = name;
-        if (lastName != null) LastName = lastName;
-        Phone = phone ?? Phone;
+        // Un teléfono vacío borra el dato; null significa "no cambiar".
+        if (phone is not null)
+            Phone = ValidatePhone(phone);
     }
 
     public void UpdatePassword(string passwordHash)
@@ -99,7 +95,10 @@ public class User
             throw new AppValidationException("Tu cuenta ya está completa. Inicia sesión.", "USER_REGISTRATION_ALREADY_COMPLETED", 409);
         }
 
-        UpdateDetails(name, lastName);
+        // El registro no es una actualización parcial: nombre y apellido son
+        // obligatorios, así que se validan siempre (un null no se ignora).
+        Name = ValidateName(name);
+        LastName = ValidateName(lastName);
         UpdatePassword(passwordHash);
         SetActiveAccount();
 
@@ -107,7 +106,7 @@ public class User
         EmailConfirm();
     }
 
-    public void EmailConfirm()
+    internal void EmailConfirm()
     {
         EmailConfirmed = true;
     }
@@ -122,10 +121,8 @@ public class User
         RotateSecurityStamp();
     }
 
-    /// <summary>
     /// Genera una nueva versión de seguridad. Los JWT emitidos antes dejan de
     /// ser aceptados en la siguiente validación.
-    /// </summary>
     public void RotateSecurityStamp()
     {
         SecurityStamp = Guid.NewGuid();
@@ -141,8 +138,74 @@ public class User
         RotateSecurityStamp();
     }
 
-    public void SetActiveAccount()
+    internal void SetActiveAccount()
     {
         IsActive = true;
+    }
+
+    // El formato del email se valida en el DTO ([EmailAddress]). Aquí solo se
+    // garantiza el invariante: nunca vacío y siempre normalizado.
+    private static string ValidateEmail(string? email)
+    {
+        if (string.IsNullOrWhiteSpace(email))
+            throw new AppValidationException("Ingresa un email válido.", "USER_EMAIL_INVALID");
+
+        return NormalizeEmail(email);
+    }
+
+    private static string ValidateName(string? str)
+    {
+        if (!ValidateString(str, 2, 50))
+        {
+            throw new AppValidationException("El nombre y apellido son obligatorios y deben tener entre 2 y 50 caracteres.", "USER_NAME_INVALID");
+        }
+
+        string validName = NormalizeName(str);
+        return validName;
+    }
+
+    // Devuelve null cuando el valor indica borrar el teléfono. Solo admite dígitos.
+    private static string? ValidatePhone(string phone)
+    {
+        if (phone.Length == 0)
+            return null;
+
+        if (!phone.All(char.IsAsciiDigit))
+            throw new AppValidationException("El teléfono solo puede contener dígitos.", "USER_PHONE_INVALID");
+
+        if (phone.Length < 7 || phone.Length > 25)
+            throw new AppValidationException("El teléfono debe tener entre 7 y 25 dígitos.", "USER_PHONE_INVALID");
+
+        return phone;
+    }
+
+    private static bool ValidateString([NotNullWhen(true)] string? str, int minLength, int maxLength)
+    {
+        if (string.IsNullOrWhiteSpace(str))
+            return false;
+
+        // Se mide el valor ya normalizado: "  a  " no debe contar como nombre válido.
+        string value = str.Trim();
+
+        if (minLength > 0 && value.Length < minLength)
+            return false;
+
+        if (maxLength > 0 && value.Length > maxLength)
+            return false;
+
+        return true;
+    }
+
+    // normalizaciones
+    public static string NormalizeEmail(string email)
+    {
+        return email.Trim().ToLowerInvariant();
+    }
+
+    public static string NormalizeName(string str)
+    {
+        string normalizedName = str.Trim();
+        normalizedName = char.ToUpper(normalizedName[0]) + normalizedName[1..];
+        return normalizedName;
     }
 }

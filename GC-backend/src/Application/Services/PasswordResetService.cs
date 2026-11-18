@@ -46,7 +46,7 @@ public class PasswordResetService : IPasswordResetService
     public async Task RequestPasswordResetAsync(ForgotPasswordRequest request)
     {
         // Buscar usuario por email
-        User? user = await _userRepository.GetByEmailAsync(request.Email);
+        User? user = await _userRepository.GetByEmailAsync(User.NormalizeEmail(request.Email));
         // No revelar si la cuenta existe ni permitir resetear cuentas sin confirmar.
         if (user == null || !user.EmailConfirmed)
         {

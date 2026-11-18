@@ -1,11 +1,14 @@
-using System.ComponentModel.DataAnnotations;
-
 namespace Application.DTOs.Requests;
 
+// Actualización parcial del perfil: cada campo null se deja sin cambios.
+// En Phone, una cadena vacía borra el teléfono; si se envía un valor, debe
+// contener solo dígitos (entre 7 y 25).
 // La contraseña no se actualiza por este endpoint: el cambio solo se permite
 // mediante el flujo verificado con código (PasswordResetService).
+// Las reglas (largo de nombre, formato de teléfono, normalización) viven en
+// User.UpdateDetails / User.ValidatePhone.
 public record UpdateUserRequest(
-    [StringLength(50, MinimumLength = 2, ErrorMessage = "El nombre debe tener entre 2 y 50 caracteres.")] string? Name,
-    [StringLength(50, MinimumLength = 2, ErrorMessage = "El apellido debe tener entre 2 y 50 caracteres.")] string? LastName,
-    [MaxLength(25, ErrorMessage = "El teléfono no puede superar los 25 caracteres.")] string? Phone
+    string? Name,
+    string? LastName,
+    string? Phone
 );

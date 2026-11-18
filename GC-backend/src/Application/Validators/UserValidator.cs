@@ -8,39 +8,18 @@ namespace Application.Validators;
 
 public static class UserValidator
 {
-    public static void ValidateCreate(CreateUserRequest request, User? existingUser)
-    {
-        if (!Validations.ValidateEmail(request.Email))
-            throw new AppValidationException("Ingresa un email válido.", "USER_EMAIL_INVALID");
-
-        if (existingUser is not null && existingUser.EmailConfirmed && existingUser.IsActive)
-            throw new AppValidationException("Ese email ya tiene una cuenta. Inicia sesión o restablece tu contraseña.", "USER_EMAIL_EXISTS", 409);
-    }
 
     public static void ValidateCompleteRegistration(CompleteRegistrationRequest request)
     {
         if (!Validations.ValidatePassword(request.Password, 6, 20, true, true))
             throw new AppValidationException("La contraseña debe tener entre 6 y 20 caracteres e incluir al menos una mayúscula y un número.", "USER_PASSWORD_INVALID");
-
-        if (!Validations.ValidateString(request.Name, 2, 50))
-            throw new AppValidationException("El nombre es obligatorio y debe tener entre 2 y 50 caracteres.", "USER_NAME_INVALID");
-
-        if (!Validations.ValidateString(request.LastName, 2, 50))
-            throw new AppValidationException("El apellido es obligatorio y debe tener entre 2 y 50 caracteres.", "USER_LASTNAME_INVALID");
-    }
-
-    public static async Task ValidateUpdateAsync(UpdateUserRequest request, IUserRepository repository, User currentUser)
-    {
-
-        if (!string.IsNullOrEmpty(request.Name) && !Validations.ValidateString(request.Name, 2, 50))
-            throw new AppValidationException("El nombre debe tener entre 2 y 50 caracteres.", "USER_NAME_INVALID");
-
-        if (!string.IsNullOrEmpty(request.LastName) && !Validations.ValidateString(request.LastName, 2, 50))
-            throw new AppValidationException("El apellido debe tener entre 2 y 50 caracteres.", "USER_LASTNAME_INVALID");
     }
 
     public static void ValidateRoleUpdate(Role newRole, Role currentTargetRole, Role performerRole)
     {
+        if (!Enum.IsDefined(typeof(Role), newRole))
+            throw new AppValidationException("El rol indicado no es válido.", "USER_ROLE_INVALID");
+
         // Performer must have a higher hierarchy (lower numerical value) than the target user's current role
         if (performerRole >= currentTargetRole)
             throw new AppValidationException("No tienes permisos para modificar el rol de este usuario.", "USER_ROLE_INSUFFICIENT_PERMISSIONS", 403);

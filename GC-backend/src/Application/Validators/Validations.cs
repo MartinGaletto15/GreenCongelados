@@ -3,7 +3,7 @@ using System.Text.RegularExpressions;
 
 namespace Application.Validators;
 
-public static partial class Validations
+public static class Validations
 {
     public static bool ValidateString(string? str, int minLength, int maxLength)
     {
@@ -12,19 +12,11 @@ public static partial class Validations
 
         if (minLength > 0 && str.Length < minLength)
             return false;
-            
+
         if (maxLength > 0 && str.Length > maxLength)
             return false;
-            
+
         return true;
-    }
-
-    public static bool ValidateEmail(string? email)
-    {
-        if (string.IsNullOrWhiteSpace(email))
-            return false;
-
-        return EmailRegex().IsMatch(email);
     }
 
     public static bool ValidatePassword(string? password, int minLength, int maxLength, bool needsUppercase, bool needsNumber)
@@ -46,7 +38,4 @@ public static partial class Validations
 
         return true;
     }
-
-    [GeneratedRegex(@"^[^\s@]+@[^\s@]+\.[^\s@]+$")]
-    private static partial Regex EmailRegex();
 }

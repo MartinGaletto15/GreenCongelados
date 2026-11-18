@@ -1,4 +1,3 @@
-using System.Security.Claims;
 using Application.DTOs;
 using Application.DTOs.Requests;
 using Application.Validators;
@@ -19,7 +18,6 @@ namespace Application.Services;
 public class UserService : IUserWriteService, IUserReadOnlyService
 {
     private readonly IUserRepository _userRepository;
-    private readonly IUserTokenProvider _userTokenProvider;
     private readonly IConfiguration _configuration;
     private readonly IPasswordHasher _passwordHasher;
     private readonly IJwtProvider _jwtProvider;
@@ -44,7 +42,6 @@ public class UserService : IUserWriteService, IUserReadOnlyService
         IEmailVerificationService emailVerificationService)
     {
         _userRepository = userRepository;
-        _userTokenProvider = userTokenProvider;
         _configuration = configuration;
         _passwordHasher = passwordHasher;
         _jwtProvider = jwtProvider;
@@ -75,7 +72,6 @@ public class UserService : IUserWriteService, IUserReadOnlyService
     public async Task<UserDTO> CreateUserAsync(CreateUserRequest request)
     {
         var existingUser = await _userRepository.GetByEmailAsync(request.Email);
-        UserValidator.ValidateCreate(request, existingUser);
         User user;
 
         // Usuario y carrito se confirman juntos; el correo se envía después del commit.
@@ -94,10 +90,8 @@ public class UserService : IUserWriteService, IUserReadOnlyService
             }
             else
             {
-                // Crear nuevo usuario
-                user = new User(
-                    request.Email
-                );
+                // Crear nuevo usuario (ya normalizado arriba para la búsqueda)
+                user = new User(request.Email);
                 await _userRepository.AddAsync(user);
             }
 
@@ -130,8 +124,6 @@ public class UserService : IUserWriteService, IUserReadOnlyService
         var user = await _userRepository.GetByIdAsync(id);
         if (user == null)
             throw new AppValidationException("El usuario no existe.", "USER_NOT_FOUND", 404);
-
-        await UserValidator.ValidateUpdateAsync(request, _userRepository, user);
 
         // La contraseña no se actualiza por este endpoint: el cambio solo se permite
         // mediante el flujo verificado con código (PasswordResetService).
