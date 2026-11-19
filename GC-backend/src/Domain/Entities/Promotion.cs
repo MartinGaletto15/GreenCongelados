@@ -91,6 +91,12 @@ public class Promotion
     private static void ValidateData(string couponCode, decimal discountValue, DiscountType discountType, decimal? minAmount, DateTime startDate, DateTime endDate)
     {
         if (string.IsNullOrWhiteSpace(couponCode)) throw new AppValidationException("El código de cupón no puede estar vacío.", "INVALID_COUPON");
+
+        var normalizedCouponCode = NormalizeCouponCode(couponCode);
+        if (normalizedCouponCode.Length < 10 || normalizedCouponCode.Length > 15)
+            throw new AppValidationException("El código de cupón debe tener entre 10 y 15 caracteres.", "INVALID_COUPON");
+
+        if (!Enum.IsDefined(discountType)) throw new AppValidationException("El tipo de descuento no es válido.", "INVALID_DISCOUNT_TYPE");
         if (discountValue < 0) throw new AppValidationException("El valor del descuento no puede ser negativo.", "INVALID_DISCOUNT");
         if (discountType == DiscountType.Percentage && discountValue > 100) throw new AppValidationException("El porcentaje de descuento no puede superar 100.", "INVALID_DISCOUNT");
         if (minAmount.HasValue && minAmount.Value < 0) throw new AppValidationException("El monto mínimo no puede ser negativo.", "INVALID_MIN_AMOUNT");

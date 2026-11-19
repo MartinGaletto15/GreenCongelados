@@ -69,6 +69,8 @@ public class Order
     {
         var itemList = items.ToList();
         if (itemList.Count == 0) throw new AppValidationException("La orden debe tener al menos un producto.", "EMPTY_ORDER");
+        if (string.IsNullOrWhiteSpace(street)) throw new AppValidationException("La calle de envío no puede estar vacía.", "INVALID_SHIPPING_STREET");
+        if (baseShippingCost < 0) throw new AppValidationException("El costo de envío no puede ser negativo.", "INVALID_SHIPPING_COST");
 
         var order = new Order(userId, street, dpto, reference, baseShippingCost);
 
@@ -100,6 +102,9 @@ public class Order
 
     public void AssignCourier(int courierId)
     {
+        if (courierId <= 0)
+            throw new AppValidationException("El cadete debe ser válido.", "INVALID_COURIER");
+
         if (OrderStatus != OrderStatus.LogisticsPending)
             throw new AppValidationException("La orden debe estar en estado pendiente de logística para asignar un cadete.", "INVALID_STATUS_TRANSITION");
 
@@ -136,6 +141,9 @@ public class Order
         if (OrderStatus == OrderStatus.Delivered || OrderStatus == OrderStatus.Cancelled)
             throw new AppValidationException("No se pueden modificar los datos de envío de una orden completada o cancelada.", "INVALID_OPERATION");
 
+        if (street != null && string.IsNullOrWhiteSpace(street))
+            throw new AppValidationException("La calle de envío no puede estar vacía.", "INVALID_SHIPPING_STREET");
+
         ShippingStreet = street ?? ShippingStreet;
         ShippingDpto = dpto ?? ShippingDpto;
         ShippingReference = reference ?? ShippingReference;
@@ -169,11 +177,15 @@ public class Order
             case OrderStatus.InDelivery:
                 if (OrderStatus != OrderStatus.LogisticsPending && OrderStatus != OrderStatus.InDelivery)
                     throw new AppValidationException("No se puede pasar una orden a estado en camino desde su estado actual.", "INVALID_STATUS_TRANSITION");
+                if (IdCourier is null or <= 0)
+                    throw new AppValidationException("La orden debe tener un cadete asignado para pasar a estado en camino.", "COURIER_NOT_ASSIGNED");
                 OrderStatus = OrderStatus.InDelivery;
                 break;
             case OrderStatus.LogisticsPending:
                 ReturnToLogisticsPending();
                 break;
+            default:
+                throw new AppValidationException("Estado de orden inválido.", "INVALID_ORDER_STATUS");
         }
     }
 }
