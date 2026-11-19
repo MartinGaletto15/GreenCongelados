@@ -43,15 +43,14 @@ public class UserService : IUserWriteService, IUserReadOnlyService
 
     public async Task<string> LoginAsync(LoginRequest request)
     {
-        var user = await _userRepository.GetByEmailAsync(request.Email);
+        // El email se normaliza antes de buscar: la entidad lo guarda en
+        // minúsculas y sin espacios, así el lookup no puede chocar con el
+        // índice único por una diferencia de formato.
+        string normalizedEmail = User.NormalizeEmail(request.Email);
+        var user = UserValidator.ValidateLogin(await _userRepository.GetByEmailAsync(normalizedEmail));
 
-        if (user == null || !user.IsActive)
-            throw new AppValidationException("Email o contraseña incorrectos.", "AUTH_INVALID_CREDENTIALS");
-
-        if (!user.EmailConfirmed || user.Password == null)
-            throw new AppValidationException("Tu cuenta todavía no está confirmada. Revisa tu correo y completa el registro.", "USER_EMAIL_NOT_CONFIRMED");
-
-        if (!_passwordHasher.Verify(request.Password, user.Password))
+        // ValidateLogin garantiza que la contraseña de la cuenta existe.
+        if (!_passwordHasher.Verify(request.Password, user.Password!))
             throw new AppValidationException("Email o contraseña incorrectos.", "AUTH_INVALID_CREDENTIALS");
 
         return _jwtProvider.GenerateToken(user);
@@ -59,7 +58,12 @@ public class UserService : IUserWriteService, IUserReadOnlyService
 
     public async Task<UserDTO> CreateUserAsync(CreateUserRequest request)
     {
-        var existingUser = await _userRepository.GetByEmailAsync(request.Email);
+        string normalizedEmail = User.NormalizeEmail(request.Email);
+        var existingUser = await _userRepository.GetByEmailAsync(normalizedEmail);
+
+        // Falla antes de abrir la transacción si la cuenta ya está confirmada.
+        UserValidator.ValidateRegistration(existingUser);
+
         User user;
 
         // Usuario y carrito se confirman juntos; el correo se envía después del commit.
@@ -78,8 +82,8 @@ public class UserService : IUserWriteService, IUserReadOnlyService
             }
             else
             {
-                // Crear nuevo usuario (ya normalizado arriba para la búsqueda)
-                user = new User(request.Email);
+                // Se persiste el email ya normalizado (la entidad lo vuelve a normalizar).
+                user = new User(normalizedEmail);
                 await _userRepository.AddAsync(user);
             }
 

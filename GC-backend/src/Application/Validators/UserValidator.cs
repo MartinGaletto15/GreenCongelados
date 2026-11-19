@@ -9,6 +9,26 @@ namespace Application.Validators;
 public static class UserValidator
 {
 
+    // Registro: un email sin confirmar se reutiliza (se reenvía el token), pero
+    // una cuenta ya confirmada y activa no puede volver a registrarse.
+    public static void ValidateRegistration(User? existingUser)
+    {
+        if (existingUser is not null && existingUser.EmailConfirmed && existingUser.IsActive)
+            throw new AppValidationException("Ya existe una cuenta con este email. Inicia sesión o restablece tu contraseña.", "USER_ALREADY_EXISTS", 409);
+    }
+
+    // Login: mismo mensaje para "no existe" y "está inactivo" para no filtrar cuentas.
+    public static User ValidateLogin(User? user)
+    {
+        if (user is null || !user.IsActive)
+            throw new AppValidationException("Email o contraseña incorrectos.", "AUTH_INVALID_CREDENTIALS");
+
+        if (!user.EmailConfirmed || user.Password is null)
+            throw new AppValidationException("Tu cuenta todavía no está confirmada. Revisa tu correo y completa el registro.", "USER_EMAIL_NOT_CONFIRMED");
+
+        return user;
+    }
+
     public static void ValidateCompleteRegistration(CompleteRegistrationRequest request)
     {
         ValidatePassword(request.Password);

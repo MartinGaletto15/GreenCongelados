@@ -148,7 +148,12 @@ public class User
         if (string.IsNullOrWhiteSpace(email))
             throw new AppValidationException("Ingresa un email válido.", "USER_EMAIL_INVALID");
 
+        // Se normaliza primero: se valida y se mide exactamente lo que se persiste.
         string normalizedEmail = NormalizeEmail(email);
+
+        // Misma regla de formato que aplican los DTOs con [EmailAddress].
+        if (!new EmailAddressAttribute().IsValid(normalizedEmail))
+            throw new AppValidationException("Ingresa un email válido.", "USER_EMAIL_INVALID");
 
         if (normalizedEmail.Length > 100)
             throw new AppValidationException("El email no puede superar los 100 caracteres.", "USER_EMAIL_INVALID");
