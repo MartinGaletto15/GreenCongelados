@@ -1,5 +1,4 @@
 using System.ComponentModel.DataAnnotations;
-using Domain.Entities.Enums;
 
 namespace Application.DTOs.Requests;
 
@@ -16,6 +15,5 @@ public record CreateProductRequest(
     [Required(ErrorMessage = "El precio es obligatorio.")] decimal Price,
     [Required(ErrorMessage = "El stock es obligatorio.")] int CurrentStock,
     decimal? Weight,
-    decimal? PreparationTime,
-    [EnumDataType(typeof(ProductStatus), ErrorMessage = "El estado del producto no es válido.")] ProductStatus Status
+    decimal? PreparationTime
 );

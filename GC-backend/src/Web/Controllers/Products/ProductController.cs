@@ -60,6 +60,20 @@ public class ProductController : ControllerBase
         return Ok(result);
     }
 
+    [HttpPatch("{id}/hide")]
+    public async Task<ActionResult<ProductDTO>> HideAsync(int id)
+    {
+        var result = await _writeProductService.HideAsync(id);
+        return Ok(result);
+    }
+
+    [HttpPatch("{id}/publish")]
+    public async Task<ActionResult<ProductDTO>> PublishAsync(int id)
+    {
+        var result = await _writeProductService.PublishAsync(id);
+        return Ok(result);
+    }
+
     [HttpDelete("{id}")]
     public async Task<ActionResult> DeleteAsync(int id)
     {

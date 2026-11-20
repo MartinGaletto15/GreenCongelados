@@ -49,59 +49,86 @@ public class Product
         DescriptionShort = string.Empty;
     }
 
-    public Product(string name, string? urlImagePrimary, string descriptionShort, string? descriptionLong, decimal price, int currentStock, decimal? weight, decimal? preparationTime, ProductStatus status = ProductStatus.Available)
+    public Product(string name, string? urlImagePrimary, string descriptionShort, string? descriptionLong, decimal price, int currentStock, decimal? weight, decimal? preparationTime)
     {
-        ValidateProductData(name, price, currentStock);
+        Name = ValidateName(name);
+        DescriptionShort = ValidateDescriptionShort(descriptionShort);
+        UrlImagePrimary = ValidateUrlImage(urlImagePrimary);
+        ValidatePrice(price);
+        ValidateStock(currentStock);
+        ValidateWeight(weight);
+        ValidatePreparationTime(preparationTime);
 
-        Name = name.Trim();
-        UrlImagePrimary = urlImagePrimary;
-        DescriptionShort = descriptionShort;
         DescriptionLong = descriptionLong;
         Price = price;
         CurrentStock = currentStock;
         Weight = weight;
         PreparationTime = preparationTime;
-        Status = status;
+
+        // El estado inicial se deriva del stock: nadie de afuera lo elige.
+        SyncStatusWithStock();
     }
 
-    public void UpdateDetails(string? name, string? urlImagePrimary, string? descriptionShort, string? descriptionLong, decimal? price, int? currentStock, decimal? weight, decimal? preparationTime, ProductStatus? status)
+    /// Datos descriptivos: no tocan precio ni stock.
+    public void UpdateInfo(string name, string? urlImagePrimary, string descriptionShort, string? descriptionLong, decimal? weight, decimal? preparationTime)
     {
-        if (name != null)
-        {
-            if (string.IsNullOrWhiteSpace(name)) throw new AppValidationException("El nombre no puede estar vacío.", "INVALID_NAME");
-            Name = name.Trim();
-        }
+        EnsureNotDeleted();
 
-        if (price.HasValue)
-        {
-            if (price.Value < 0) throw new AppValidationException("El precio no puede ser negativo.", "INVALID_PRICE");
-            Price = price.Value;
-        }
+        Name = ValidateName(name);
+        DescriptionShort = ValidateDescriptionShort(descriptionShort);
+        UrlImagePrimary = ValidateUrlImage(urlImagePrimary);
+        ValidateWeight(weight);
+        ValidatePreparationTime(preparationTime);
 
-        if (currentStock.HasValue)
-        {
-            if (currentStock.Value < 0) throw new AppValidationException("El stock no puede ser negativo.", "INVALID_STOCK");
-            
-            // If stock was 0 (OutOfStock) and now it's > 0, we change status to Available
-            if (CurrentStock == 0 && currentStock.Value > 0 && Status == ProductStatus.OutOfStock)
-            {
-                Status = ProductStatus.Available;
-            }
-            // If stock was > 0 and now it's 0, we change status to OutOfStock
-            else if (currentStock.Value == 0 && Status == ProductStatus.Available)
-            {
-                Status = ProductStatus.OutOfStock;
-            }
+        DescriptionLong = descriptionLong;
+        Weight = weight;
+        PreparationTime = preparationTime;
+    }
 
-            CurrentStock = currentStock.Value;
-        }
+    /// Cambia el precio. No se regala: debe ser estrictamente mayor a 0.
+    public void UpdatePrice(decimal newPrice)
+    {
+        EnsureNotDeleted();
+        ValidatePrice(newPrice);
 
-        UrlImagePrimary = urlImagePrimary ?? UrlImagePrimary;
-        DescriptionShort = descriptionShort ?? DescriptionShort;
-        DescriptionLong = descriptionLong ?? DescriptionLong;
-        Weight = weight ?? Weight;
-        PreparationTime = preparationTime ?? PreparationTime;
-        Status = status ?? Status;
+        Price = newPrice;
+    }
+
+    /// Ajusta el stock desde una edición manual. El estado se deriva del stock,
+    /// salvo que el producto esté oculto: oculto se queda oculto hasta Publish().
+    public void AdjustStock(int newStock)
+    {
+        EnsureNotDeleted();
+        ValidateStock(newStock);
+
+        CurrentStock = newStock;
+
+        if (Status == ProductStatus.Hidden)
+            return;
+
+        SyncStatusWithStock();
+    }
+
+    public void Hide()
+    {
+        EnsureNotDeleted();
+        Status = ProductStatus.Hidden;
+    }
+
+    /// Vuelve a mostrar el producto: el estado real depende del stock actual.
+    public void Publish()
+    {
+        EnsureNotDeleted();
+        SyncStatusWithStock();
+    }
+
+    /// Bloqueo permanente: un producto eliminado no vuelve a publicarse.
+    public void Delete()
+    {
+        if (Status == ProductStatus.Deleted)
+            return;
+
+        Status = ProductStatus.Deleted;
     }
 
     public void ReduceStock(int quantity)
@@ -111,39 +138,96 @@ public class Product
         if (CurrentStock < quantity) throw new AppValidationException($"Stock insuficiente para el producto: {Name}. Disponible: {CurrentStock}.", "INSUFFICIENT_STOCK");
 
         CurrentStock -= quantity;
-        
-        if (CurrentStock == 0)
-        {
-            Status = ProductStatus.OutOfStock;
-        }
+        SyncStatusWithStock();
     }
 
     public void IncreaseStock(int quantity)
     {
         if (quantity <= 0) throw new AppValidationException("La cantidad debe ser mayor que cero.", "INVALID_QUANTITY");
+
         CurrentStock += quantity;
 
-        if (CurrentStock > 0 && Status == ProductStatus.OutOfStock)
+        // Si estaba oculto o eliminado, sigue así: el stock no cambia esa decisión.
+        if (Status is ProductStatus.Available or ProductStatus.OutOfStock)
         {
-            Status = ProductStatus.Available;
+            SyncStatusWithStock();
         }
     }
 
-    public void UpdatePrice(decimal newPrice)
+    private void EnsureNotDeleted()
     {
-        if (newPrice < 0) throw new AppValidationException("El precio no puede ser negativo.", "INVALID_PRICE");
-        Price = newPrice;
+        if (Status == ProductStatus.Deleted)
+            throw new AppValidationException("El producto está eliminado y no se puede modificar.", "PRODUCT_DELETED", 409);
     }
 
-    public void Delete()
+    /// Única definición de la regla stock ↔ estado. Hidden y Deleted quedan
+    /// fuera a propósito: no dependen del stock.
+    private void SyncStatusWithStock()
     {
-        Status = ProductStatus.Deleted;
+        Status = CurrentStock > 0 ? ProductStatus.Available : ProductStatus.OutOfStock;
     }
 
-    private void ValidateProductData(string name, decimal price, int currentStock)
+    private static string ValidateName(string? name)
     {
-        if (string.IsNullOrWhiteSpace(name)) throw new AppValidationException("El nombre no puede estar vacío.", "INVALID_NAME");
-        if (price < 0) throw new AppValidationException("El precio no puede ser negativo.", "INVALID_PRICE");
-        if (currentStock < 0) throw new AppValidationException("El stock no puede ser negativo.", "INVALID_STOCK");
+        if (!ValidateString(name, 2, 100))
+            throw new AppValidationException("El nombre es obligatorio y debe tener entre 2 y 100 caracteres.", "INVALID_NAME");
+
+        return name!.Trim();
+    }
+
+    private static string ValidateDescriptionShort(string? descriptionShort)
+    {
+        if (!ValidateString(descriptionShort, 2, 255))
+            throw new AppValidationException("La descripción corta es obligatoria y debe tener entre 2 y 255 caracteres.", "INVALID_DESCRIPTION");
+
+        return descriptionShort!.Trim();
+    }
+
+    private static string? ValidateUrlImage(string? urlImage)
+    {
+        if (urlImage is not null && urlImage.Length > 200)
+            throw new AppValidationException("La URL de la imagen no puede superar los 200 caracteres.", "INVALID_IMAGE_URL");
+
+        return urlImage;
+    }
+
+    private static void ValidatePrice(decimal price)
+    {
+        if (price <= 0)
+            throw new AppValidationException("El precio debe ser mayor a 0.", "INVALID_PRICE");
+    }
+
+    private static void ValidateStock(int currentStock)
+    {
+        if (currentStock < 0)
+            throw new AppValidationException("El stock no puede ser negativo.", "INVALID_STOCK");
+    }
+
+    private static void ValidateWeight(decimal? weight)
+    {
+        if (weight < 0)
+            throw new AppValidationException("El peso no puede ser negativo.", "INVALID_WEIGHT");
+    }
+
+    private static void ValidatePreparationTime(decimal? preparationTime)
+    {
+        if (preparationTime < 0)
+            throw new AppValidationException("El tiempo de preparación no puede ser negativo.", "INVALID_PREPARATION_TIME");
+    }
+
+    private static bool ValidateString(string? str, int minLength, int maxLength)
+    {
+        if (string.IsNullOrWhiteSpace(str))
+            return false;
+
+        string value = str.Trim();
+
+        if (minLength > 0 && value.Length < minLength)
+            return false;
+
+        if (maxLength > 0 && value.Length > maxLength)
+            return false;
+
+        return true;
     }
 }

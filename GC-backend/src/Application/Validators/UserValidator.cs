@@ -37,7 +37,13 @@ public static class UserValidator
     // Única definición de la política de contraseñas. La usan el registro y el reset.
     public static void ValidatePassword(string password)
     {
-        if (!Validations.ValidatePassword(password, 6, 20, true, true))
+        bool isValid = !string.IsNullOrEmpty(password)
+            && password.Length >= 6
+            && password.Length <= 20
+            && password.Any(char.IsUpper)
+            && password.Any(char.IsDigit);
+
+        if (!isValid)
             throw new AppValidationException("La contraseña debe tener entre 6 y 20 caracteres e incluir al menos una mayúscula y un número.", "USER_PASSWORD_INVALID");
     }
 
