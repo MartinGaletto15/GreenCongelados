@@ -26,7 +26,7 @@ public class OrderService : IOrderReadOnlyService, IOrderWriteService
     private readonly ICartItemWriteService _cartItemWriteService;
     private readonly IUserReadOnlyService _userService;
     private readonly IAddressReadOnlyService _addressService;
-    private readonly IGenericRepository<Promotion> _promotionRepository;
+    private readonly IPromotionRepository _promotionRepository;
 
     public OrderService(
         IOrderRepository repository,
@@ -38,7 +38,7 @@ public class OrderService : IOrderReadOnlyService, IOrderWriteService
         ICartItemWriteService cartItemWriteService,
         IUserReadOnlyService userService,
         IAddressReadOnlyService addressService,
-        IGenericRepository<Promotion> promotionRepository)
+        IPromotionRepository promotionRepository)
     {
         _repository = repository;
         _productRepository = productRepository;
@@ -109,11 +109,8 @@ public class OrderService : IOrderReadOnlyService, IOrderWriteService
             productsWithQuantity.Add((product, cartItem.Quantity));
         }
 
-        var normalizedCouponCode = request.CouponCode is not null
-            ? Promotion.NormalizeCouponCode(request.CouponCode)
-            : null;
-        var promotion = normalizedCouponCode != null
-            ? (await _promotionRepository.GetAllAsync()).FirstOrDefault(x => x.CouponCode == normalizedCouponCode)
+        var promotion = request.CouponCode is not null
+            ? await _promotionRepository.GetByCodeAsync(request.CouponCode)
             : null;
 
         var shippingCost = await _shippingCostService.GetActiveAsync();

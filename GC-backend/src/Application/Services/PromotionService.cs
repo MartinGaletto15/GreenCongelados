@@ -9,10 +9,10 @@ namespace Application.Services;
 
 public class PromotionService : IPromotionReadOnlyService, IPromotionWriteService
 {
-    private readonly IGenericRepository<Promotion> _repository;
+    private readonly IPromotionRepository _repository;
     private readonly IUnitOfWork _unitOfWork;
 
-    public PromotionService(IGenericRepository<Promotion> repository, IUnitOfWork unitOfWork)
+    public PromotionService(IPromotionRepository repository, IUnitOfWork unitOfWork)
     {
         _repository = repository;
         _unitOfWork = unitOfWork;
@@ -33,9 +33,7 @@ public class PromotionService : IPromotionReadOnlyService, IPromotionWriteServic
 
     public async Task<PromotionDTO?> GetByCodeAsync(string couponCode)
     {
-        var entities = await _repository.GetAllAsync();
-        var normalizedCode = Promotion.NormalizeCouponCode(couponCode);
-        var entity = entities.FirstOrDefault(x => x.CouponCode == normalizedCode);
+        var entity = await _repository.GetByCodeAsync(couponCode);
         return entity != null ? PromotionDTO.Create(entity) : null;
     }
 
@@ -89,11 +87,7 @@ public class PromotionService : IPromotionReadOnlyService, IPromotionWriteServic
 
     private async Task EnsureCouponCodeIsUniqueAsync(string couponCode, int? excludedPromotionId = null)
     {
-        var normalizedCode = Promotion.NormalizeCouponCode(couponCode);
-        var promotions = await _repository.GetAllAsync();
-        if (promotions.Any(promotion =>
-                promotion.IdPromotion != excludedPromotionId &&
-                promotion.CouponCode == normalizedCode))
+        if (await _repository.ExistsByCodeAsync(couponCode, excludedPromotionId))
         {
             throw new AppValidationException("Ya existe una promoción con ese código.", "PROMOTION_CODE_EXISTS", 409);
         }
