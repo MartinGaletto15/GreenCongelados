@@ -20,11 +20,11 @@ public class Order
     public int? IdPromotion { get; private set; }
     public Promotion? Promotion { get; private set; }
 
-    [Required] 
+    [Required]
     [Column(TypeName = "decimal(18, 2)")]
     public decimal ShippingCost { get; private set; }
 
-    [Required] 
+    [Required]
     public string ShippingStreet { get; private set; }
 
     public string? ShippingDpto { get; private set; }
@@ -45,12 +45,13 @@ public class Order
     public decimal Total { get; private set; }
 
     [Required]
-    public OrderStatus OrderStatus { get; private set; } 
-    
+    public OrderStatus OrderStatus { get; private set; }
+
     private readonly List<OrderItem> _orderItems = new();
     public ICollection<OrderItem> OrderItems => _orderItems.AsReadOnly();
 
-    protected Order() {
+    protected Order()
+    {
         ShippingStreet = string.Empty;
     }
 
@@ -65,7 +66,12 @@ public class Order
         OrderStatus = OrderStatus.LogisticsPending;
     }
 
-    public static Order Create(int userId, string street, string? dpto, string? reference, decimal baseShippingCost, IEnumerable<(Product Product, int Quantity)> items, Promotion? promotion)
+
+    public static Order Create(
+        int userId, string street, string? dpto, string? reference,
+        decimal baseShippingCost,
+        IEnumerable<(int IdProduct, decimal UnitPrice, int Quantity)> items,
+        Promotion? promotion)
     {
         var itemList = items.ToList();
         if (itemList.Count == 0) throw new AppValidationException("La orden debe tener al menos un producto.", "EMPTY_ORDER");
@@ -74,18 +80,13 @@ public class Order
 
         var order = new Order(userId, street, dpto, reference, baseShippingCost);
 
-        order.Subtotal = itemList.Sum(x => x.Product.Price * x.Quantity);
+        order.Subtotal = itemList.Sum(x => x.UnitPrice * x.Quantity);
         order.ApplyPromotion(promotion);
 
-        foreach (var (product, quantity) in itemList)
-        {
-            product.ReduceStock(quantity);
-            var orderItem = new OrderItem(product.IdProduct, quantity, product.Price);
-            order._orderItems.Add(orderItem);
-        }
+        foreach (var (idProduct, unitPrice, quantity) in itemList)
+            order._orderItems.Add(new OrderItem(idProduct, quantity, unitPrice)); // ya valida quantity
 
         order.CalculateTotal();
-
         return order;
     }
 

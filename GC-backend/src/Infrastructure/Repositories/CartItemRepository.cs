@@ -14,6 +14,7 @@ public class CartItemRepository : GenericRepository<CartItem>, ICartItemReposito
     public async Task<IEnumerable<CartItem>> GetByUserIdAsync(int userId)
     {
         return await _context.Set<CartItem>()
+            .AsNoTracking()
             .Include(ci => ci.Product)
             .Include(ci => ci.Cart)
             .Where(ci => ci.Cart.IdUser == userId)
@@ -33,5 +34,15 @@ public class CartItemRepository : GenericRepository<CartItem>, ICartItemReposito
         await _context.Set<Cart>().AddAsync(cart);
         await _context.SaveChangesAsync();
         return cart;
+    }
+
+    public async Task<int> DeleteByUserIdAsync(int userId)
+    {
+        return await _context.CartItems
+            .Where(ci => _context.Carts
+                .Where(c => c.IdUser == userId)
+                .Select(c => c.IdCart)
+                .Contains(ci.IdCart))
+            .ExecuteDeleteAsync();
     }
 }

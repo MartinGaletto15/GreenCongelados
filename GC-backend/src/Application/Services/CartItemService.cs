@@ -121,4 +121,11 @@ public class CartItemService : ICartItemReadOnlyService, ICartItemWriteService
         await _repository.DeleteAsync(cartItem!);
         await _unitOfWork.SaveChangesAsync();
     }
+
+    public async Task ClearCartAsync(int userId)
+    {
+        // Una sola sentencia: ExecuteDelete corre en la misma conexión y transacción
+        // del contexto, así que participa del BeginTransaction de la orden.
+        await _repository.DeleteByUserIdAsync(userId);
+    }
 }
