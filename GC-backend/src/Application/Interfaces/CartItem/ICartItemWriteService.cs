@@ -9,6 +9,7 @@ public interface ICartItemWriteService
     Task CreateCartAsync(int userId);
     Task<CartItemDTO> AddCartItemAsync(int userId, CreateCartItemRequest request);
     Task<CartItemDTO> UpdateCartItemAsync(int userId, int cartItemId, UpdateCartItemRequest request);
+    Task<CartItemDTO> UpdateCartItemByProductAsync(int userId, int productId, UpdateCartItemRequest request);
     Task DeleteCartItemAsync(int userId, int cartItemId);
     Task ClearCartAsync(int userId);
 }

@@ -38,7 +38,7 @@ public class CartItemController : ControllerBase
         return Ok(cartItem);
     }
 
-    [HttpPut("{id}")]
+    [HttpPut("{id:int}")]
     public async Task<ActionResult<CartItemDTO>> UpdateCartItemAsync(int id, UpdateCartItemRequest request)
     {
         var userId = User.GetUserId();
@@ -46,7 +46,15 @@ public class CartItemController : ControllerBase
         return Ok(cartItem);
     }
 
-    [HttpDelete("{id}")]
+    [HttpPut("product/{productId:int}")]
+    public async Task<ActionResult<CartItemDTO>> UpdateCartItemByProductAsync(int productId, UpdateCartItemRequest request)
+    {
+        var userId = User.GetUserId();
+        var cartItem = await _cartItemWriteService.UpdateCartItemByProductAsync(userId, productId, request);
+        return Ok(cartItem);
+    }
+
+    [HttpDelete("{id:int}")]
     public async Task<ActionResult> DeleteCartItemAsync(int id)
     {
         var userId = User.GetUserId();

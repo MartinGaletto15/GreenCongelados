@@ -91,6 +91,17 @@ public class CartItemService : ICartItemReadOnlyService, ICartItemWriteService
         return await SetQuantityAsync(cartItem, request.Quantity);
     }
 
+    // Misma operación que UpdateCartItemAsync, pero el cliente identifica la
+    // línea por producto en lugar de por id de item del carrito.
+    public async Task<CartItemDTO> UpdateCartItemByProductAsync(int userId, int productId, UpdateCartItemRequest request)
+    {
+        var cart = await GetUserCartOrThrowAsync(userId);
+        var cartItem = cart.CartItems.FirstOrDefault(ci => ci.IdProduct == productId);
+        CartItemValidator.ValidateCartItemExists(cartItem);
+
+        return await SetQuantityAsync(cartItem!, request.Quantity);
+    }
+
     public async Task DeleteCartItemAsync(int userId, int cartItemId)
     {
         var cart = await GetUserCartOrThrowAsync(userId);
