@@ -51,7 +51,7 @@ public class EmailVerificationService : IEmailVerificationService
         User? user = await _userRepository.GetByEmailAsync(User.NormalizeEmail(request.Email));
 
         // Si no existe o ya está confirmado, salir sin error (anti-enumeración)
-        if (user == null || (user.EmailConfirmed && user.IsActive))
+        if (user == null || user.IsRegistrationComplete)
         {
             return;
         }
@@ -67,7 +67,7 @@ public class EmailVerificationService : IEmailVerificationService
     public async Task SendVerificationEmailAsync(User user)
     {
         // Si ya está confirmado, no generar un nuevo token
-        if (user.EmailConfirmed && user.IsActive)
+        if (user.IsRegistrationComplete)
         {
             return;
         }

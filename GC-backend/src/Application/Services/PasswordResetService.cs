@@ -48,7 +48,7 @@ public class PasswordResetService : IPasswordResetService
         // Buscar usuario por email
         User? user = await _userRepository.GetByEmailAsync(User.NormalizeEmail(request.Email));
         // No revelar si la cuenta existe ni permitir resetear cuentas sin confirmar.
-        if (user == null || !user.EmailConfirmed)
+        if (user == null || !user.CanResetPassword)
         {
             return;
         }
@@ -83,7 +83,7 @@ public class PasswordResetService : IPasswordResetService
 
         // Obtener usuario asociado
         User? user = await _userRepository.GetByIdAsync(validToken.IdUser);
-        if (user is null || !user.EmailConfirmed)
+        if (user is null || !user.CanResetPassword)
         {
             throw new AppValidationException("El código no es válido o venció. Solicita uno nuevo.", "INVALID_OR_EXPIRED_TOKEN");
         }

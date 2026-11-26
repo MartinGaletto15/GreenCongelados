@@ -47,6 +47,13 @@ public class User
 
     public bool IsActive { get; private set; }
 
+    /// Un registro está completo cuando el correo fue confirmado y la cuenta
+    /// está activa. Se usa para no repetir la condición en cada flujo.
+    public bool IsRegistrationComplete => EmailConfirmed && IsActive;
+
+    /// Solo una cuenta con el correo confirmado puede restablecer su contraseña.
+    public bool CanResetPassword => EmailConfirmed;
+
     public ICollection<UserToken> UserTokens { get; private set; } = new List<UserToken>();
 
     protected User()
@@ -88,9 +95,31 @@ public class User
         RotateSecurityStamp();
     }
 
+    public void EnsureCanLogin()
+    {
+        if (!IsActive)
+            throw new AppValidationException("Email o contraseña incorrectos.", "AUTH_INVALID_CREDENTIALS");
+
+        if (!EmailConfirmed || Password is null)
+            throw new AppValidationException("Tu cuenta todavía no está confirmada. Revisa tu correo y completa el registro.", "USER_EMAIL_NOT_CONFIRMED");
+    }
+
+    /// Política de contraseñas en texto plano. El hashing queda en aplicación;
+    /// esta es la única definición de la regla.
+    public static void EnsurePasswordPolicy(string password)
+    {
+        bool isValid = !string.IsNullOrEmpty(password)
+            && password.Length is >= 6 and <= 20
+            && password.Any(char.IsUpper)
+            && password.Any(char.IsDigit);
+
+        if (!isValid)
+            throw new AppValidationException("La contraseña debe tener entre 6 y 20 caracteres e incluir al menos una mayúscula y un número.", "USER_PASSWORD_INVALID");
+    }
+
     public void CompleteRegistration(string name, string lastName, string passwordHash)
     {
-        if (EmailConfirmed && IsActive)
+        if (IsRegistrationComplete)
         {
             throw new AppValidationException("Tu cuenta ya está completa. Inicia sesión.", "USER_REGISTRATION_ALREADY_COMPLETED", 409);
         }
@@ -113,12 +142,20 @@ public class User
 
     public void ChangeRole(Role newRole)
     {
+        EnsureRoleIsValid(newRole);
+
         if (Role == newRole) return;
 
         Role = newRole;
 
         // Un token emitido con el rol anterior no debe conservar sus permisos.
         RotateSecurityStamp();
+    }
+
+    public static void EnsureRoleIsValid(Role role)
+    {
+        if (!Enum.IsDefined(role))
+            throw new AppValidationException("El rol indicado no es válido.", "USER_ROLE_INVALID");
     }
 
     /// Genera una nueva versión de seguridad. Los JWT emitidos antes dejan de

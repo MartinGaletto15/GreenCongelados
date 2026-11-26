@@ -105,10 +105,8 @@ public class OrderService : IOrderReadOnlyService, IOrderWriteService
             var product = await _productRepository.GetByIdReadOnlyAsync(cartItem.ProductId);
             if (product == null || product.Status == ProductStatus.Deleted)
                 throw new AppValidationException("Producto no encontrado.", "PRODUCT_NOT_FOUND", 404);
-            if (product.Status != ProductStatus.Available)
-                throw new AppValidationException($"El producto no está disponible: {product.Name}.", "PRODUCT_NOT_AVAILABLE");
-            if (product.CurrentStock < cartItem.Quantity)
-                throw new AppValidationException($"Stock insuficiente para el producto: {product.Name}. Disponible: {product.CurrentStock}.", "INSUFFICIENT_STOCK");
+
+            product.EnsureAvailableFor(cartItem.Quantity);
 
             items.Add((product.IdProduct, product.Price, cartItem.Quantity, product.Name));
         }
@@ -213,9 +211,11 @@ public class OrderService : IOrderReadOnlyService, IOrderWriteService
         var current = await _productRepository.GetByIdReadOnlyAsync(item.IdProduct);
         if (current is null || current.Status == ProductStatus.Deleted)
             throw new AppValidationException("Producto no encontrado.", "PRODUCT_NOT_FOUND", 404);
-        if (current.Status != ProductStatus.Available)
-            throw new AppValidationException($"El producto no está disponible: {current.Name}.", "PRODUCT_NOT_AVAILABLE", 409);
 
+        current.EnsureAvailableFor(item.Quantity, 409);
+
+        // La reserva atómica no afectó la fila. Aun si la relectura muestra
+        // stock recuperado, no se reintenta: se podría decrementar dos veces.
         throw new AppValidationException($"Stock insuficiente para el producto: {current.Name}. Disponible: {current.CurrentStock}.", "INSUFFICIENT_STOCK", 409);
     }
 

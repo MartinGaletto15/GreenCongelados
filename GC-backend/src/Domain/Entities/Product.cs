@@ -131,11 +131,20 @@ public class Product
         Status = ProductStatus.Deleted;
     }
 
-    public void ReduceStock(int quantity)
+    /// Única definición de la regla de venta: cantidad válida, producto
+    /// disponible y stock suficiente. La usan ReduceStock, la creación de la
+    /// orden y el carrito. `statusCode` permite reportar el conflicto de
+    /// concurrencia como 409 sin duplicar la regla.
+    public void EnsureAvailableFor(int quantity, int statusCode = 400)
     {
         if (quantity <= 0) throw new AppValidationException("La cantidad debe ser mayor que cero.", "INVALID_QUANTITY");
-        if (Status != ProductStatus.Available) throw new AppValidationException($"El producto no está disponible: {Name}.", "PRODUCT_NOT_AVAILABLE");
-        if (CurrentStock < quantity) throw new AppValidationException($"Stock insuficiente para el producto: {Name}. Disponible: {CurrentStock}.", "INSUFFICIENT_STOCK");
+        if (Status != ProductStatus.Available) throw new AppValidationException($"El producto no está disponible: {Name}.", "PRODUCT_NOT_AVAILABLE", statusCode);
+        if (CurrentStock < quantity) throw new AppValidationException($"Stock insuficiente para el producto: {Name}. Disponible: {CurrentStock}.", "INSUFFICIENT_STOCK", statusCode);
+    }
+
+    public void ReduceStock(int quantity)
+    {
+        EnsureAvailableFor(quantity);
 
         CurrentStock -= quantity;
         SyncStatusWithStock();

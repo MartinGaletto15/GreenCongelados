@@ -13,18 +13,17 @@ public static class UserValidator
     // una cuenta ya confirmada y activa no puede volver a registrarse.
     public static void ValidateRegistration(User? existingUser)
     {
-        if (existingUser is not null && existingUser.EmailConfirmed && existingUser.IsActive)
+        if (existingUser is not null && existingUser.IsRegistrationComplete)
             throw new AppValidationException("Ya existe una cuenta con este email. Inicia sesión o restablece tu contraseña.", "USER_ALREADY_EXISTS", 409);
     }
 
     // Login: mismo mensaje para "no existe" y "está inactivo" para no filtrar cuentas.
     public static User ValidateLogin(User? user)
     {
-        if (user is null || !user.IsActive)
+        if (user is null)
             throw new AppValidationException("Email o contraseña incorrectos.", "AUTH_INVALID_CREDENTIALS");
 
-        if (!user.EmailConfirmed || user.Password is null)
-            throw new AppValidationException("Tu cuenta todavía no está confirmada. Revisa tu correo y completa el registro.", "USER_EMAIL_NOT_CONFIRMED");
+        user.EnsureCanLogin();
 
         return user;
     }
@@ -37,20 +36,12 @@ public static class UserValidator
     // Única definición de la política de contraseñas. La usan el registro y el reset.
     public static void ValidatePassword(string password)
     {
-        bool isValid = !string.IsNullOrEmpty(password)
-            && password.Length >= 6
-            && password.Length <= 20
-            && password.Any(char.IsUpper)
-            && password.Any(char.IsDigit);
-
-        if (!isValid)
-            throw new AppValidationException("La contraseña debe tener entre 6 y 20 caracteres e incluir al menos una mayúscula y un número.", "USER_PASSWORD_INVALID");
+        User.EnsurePasswordPolicy(password);
     }
 
     public static void ValidateRoleUpdate(Role newRole, Role currentTargetRole, Role performerRole)
     {
-        if (!Enum.IsDefined(typeof(Role), newRole))
-            throw new AppValidationException("El rol indicado no es válido.", "USER_ROLE_INVALID");
+        User.EnsureRoleIsValid(newRole);
 
         // Performer must have a higher hierarchy (lower numerical value) than the target user's current role
         if (performerRole >= currentTargetRole)

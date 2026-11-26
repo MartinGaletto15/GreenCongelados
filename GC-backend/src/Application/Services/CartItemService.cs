@@ -53,19 +53,14 @@ public class CartItemService : ICartItemReadOnlyService, ICartItemWriteService
         if (product == null || product.Status == ProductStatus.Deleted)
             throw new AppValidationException("Producto no encontrado.", "PRODUCT_NOT_FOUND", 404);
 
-        if (product.Status != ProductStatus.Available)
-            throw new AppValidationException($"Producto no disponible: {product.Name}", "PRODUCT_NOT_AVAILABLE");
-
         // Check if product is already in the cart
         var cartItems = await _repository.GetByUserIdAsync(userId);
         var existingItem = cartItems.FirstOrDefault(ci => ci.IdProduct == request.IdProduct);
 
         int totalQuantity = request.Quantity + (existingItem?.Quantity ?? 0);
 
-        if (product.CurrentStock < totalQuantity)
-        {
-            throw new AppValidationException($"Stock insuficiente para el producto: {product.Name}. Disponible: {product.CurrentStock}", "INSUFFICIENT_STOCK");
-        }
+        // Cantidad total, disponibilidad y stock: una sola regla de dominio.
+        product.EnsureAvailableFor(totalQuantity);
 
         if (existingItem != null)
         {
@@ -98,10 +93,7 @@ public class CartItemService : ICartItemReadOnlyService, ICartItemWriteService
         var product = await _productRepository.GetByIdAsync(cartItem!.IdProduct);
         if (product == null) throw new AppValidationException("Producto no encontrado.", "PRODUCT_NOT_FOUND", 404);
 
-        if (product.CurrentStock < request.Quantity)
-        {
-            throw new AppValidationException($"Stock insuficiente para el producto: {product.Name}. Disponible: {product.CurrentStock}", "INSUFFICIENT_STOCK");
-        }
+        product.EnsureAvailableFor(request.Quantity);
 
         cartItem!.Quantity = request.Quantity;
 
