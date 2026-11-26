@@ -51,8 +51,10 @@ public class User
     /// está activa. Se usa para no repetir la condición en cada flujo.
     public bool IsRegistrationComplete => EmailConfirmed && IsActive;
 
-    /// Solo una cuenta con el correo confirmado puede restablecer su contraseña.
-    public bool CanResetPassword => EmailConfirmed;
+    /// Solo una cuenta completa (correo confirmado y activa) puede restablecer
+    /// su contraseña. Una cuenta inactiva se trata como un registro nuevo: no
+    /// recibe el correo de recuperación y debe completar el registro otra vez.
+    public bool CanResetPassword => IsRegistrationComplete;
 
     public ICollection<UserToken> UserTokens { get; private set; } = new List<UserToken>();
 
