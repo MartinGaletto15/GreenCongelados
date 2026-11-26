@@ -11,12 +11,11 @@ public static class CartItemValidator
             throw new AppValidationException("El usuario no tiene un carrito activo.", "CART_NOT_FOUND", 404);
     }
 
-    public static void ValidateCartItemOwnership(CartItem? cartItem, Cart cart)
+    // El item se busca siempre dentro del carrito del usuario, así que si no
+    // aparece es porque no existe o es de otro carrito: mismo 404 en ambos casos.
+    public static void ValidateCartItemExists(CartItem? cartItem)
     {
         if (cartItem == null)
             throw new AppValidationException("Item del carrito no encontrado.", "CART_ITEM_NOT_FOUND", 404);
-
-        if (cartItem.IdCart != cart.IdCart)
-            throw new AppValidationException("No tienes permisos para realizar esta operación sobre este item.", "CART_ITEM_FORBIDDEN", 403);
     }
 }

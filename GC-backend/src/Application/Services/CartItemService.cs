@@ -53,14 +53,15 @@ public class CartItemService : ICartItemReadOnlyService, ICartItemWriteService
         if (product == null || product.Status == ProductStatus.Deleted)
             throw new AppValidationException("Producto no encontrado.", "PRODUCT_NOT_FOUND", 404);
 
-        // Check if product is already in the cart
-        var cartItems = await _repository.GetByUserIdAsync(userId);
-        var existingItem = cartItems.FirstOrDefault(ci => ci.IdProduct == request.IdProduct);
+        // Se busca en el carrito ya trackeado: reutilizar la instancia evita
+        // adjuntar una copia con la misma clave y romper el ChangeTracker.
+        var existingItem = cart.CartItems.FirstOrDefault(ci => ci.IdProduct == request.IdProduct);
 
+        // Acumulativo: lo que ya está en el carrito + lo que se agrega ahora.
         int totalQuantity = request.Quantity + (existingItem?.Quantity ?? 0);
 
         // Cantidad total, disponibilidad y stock: una sola regla de dominio.
-        product.EnsureAvailableFor(totalQuantity);
+        EnsureTotalStock(product, totalQuantity, existingItem?.Quantity ?? 0);
 
         if (existingItem != null)
         {
@@ -84,33 +85,18 @@ public class CartItemService : ICartItemReadOnlyService, ICartItemWriteService
 
     public async Task<CartItemDTO> UpdateCartItemAsync(int userId, int cartItemId, UpdateCartItemRequest request)
     {
-        var cart = await _repository.GetUserCartAsync(userId);
-        CartItemValidator.ValidateCartExists(cart);
+        var cart = await GetUserCartOrThrowAsync(userId);
+        var cartItem = GetCartItemOrThrow(cart, cartItemId);
 
-        var cartItem = await _repository.GetByIdAsync(cartItemId);
-        CartItemValidator.ValidateCartItemOwnership(cartItem, cart!);
-
-        var product = await _productRepository.GetByIdAsync(cartItem!.IdProduct);
-        if (product == null) throw new AppValidationException("Producto no encontrado.", "PRODUCT_NOT_FOUND", 404);
-
-        product.EnsureAvailableFor(request.Quantity);
-
-        cartItem!.Quantity = request.Quantity;
-
-        await _repository.UpdateAsync(cartItem);
-        await _unitOfWork.SaveChangesAsync();
-        return CartItemDTO.Create(cartItem);
+        return await SetQuantityAsync(cartItem, request.Quantity);
     }
 
     public async Task DeleteCartItemAsync(int userId, int cartItemId)
     {
-        var cart = await _repository.GetUserCartAsync(userId);
-        CartItemValidator.ValidateCartExists(cart);
+        var cart = await GetUserCartOrThrowAsync(userId);
+        var cartItem = GetCartItemOrThrow(cart, cartItemId);
 
-        var cartItem = await _repository.GetByIdAsync(cartItemId);
-        CartItemValidator.ValidateCartItemOwnership(cartItem, cart!);
-
-        await _repository.DeleteAsync(cartItem!);
+        await _repository.DeleteAsync(cartItem);
         await _unitOfWork.SaveChangesAsync();
     }
 
@@ -119,5 +105,53 @@ public class CartItemService : ICartItemReadOnlyService, ICartItemWriteService
         // Una sola sentencia: ExecuteDelete corre en la misma conexión y transacción
         // del contexto, así que participa del BeginTransaction de la orden.
         await _repository.DeleteByUserIdAsync(userId);
+    }
+
+    // El carrito se busca siempre por el usuario del token: el cliente nunca
+    // decide de quién es el carrito.
+    private async Task<Cart> GetUserCartOrThrowAsync(int userId)
+    {
+        var cart = await _repository.GetUserCartAsync(userId);
+        CartItemValidator.ValidateCartExists(cart);
+        return cart!;
+    }
+
+    // Se busca dentro de los items del carrito del usuario, no en toda la tabla:
+    // un item de otro carrito simplemente no existe para esta consulta.
+    private static CartItem GetCartItemOrThrow(Cart cart, int cartItemId)
+    {
+        var cartItem = cart.CartItems.FirstOrDefault(ci => ci.IdCartItem == cartItemId);
+        CartItemValidator.ValidateCartItemExists(cartItem);
+        return cartItem!;
+    }
+
+    private async Task<CartItemDTO> SetQuantityAsync(CartItem cartItem, int quantity)
+    {
+        var product = await _productRepository.GetByIdAsync(cartItem.IdProduct);
+        if (product == null) throw new AppValidationException("Producto no encontrado.", "PRODUCT_NOT_FOUND", 404);
+
+        product.EnsureAvailableFor(quantity);
+
+        cartItem.Quantity = quantity;
+
+        await _repository.UpdateAsync(cartItem);
+        await _unitOfWork.SaveChangesAsync();
+        return CartItemDTO.Create(cartItem);
+    }
+
+    // La regla de stock vive en Product; acá solo se enriquece el mensaje para
+    // que se entienda por qué una cantidad igual al stock no cabe en el carrito.
+    private static void EnsureTotalStock(Product product, int totalQuantity, int alreadyInCart)
+    {
+        try
+        {
+            product.EnsureAvailableFor(totalQuantity);
+        }
+        catch (AppValidationException ex) when (alreadyInCart > 0 && ex.ErrorCode == "INSUFFICIENT_STOCK")
+        {
+            throw new AppValidationException(
+                $"Stock insuficiente para el producto: {product.Name}. Ya tienes {alreadyInCart} en el carrito y el total solicitado ({totalQuantity}) supera el disponible ({product.CurrentStock}).",
+                ex.ErrorCode, ex.StatusCode);
+        }
     }
 }
