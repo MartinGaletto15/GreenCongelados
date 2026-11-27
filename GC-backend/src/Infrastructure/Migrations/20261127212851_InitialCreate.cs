@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace Infrastructure.Migrations
 {
     /// <inheritdoc />
-    public partial class Initial : Migration
+    public partial class InitialCreate : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -39,8 +39,7 @@ namespace Infrastructure.Migrations
                     CurrentStock = table.Column<int>(type: "int", nullable: false),
                     Weight = table.Column<decimal>(type: "decimal(10,2)", nullable: true),
                     PreparationTime = table.Column<decimal>(type: "decimal(18,2)", nullable: true),
-                    product_status = table.Column<int>(type: "int", maxLength: 25, nullable: false),
-                    IsActive = table.Column<bool>(type: "bit", nullable: false)
+                    product_status = table.Column<int>(type: "int", maxLength: 25, nullable: false)
                 },
                 constraints: table =>
                 {
@@ -86,12 +85,15 @@ namespace Infrastructure.Migrations
                 {
                     IdUser = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Name = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
-                    LastName = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
+                    Name = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: true),
+                    LastName = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: true),
                     Email = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
-                    Password = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    EmailConfirmed = table.Column<bool>(type: "bit", nullable: false),
+                    Password = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
                     Phone = table.Column<string>(type: "nvarchar(25)", maxLength: 25, nullable: true),
-                    Role = table.Column<int>(type: "int", nullable: false)
+                    Role = table.Column<int>(type: "int", nullable: false),
+                    SecurityStamp = table.Column<Guid>(type: "uniqueidentifier", nullable: false, defaultValueSql: "NEWID()"),
+                    IsActive = table.Column<bool>(type: "bit", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -174,8 +176,8 @@ namespace Infrastructure.Migrations
                     IdPromotion = table.Column<int>(type: "int", nullable: true),
                     ShippingCost = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
                     ShippingStreet = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    ShippingDpto = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    ShippingReference = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    ShippingDpto = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    ShippingReference = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     OrderDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     GlobalDiscount = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
                     Subtotal = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
@@ -203,6 +205,30 @@ namespace Infrastructure.Migrations
                         principalTable: "Users",
                         principalColumn: "IdUser",
                         onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "UserTokens",
+                columns: table => new
+                {
+                    IdUserToken = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    IdUser = table.Column<int>(type: "int", nullable: false),
+                    Token = table.Column<string>(type: "nvarchar(64)", maxLength: 64, nullable: false),
+                    ExpiresAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    CreateAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    Type = table.Column<int>(type: "int", nullable: false),
+                    IsUsed = table.Column<bool>(type: "bit", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_UserTokens", x => x.IdUserToken);
+                    table.ForeignKey(
+                        name: "FK_UserTokens_Users_IdUser",
+                        column: x => x.IdUser,
+                        principalTable: "Users",
+                        principalColumn: "IdUser",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -263,12 +289,14 @@ namespace Infrastructure.Migrations
             migrationBuilder.CreateIndex(
                 name: "IX_Addresses_IdUser",
                 table: "Addresses",
-                column: "IdUser");
+                column: "IdUser",
+                unique: true);
 
             migrationBuilder.CreateIndex(
-                name: "IX_Cart_Item_IdCart",
+                name: "IX_Cart_Item_IdCart_IdProduct",
                 table: "Cart_Item",
-                column: "IdCart");
+                columns: new[] { "IdCart", "IdProduct" },
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_Cart_Item_IdProduct",
@@ -310,6 +338,35 @@ namespace Infrastructure.Migrations
                 name: "IX_Product_Category_IdProduct",
                 table: "Product_Category",
                 column: "IdProduct");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Products_Name",
+                table: "Products",
+                column: "Name",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Promotions_CouponCode",
+                table: "Promotions",
+                column: "CouponCode",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Users_Email",
+                table: "Users",
+                column: "Email",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_UserTokens_IdUser",
+                table: "UserTokens",
+                column: "IdUser");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_UserTokens_Token",
+                table: "UserTokens",
+                column: "Token",
+                unique: true);
         }
 
         /// <inheritdoc />
@@ -329,6 +386,9 @@ namespace Infrastructure.Migrations
 
             migrationBuilder.DropTable(
                 name: "ShippingCost");
+
+            migrationBuilder.DropTable(
+                name: "UserTokens");
 
             migrationBuilder.DropTable(
                 name: "Carts");

@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(GCContext))]
-    [Migration("20260322230514_RemoveProductIsActive")]
-    partial class RemoveProductIsActive
+    [Migration("20261127212851_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -50,7 +50,8 @@ namespace Infrastructure.Migrations
 
                     b.HasKey("IdAddress");
 
-                    b.HasIndex("IdUser");
+                    b.HasIndex("IdUser")
+                        .IsUnique();
 
                     b.ToTable("Addresses");
                 });
@@ -93,9 +94,10 @@ namespace Infrastructure.Migrations
 
                     b.HasKey("IdCartItem");
 
-                    b.HasIndex("IdCart");
-
                     b.HasIndex("IdProduct");
+
+                    b.HasIndex("IdCart", "IdProduct")
+                        .IsUnique();
 
                     b.ToTable("Cart_Item");
                 });
@@ -153,11 +155,9 @@ namespace Infrastructure.Migrations
                         .HasColumnType("decimal(18, 2)");
 
                     b.Property<string>("ShippingDpto")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("ShippingReference")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("ShippingStreet")
@@ -199,7 +199,7 @@ namespace Infrastructure.Migrations
                         .HasColumnType("int");
 
                     b.Property<decimal>("UnitPrice")
-                        .HasColumnType("decimal(18,2)");
+                        .HasColumnType("decimal(18, 2)");
 
                     b.HasKey("IdOrderItem");
 
@@ -235,7 +235,7 @@ namespace Infrastructure.Migrations
                         .HasColumnType("nvarchar(100)");
 
                     b.Property<decimal?>("PreparationTime")
-                        .HasColumnType("decimal(18,2)");
+                        .HasColumnType("decimal(18, 2)");
 
                     b.Property<decimal>("Price")
                         .HasColumnType("decimal(18, 2)");
@@ -253,6 +253,9 @@ namespace Infrastructure.Migrations
                         .HasColumnType("decimal(10, 2)");
 
                     b.HasKey("IdProduct");
+
+                    b.HasIndex("Name")
+                        .IsUnique();
 
                     b.ToTable("Products");
                 });
@@ -305,6 +308,9 @@ namespace Infrastructure.Migrations
 
                     b.HasKey("IdPromotion");
 
+                    b.HasIndex("CouponCode")
+                        .IsUnique();
+
                     b.ToTable("Promotions");
                 });
 
@@ -345,18 +351,21 @@ namespace Infrastructure.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
+                    b.Property<bool>("EmailConfirmed")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
                     b.Property<string>("LastName")
-                        .IsRequired()
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
 
                     b.Property<string>("Name")
-                        .IsRequired()
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
 
                     b.Property<string>("Password")
-                        .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
@@ -367,9 +376,55 @@ namespace Infrastructure.Migrations
                     b.Property<int>("Role")
                         .HasColumnType("int");
 
+                    b.Property<Guid>("SecurityStamp")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier")
+                        .HasDefaultValueSql("NEWID()");
+
                     b.HasKey("IdUser");
 
+                    b.HasIndex("Email")
+                        .IsUnique();
+
                     b.ToTable("Users");
+                });
+
+            modelBuilder.Entity("Domain.Entities.UserToken", b =>
+                {
+                    b.Property<int>("IdUserToken")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("IdUserToken"));
+
+                    b.Property<DateTime>("CreateAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("ExpiresAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("IdUser")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("IsUsed")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Token")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("nvarchar(64)");
+
+                    b.Property<int>("Type")
+                        .HasColumnType("int");
+
+                    b.HasKey("IdUserToken");
+
+                    b.HasIndex("IdUser");
+
+                    b.HasIndex("Token")
+                        .IsUnique();
+
+                    b.ToTable("UserTokens");
                 });
 
             modelBuilder.Entity("Domain.Entities.Address", b =>
@@ -476,6 +531,15 @@ namespace Infrastructure.Migrations
                     b.Navigation("Product");
                 });
 
+            modelBuilder.Entity("Domain.Entities.UserToken", b =>
+                {
+                    b.HasOne("Domain.Entities.User", null)
+                        .WithMany("UserTokens")
+                        .HasForeignKey("IdUser")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("Domain.Entities.Cart", b =>
                 {
                     b.Navigation("CartItems");
@@ -512,6 +576,8 @@ namespace Infrastructure.Migrations
                     b.Navigation("OrdersPlaced");
 
                     b.Navigation("OrdersToDeliver");
+
+                    b.Navigation("UserTokens");
                 });
 #pragma warning restore 612, 618
         }

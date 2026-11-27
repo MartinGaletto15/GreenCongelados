@@ -62,7 +62,7 @@ public class Order
         ShippingDpto = dpto;
         ShippingReference = reference;
         ShippingCost = shippingCost;
-        OrderDate = DateTime.Now;
+        OrderDate = DateTime.UtcNow;
         OrderStatus = OrderStatus.LogisticsPending;
     }
 

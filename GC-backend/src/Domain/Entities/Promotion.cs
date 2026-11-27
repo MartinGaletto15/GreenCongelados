@@ -51,7 +51,7 @@ public class Promotion
 
     public decimal CalculateDiscount(decimal subtotal, decimal shippingCost)
     {
-        var now = DateTime.Now;
+        var now = DateTime.UtcNow;
         if (now < StartDate || now > EndDate)
             throw new AppValidationException("El cupón de promoción expiró o todavía no es válido.", "PROMOTION_EXPIRED");
 

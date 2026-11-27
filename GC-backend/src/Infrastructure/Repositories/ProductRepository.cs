@@ -20,7 +20,7 @@ public class ProductRepository : GenericRepository<Product>, IProductRepository
     public async Task<IEnumerable<Product>> GetAllNotDeletedAsync()
     {
         return await _context.Products
-            .Where(p => p.Status != ProductStatus.Deleted)
+            .Where(p => p.Status != ProductStatus.Deleted && p.Status != ProductStatus.Hidden)
             .ToListAsync();
     }
 

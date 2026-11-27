@@ -131,10 +131,6 @@ public class Product
         Status = ProductStatus.Deleted;
     }
 
-    /// Única definición de la regla de venta: cantidad válida, producto
-    /// disponible y stock suficiente. La usan ReduceStock, la creación de la
-    /// orden y el carrito. `statusCode` permite reportar el conflicto de
-    /// concurrencia como 409 sin duplicar la regla.
     public void EnsureAvailableFor(int quantity, int statusCode = 400)
     {
         if (quantity <= 0) throw new AppValidationException("La cantidad debe ser mayor que cero.", "INVALID_QUANTITY");

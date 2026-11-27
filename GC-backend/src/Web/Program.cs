@@ -33,7 +33,7 @@ using System.Security.Claims;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// 1. Service Configuration
+// Service Configuration
 builder.Services.AddControllers()
     .AddJsonOptions(options =>
     {
@@ -140,6 +140,11 @@ builder.Services.AddTransient<GlobalExceptionHandlingMiddleware>();
 var jwtSecret = builder.Configuration["JwtSettings:Secret"] 
                 ?? throw new InvalidOperationException("JwtSettings:Secret no está configurado. Defínelo con User Secrets o la variable de entorno JwtSettings__Secret.");
 
+if (jwtSecret.Length < 32)
+{
+    throw new InvalidOperationException("JwtSettings:Secret debe tener al menos 32 caracteres.");
+}
+
 builder.Services.AddAuthentication(options =>
 {
     options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -185,47 +190,61 @@ builder.Services.AddAuthentication(options =>
 
 builder.Services.AddAuthorization();
 
-// CORS para la demo frontend local (auth-demo).
+// CORS: los orígenes permitidos se configuran en Cors:AllowedOrigins.
+var allowedOrigins = builder.Configuration
+    .GetSection("Cors:AllowedOrigins")
+    .Get<string[]>() ?? Array.Empty<string>();
+
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AuthDemo", policy =>
     {
-        policy.WithOrigins("http://localhost:5500", "http://127.0.0.1:5500")
-            .AllowAnyHeader()
+        policy.AllowAnyHeader()
             .AllowAnyMethod();
-    });
-});
 
-builder.Services.AddSwaggerGen(c =>
-{
-    c.SwaggerDoc("v1", new OpenApiInfo { Title = "GreenCongelados", Version = "v1" });
-
-    c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
-    {
-        Name = "Authorization",
-        Type = SecuritySchemeType.Http,
-        Scheme = "bearer",
-        BearerFormat = "JWT",
-        In = ParameterLocation.Header,
-        Description = "Enter the JWT token using: Bearer {token}"
-    });
-
-
-    c.AddSecurityRequirement(new OpenApiSecurityRequirement
-    {
+        if (allowedOrigins.Length > 0)
         {
-            new OpenApiSecurityScheme
-            {
-                Reference = new OpenApiReference
-                {
-                    Type = ReferenceType.SecurityScheme,
-                    Id = "Bearer"
-                }
-            },
-            new string[] {}
+            policy.WithOrigins(allowedOrigins);
         }
     });
 });
+
+// Swagger: disponible en todos los entornos cuando Swagger:Enabled es true.
+var swaggerEnabled = builder.Configuration.GetValue<bool>("Swagger:Enabled");
+
+if (swaggerEnabled)
+{
+    builder.Services.AddSwaggerGen(c =>
+    {
+        c.SwaggerDoc("v1", new OpenApiInfo { Title = "GreenCongelados", Version = "v1" });
+
+        c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+        {
+            Name = "Authorization",
+            Type = SecuritySchemeType.Http,
+            Scheme = "bearer",
+            BearerFormat = "JWT",
+            In = ParameterLocation.Header,
+            Description = "Enter the JWT token using: Bearer {token}"
+        });
+
+
+        c.AddSecurityRequirement(new OpenApiSecurityRequirement
+        {
+            {
+                new OpenApiSecurityScheme
+                {
+                    Reference = new OpenApiReference
+                    {
+                        Type = ReferenceType.SecurityScheme,
+                        Id = "Bearer"
+                    }
+                },
+                new string[] {}
+            }
+        });
+    });
+}
 
 var connectionString = builder.Configuration.GetConnectionString("DbConnectionString")
     ?? throw new InvalidOperationException("ConnectionStrings:DbConnectionString no está configurada. Defínela con User Secrets o la variable de entorno ConnectionStrings__DbConnectionString.");
@@ -234,11 +253,13 @@ builder.Services.AddDbContext<GCContext>(options =>
     options.UseSqlServer(connectionString);
 });
 
+builder.Services.AddScoped<DbSeeder>();
+
 var app = builder.Build();
 
-// 2. Middleware Configuration
+// Middleware Configuration
 
-if (app.Environment.IsDevelopment())
+if (swaggerEnabled)
 {
     app.UseSwagger();
     app.UseSwaggerUI();
@@ -254,5 +275,20 @@ app.UseAuthorization();
 app.MapControllers(); 
 
 app.MapGet("/", () => "API de GreenCongelados en funcionamiento.");
+
+// Database startup: migraciones controladas por configuración y datos demo
+// idempotentes en cada arranque.
+using (var scope = app.Services.CreateScope())
+{
+    var dbContext = scope.ServiceProvider.GetRequiredService<GCContext>();
+
+    if (app.Configuration.GetValue<bool>("Database:MigrateOnStartup"))
+    {
+        await dbContext.Database.MigrateAsync();
+    }
+
+    var seeder = scope.ServiceProvider.GetRequiredService<DbSeeder>();
+    await seeder.SeedAsync();
+}
 
 app.Run();
