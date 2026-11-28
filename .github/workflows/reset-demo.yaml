@@ -1,0 +1,23 @@
+name: Reset Demo Database
+
+on:
+  schedule:
+    - cron: '0 7 * * *' # 04:00 AM Argentina (07:00 UTC)
+  workflow_dispatch:      # Permite ejecutarlo manualmente para probar
+
+jobs:
+  reset:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Vaciar esquema public en Supabase
+        run: |
+          psql "${{ secrets.SUPABASE_DB_URL }}" -v ON_ERROR_STOP=1 -c "
+            DROP SCHEMA public CASCADE;
+            CREATE SCHEMA public;
+            GRANT ALL ON SCHEMA public TO postgres;
+            GRANT ALL ON SCHEMA public TO public;
+          "
+
+      - name: Reiniciar servicio en Render (dispara Migrate + Seeder)
+        run: |
+          curl -f -X POST "${{ secrets.RENDER_DEPLOY_HOOK }}"
