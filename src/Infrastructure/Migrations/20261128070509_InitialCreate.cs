@@ -1,5 +1,6 @@
 ﻿using System;
 using Microsoft.EntityFrameworkCore.Migrations;
+using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
 
@@ -15,10 +16,10 @@ namespace Infrastructure.Migrations
                 name: "Categories",
                 columns: table => new
                 {
-                    IdCategory = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    Name = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
-                    ImageUrl = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                    IdCategory = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    Name = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
+                    ImageUrl = table.Column<string>(type: "text", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -29,17 +30,17 @@ namespace Infrastructure.Migrations
                 name: "Products",
                 columns: table => new
                 {
-                    IdProduct = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    Name = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
-                    UrlImagePrimary = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: true),
-                    DescriptionShort = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: false),
-                    DescriptionLong = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Price = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
-                    CurrentStock = table.Column<int>(type: "int", nullable: false),
-                    Weight = table.Column<decimal>(type: "decimal(10,2)", nullable: true),
-                    PreparationTime = table.Column<decimal>(type: "decimal(18,2)", nullable: true),
-                    product_status = table.Column<int>(type: "int", maxLength: 25, nullable: false)
+                    IdProduct = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    Name = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
+                    UrlImagePrimary = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: true),
+                    DescriptionShort = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: false),
+                    DescriptionLong = table.Column<string>(type: "text", nullable: true),
+                    Price = table.Column<decimal>(type: "numeric(18,2)", nullable: false),
+                    CurrentStock = table.Column<int>(type: "integer", nullable: false),
+                    Weight = table.Column<decimal>(type: "numeric(10,2)", nullable: true),
+                    PreparationTime = table.Column<decimal>(type: "numeric(18,2)", nullable: true),
+                    product_status = table.Column<int>(type: "integer", maxLength: 25, nullable: false)
                 },
                 constraints: table =>
                 {
@@ -50,14 +51,14 @@ namespace Infrastructure.Migrations
                 name: "Promotions",
                 columns: table => new
                 {
-                    IdPromotion = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    CouponCode = table.Column<string>(type: "nvarchar(15)", maxLength: 15, nullable: false),
-                    DiscountValue = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
-                    DiscountType = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    MinAmount = table.Column<decimal>(type: "decimal(18,2)", nullable: true),
-                    StartDate = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    EndDate = table.Column<DateTime>(type: "datetime2", nullable: false)
+                    IdPromotion = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    CouponCode = table.Column<string>(type: "character varying(15)", maxLength: 15, nullable: false),
+                    DiscountValue = table.Column<decimal>(type: "numeric(18,2)", nullable: false),
+                    DiscountType = table.Column<string>(type: "text", nullable: false),
+                    MinAmount = table.Column<decimal>(type: "numeric(18,2)", nullable: true),
+                    StartDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    EndDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -68,11 +69,11 @@ namespace Infrastructure.Migrations
                 name: "ShippingCost",
                 columns: table => new
                 {
-                    IdShippingCost = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    Name = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
-                    Cost = table.Column<decimal>(type: "decimal(10,2)", nullable: false),
-                    IsActive = table.Column<bool>(type: "bit", nullable: false)
+                    IdShippingCost = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    Name = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
+                    Cost = table.Column<decimal>(type: "numeric(10,2)", nullable: false),
+                    IsActive = table.Column<bool>(type: "boolean", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -83,17 +84,17 @@ namespace Infrastructure.Migrations
                 name: "Users",
                 columns: table => new
                 {
-                    IdUser = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    Name = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: true),
-                    LastName = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: true),
-                    Email = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
-                    EmailConfirmed = table.Column<bool>(type: "bit", nullable: false),
-                    Password = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
-                    Phone = table.Column<string>(type: "nvarchar(25)", maxLength: 25, nullable: true),
-                    Role = table.Column<int>(type: "int", nullable: false),
-                    SecurityStamp = table.Column<Guid>(type: "uniqueidentifier", nullable: false, defaultValueSql: "NEWID()"),
-                    IsActive = table.Column<bool>(type: "bit", nullable: false)
+                    IdUser = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    Name = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: true),
+                    LastName = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: true),
+                    Email = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
+                    EmailConfirmed = table.Column<bool>(type: "boolean", nullable: false),
+                    Password = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: true),
+                    Phone = table.Column<string>(type: "character varying(25)", maxLength: 25, nullable: true),
+                    Role = table.Column<int>(type: "integer", nullable: false),
+                    SecurityStamp = table.Column<Guid>(type: "uuid", nullable: false, defaultValueSql: "gen_random_uuid()"),
+                    IsActive = table.Column<bool>(type: "boolean", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -104,8 +105,8 @@ namespace Infrastructure.Migrations
                 name: "Product_Category",
                 columns: table => new
                 {
-                    IdProduct = table.Column<int>(type: "int", nullable: false),
-                    IdCategory = table.Column<int>(type: "int", nullable: false)
+                    IdProduct = table.Column<int>(type: "integer", nullable: false),
+                    IdCategory = table.Column<int>(type: "integer", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -128,12 +129,12 @@ namespace Infrastructure.Migrations
                 name: "Addresses",
                 columns: table => new
                 {
-                    IdAddress = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    IdUser = table.Column<int>(type: "int", nullable: false),
-                    Street = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
-                    Dpto = table.Column<string>(type: "nvarchar(10)", maxLength: 10, nullable: true),
-                    References = table.Column<string>(type: "nvarchar(max)", nullable: true)
+                    IdAddress = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    IdUser = table.Column<int>(type: "integer", nullable: false),
+                    Street = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
+                    Dpto = table.Column<string>(type: "character varying(10)", maxLength: 10, nullable: true),
+                    References = table.Column<string>(type: "text", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -150,9 +151,9 @@ namespace Infrastructure.Migrations
                 name: "Carts",
                 columns: table => new
                 {
-                    IdCart = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    IdUser = table.Column<int>(type: "int", nullable: false)
+                    IdCart = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    IdUser = table.Column<int>(type: "integer", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -169,20 +170,20 @@ namespace Infrastructure.Migrations
                 name: "Orders",
                 columns: table => new
                 {
-                    IdOrder = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    IdUser = table.Column<int>(type: "int", nullable: false),
-                    IdCourier = table.Column<int>(type: "int", nullable: true),
-                    IdPromotion = table.Column<int>(type: "int", nullable: true),
-                    ShippingCost = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
-                    ShippingStreet = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    ShippingDpto = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    ShippingReference = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    OrderDate = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    GlobalDiscount = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
-                    Subtotal = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
-                    Total = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
-                    OrderStatus = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                    IdOrder = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    IdUser = table.Column<int>(type: "integer", nullable: false),
+                    IdCourier = table.Column<int>(type: "integer", nullable: true),
+                    IdPromotion = table.Column<int>(type: "integer", nullable: true),
+                    ShippingCost = table.Column<decimal>(type: "numeric(18,2)", nullable: false),
+                    ShippingStreet = table.Column<string>(type: "text", nullable: false),
+                    ShippingDpto = table.Column<string>(type: "text", nullable: true),
+                    ShippingReference = table.Column<string>(type: "text", nullable: true),
+                    OrderDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    GlobalDiscount = table.Column<decimal>(type: "numeric(18,2)", nullable: false),
+                    Subtotal = table.Column<decimal>(type: "numeric(18,2)", nullable: false),
+                    Total = table.Column<decimal>(type: "numeric(18,2)", nullable: false),
+                    OrderStatus = table.Column<string>(type: "text", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -211,14 +212,14 @@ namespace Infrastructure.Migrations
                 name: "UserTokens",
                 columns: table => new
                 {
-                    IdUserToken = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    IdUser = table.Column<int>(type: "int", nullable: false),
-                    Token = table.Column<string>(type: "nvarchar(64)", maxLength: 64, nullable: false),
-                    ExpiresAt = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    CreateAt = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    Type = table.Column<int>(type: "int", nullable: false),
-                    IsUsed = table.Column<bool>(type: "bit", nullable: false)
+                    IdUserToken = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    IdUser = table.Column<int>(type: "integer", nullable: false),
+                    Token = table.Column<string>(type: "character varying(64)", maxLength: 64, nullable: false),
+                    ExpiresAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    CreateAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    Type = table.Column<int>(type: "integer", nullable: false),
+                    IsUsed = table.Column<bool>(type: "boolean", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -235,11 +236,11 @@ namespace Infrastructure.Migrations
                 name: "Cart_Item",
                 columns: table => new
                 {
-                    IdCartItem = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    IdCart = table.Column<int>(type: "int", nullable: false),
-                    IdProduct = table.Column<int>(type: "int", nullable: false),
-                    Quantity = table.Column<int>(type: "int", nullable: false)
+                    IdCartItem = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    IdCart = table.Column<int>(type: "integer", nullable: false),
+                    IdProduct = table.Column<int>(type: "integer", nullable: false),
+                    Quantity = table.Column<int>(type: "integer", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -262,12 +263,12 @@ namespace Infrastructure.Migrations
                 name: "OrderItems",
                 columns: table => new
                 {
-                    IdOrderItem = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    IdOrder = table.Column<int>(type: "int", nullable: false),
-                    IdProduct = table.Column<int>(type: "int", nullable: false),
-                    Quantity = table.Column<int>(type: "int", nullable: false),
-                    UnitPrice = table.Column<decimal>(type: "decimal(18,2)", nullable: false)
+                    IdOrderItem = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    IdOrder = table.Column<int>(type: "integer", nullable: false),
+                    IdProduct = table.Column<int>(type: "integer", nullable: false),
+                    Quantity = table.Column<int>(type: "integer", nullable: false),
+                    UnitPrice = table.Column<decimal>(type: "numeric(18,2)", nullable: false)
                 },
                 constraints: table =>
                 {

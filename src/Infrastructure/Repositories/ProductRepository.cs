@@ -39,8 +39,9 @@ public class ProductRepository : GenericRepository<Product>, IProductRepository
 
     public async Task<bool> TryDecreaseStockAsync(int idProduct, int quantity)
     {
-        // Una sola sentencia. SQL Server primero bloquea la fila y recién después revisa si se cumple la condición:
-        // si dos requests compiten, uno actualiza 1 fila y el otro 0.
+        // Una sola sentencia. PostgreSQL reevalúa el WHERE sobre la versión nueva
+        // cuando otra transacción actualizó la fila: si dos requests compiten,
+        // uno actualiza 1 fila y el otro 0.
         var affected = await _context.Products
             .Where(p => p.IdProduct == idProduct
                      && p.Status == ProductStatus.Available

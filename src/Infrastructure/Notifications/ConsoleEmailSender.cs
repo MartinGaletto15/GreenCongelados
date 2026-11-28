@@ -4,8 +4,8 @@ using Microsoft.Extensions.Logging;
 namespace Infrastructure.Notifications;
 
 /// <summary>
-/// Sender de desarrollo: no envía correos reales, solo registra el token en el log.
-/// Se usa cuando MailKit:PasswordGmail no está configurado en Development.
+/// Sender de demo/desarrollo: no envía correos reales, solo registra el token en el log.
+/// Se usa cuando MailKit:PasswordGmail no está configurado.
 /// </summary>
 public sealed class ConsoleEmailSender : IEmailSenderService
 {

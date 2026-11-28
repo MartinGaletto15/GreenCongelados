@@ -21,7 +21,7 @@ El sistema resuelve la operación completa de una tienda de congelados: publicar
 ### Stack tecnológico
 
 - **.NET 8** y **ASP.NET Core Web API** con controladores.
-- **Entity Framework Core 8** sobre **SQL Server**, con migraciones y un seeder de datos demo idempotente.
+- **Entity Framework Core 8** sobre **PostgreSQL**, con migraciones y un seeder de datos demo idempotente.
 - **JWT Bearer HS256** (`Microsoft.AspNetCore.Authentication.JwtBearer`, `System.IdentityModel.Tokens.Jwt`).
 - **BCrypt.Net-Next** para el hash de contraseñas.
 - **MailKit / MimeKit** para el envío de correos por SMTP.
@@ -76,3 +76,48 @@ El modelo cubre usuarios, direcciones, carrito e ítems, productos y categorías
 - [ADR 0001 — Concurrencia de stock y transiciones de estado](docs/adr/0001-concurrencia-de-stock.md)
 - [ADR 0002 — Sesiones JWT de una hora con security_stamp persistido](docs/adr/0002-sesiones-jwt-security-stamp.md)
 - [ADR 0003 — Estado de producto derivado del stock](docs/adr/0003-estado-de-producto.md)
+
+## 3. Despliegue demo (Render + Supabase)
+
+La API está preparada para correr como Web Service Docker en Render contra PostgreSQL de Supabase.
+
+### Variables de entorno
+
+| Variable | Valor |
+|---|---|
+| `ConnectionStrings__DbConnectionString` | Cadena de conexión de Supabase |
+| `JwtSettings__Secret` | Secreto de al menos 32 caracteres |
+| `ASPNETCORE_ENVIRONMENT` | `Production` |
+| `Cors__AllowedOrigins__0` | Opcional: origen del frontend que consuma la API |
+
+`ConnectionStrings__DbConnectionString` acepta el formato Npgsql:
+
+```text
+Host=aws-0-<region>.pooler.supabase.com;Port=5432;Database=postgres;Username=postgres.<ref>;Password=<password>;SSL Mode=Require;Trust Server Certificate=true
+```
+
+o directamente la URI de Supabase:
+
+```text
+postgresql://postgres.<ref>:<password>@aws-0-<region>.pooler.supabase.com:5432/postgres
+```
+
+Para las migraciones conviene usar la **Session pooler** o la conexión directa. El transaction pooler (puerto 6543) puede fallar con EF Core.
+
+### Arranque
+
+- `Database:MigrateOnStartup=true` aplica las migraciones al iniciar.
+- `DbSeeder` crea los datos demo si la base está vacía.
+- Sin `MailKit:PasswordGmail`, la app usa el sender de consola y no envía correos reales. Para correo real, configurar `MailKit__Email`, `MailKit__PasswordGmail`, `MailKit__Server` y `MailKit__Port`.
+- Render inyecta `PORT`; la aplicación escucha en `0.0.0.0:$PORT`.
+
+### URLs
+
+- `/` — landing de la demo.
+- `/health` — health check para Render.
+- `/swagger` — Swagger UI.
+
+### Deploy
+
+- Con `render.yaml`: **New > Blueprint**, seleccionar el repositorio y completar `ConnectionStrings__DbConnectionString`.
+- Manual: **New > Web Service > Docker**, health check `/health` y cargar las variables de entorno.

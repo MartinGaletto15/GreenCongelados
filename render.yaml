@@ -1,0 +1,13 @@
+services:
+  - type: web
+    name: greencongelados-api
+    runtime: docker
+    plan: free
+    healthCheckPath: /health
+    envVars:
+      - key: ASPNETCORE_ENVIRONMENT
+        value: Production
+      - key: ConnectionStrings__DbConnectionString
+        sync: false
+      - key: JwtSettings__Secret
+        generateValue: true

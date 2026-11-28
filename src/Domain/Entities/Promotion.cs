@@ -39,6 +39,9 @@ public class Promotion
 
     public Promotion(string couponCode, decimal discountValue, DiscountType discountType, decimal? minAmount, DateTime startDate, DateTime endDate)
     {
+        startDate = EnsureUtc(startDate);
+        endDate = EnsureUtc(endDate);
+
         ValidateData(couponCode, discountValue, discountType, minAmount, startDate, endDate);
 
         CouponCode = NormalizeCouponCode(couponCode);
@@ -75,8 +78,8 @@ public class Promotion
         var newValue = discountValue ?? DiscountValue;
         var newType = discountType ?? DiscountType;
         var newMin = minAmount ?? MinAmount;
-        var newStart = startDate ?? StartDate;
-        var newEnd = endDate ?? EndDate;
+        var newStart = startDate.HasValue ? EnsureUtc(startDate.Value) : StartDate;
+        var newEnd = endDate.HasValue ? EnsureUtc(endDate.Value) : EndDate;
 
         ValidateData(newCoupon, newValue, newType, newMin, newStart, newEnd);
 
@@ -104,4 +107,14 @@ public class Promotion
     }
 
     public static string NormalizeCouponCode(string couponCode) => couponCode.Trim().ToUpperInvariant();
+
+    // Las fechas de vigencia se comparan contra DateTime.UtcNow. Si el cliente
+    // manda una fecha sin offset, se interpreta como UTC para que Npgsql pueda
+    // escribirla en una columna timestamptz.
+    private static DateTime EnsureUtc(DateTime value) => value.Kind switch
+    {
+        DateTimeKind.Utc => value,
+        DateTimeKind.Local => value.ToUniversalTime(),
+        _ => DateTime.SpecifyKind(value, DateTimeKind.Utc)
+    };
 }

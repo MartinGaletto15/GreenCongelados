@@ -1,0 +1,11 @@
+**/bin
+**/obj
+**/.vs
+**/.vscode
+**/*.user
+.git
+.gitignore
+.github
+docs
+Notas.txt
+README.md

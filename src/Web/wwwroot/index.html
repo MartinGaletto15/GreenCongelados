@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>GreenCongelados API</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --green-900: #123b2a;
+      --green-700: #1d6b47;
+      --green-500: #2f9e63;
+      --green-100: #e8f5ed;
+      --ink: #17221c;
+      --muted: #5e7166;
+      --line: #d9e6dd;
+      --paper: #f7fbf8;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 12% 0%, #dff3e7 0, transparent 42%),
+        radial-gradient(circle at 90% 10%, #eaf4dc 0, transparent 36%),
+        var(--paper);
+      display: grid;
+      place-items: center;
+      padding: 32px 20px;
+    }
+
+    main {
+      width: min(920px, 100%);
+      background: rgba(255, 255, 255, 0.86);
+      border: 1px solid var(--line);
+      border-radius: 28px;
+      padding: clamp(28px, 5vw, 56px);
+      box-shadow: 0 24px 70px rgba(18, 59, 42, 0.10);
+      backdrop-filter: blur(8px);
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin: 0 0 18px;
+      padding: 7px 12px;
+      border-radius: 999px;
+      background: var(--green-100);
+      color: var(--green-700);
+      font-size: 0.78rem;
+      font-weight: 700;
+      letter-spacing: 0.10em;
+      text-transform: uppercase;
+    }
+
+    .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--green-500);
+      box-shadow: 0 0 0 4px rgba(47, 158, 99, 0.14);
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(2.1rem, 6vw, 4rem);
+      line-height: 0.98;
+      letter-spacing: -0.04em;
+      color: var(--green-900);
+    }
+
+    h1 span { color: var(--green-500); }
+
+    .lead {
+      max-width: 62ch;
+      margin: 20px 0 28px;
+      color: var(--muted);
+      font-size: clamp(1rem, 2.2vw, 1.16rem);
+      line-height: 1.65;
+    }
+
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-bottom: 36px;
+    }
+
+    .button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 46px;
+      padding: 0 20px;
+      border-radius: 999px;
+      border: 1px solid var(--line);
+      color: var(--green-900);
+      background: #fff;
+      text-decoration: none;
+      font-weight: 700;
+      transition: transform 160ms ease, box-shadow 160ms ease, background 160ms ease;
+    }
+
+    .button:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 10px 24px rgba(18, 59, 42, 0.10);
+    }
+
+    .button.primary {
+      border-color: var(--green-700);
+      background: var(--green-700);
+      color: #fff;
+    }
+
+    .button.primary:hover { background: var(--green-900); }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+      gap: 14px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .grid li {
+      padding: 18px;
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      background: #fff;
+    }
+
+    .grid h2 {
+      margin: 0 0 7px;
+      font-size: 0.98rem;
+      color: var(--green-900);
+    }
+
+    .grid p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.9rem;
+      line-height: 1.5;
+    }
+
+    footer {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      gap: 10px;
+      margin-top: 34px;
+      padding-top: 22px;
+      border-top: 1px solid var(--line);
+      color: var(--muted);
+      font-size: 0.82rem;
+    }
+
+    code {
+      padding: 2px 6px;
+      border-radius: 6px;
+      background: var(--green-100);
+      color: var(--green-900);
+      font-size: 0.86em;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <p class="eyebrow"><span class="dot"></span>Demo en línea</p>
+
+    <h1>GreenCongelados <span>API</span></h1>
+
+    <p class="lead">
+      Backend del e-commerce de productos congelados con entrega a domicilio en Rosario.
+      Catálogo, carrito, checkout, promociones, envíos y logística sobre .NET 8 + PostgreSQL.
+    </p>
+
+    <nav class="actions" aria-label="Accesos rápidos">
+      <a class="button primary" href="/swagger">Explorar Swagger</a>
+      <a class="button" href="/health">Ver health check</a>
+    </nav>
+
+    <ul class="grid">
+      <li>
+        <h2>Catálogo y stock</h2>
+        <p>Productos, categorías y stock con decremento atómico en checkout.</p>
+      </li>
+      <li>
+        <h2>Carrito y pedidos</h2>
+        <p>Checkout transaccional, cupones y cancelación con reposición de stock.</p>
+      </li>
+      <li>
+        <h2>Cuentas y logística</h2>
+        <p>JWT, roles, confirmación por correo y asignación de cadetes.</p>
+      </li>
+    </ul>
+
+    <footer>
+      <span>Entorno de demostración · <code>v1</code></span>
+      <span>Health: <code>GET /health</code></span>
+    </footer>
+  </main>
+</body>
+</html>

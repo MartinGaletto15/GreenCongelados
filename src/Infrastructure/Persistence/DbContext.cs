@@ -34,7 +34,7 @@ namespace Infrastructure.Persistence
             // Las filas existentes reciben una versión única al aplicar la migración.
             modelBuilder.Entity<User>()
                 .Property(user => user.SecurityStamp)
-                .HasDefaultValueSql("NEWID()");
+                .HasDefaultValueSql("gen_random_uuid()");
 
             modelBuilder.Entity<Product>()
                 .HasIndex(product => product.Name)

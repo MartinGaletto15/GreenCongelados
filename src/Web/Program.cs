@@ -33,6 +33,13 @@ using System.Security.Claims;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Render inyecta PORT y espera que la app escuche en 0.0.0.0.
+var renderPort = Environment.GetEnvironmentVariable("PORT");
+if (!string.IsNullOrWhiteSpace(renderPort))
+{
+    builder.WebHost.UseUrls($"http://0.0.0.0:{renderPort}");
+}
+
 // Service Configuration
 builder.Services.AddControllers()
     .AddJsonOptions(options =>
@@ -81,34 +88,27 @@ builder.Services.AddOptions<UserTokenOptions>()
     .Validate(o => o.EmailConfirmationExpirationMinutes > 0, "UserTokens:EmailConfirmationExpirationMinutes debe configurarse con un valor mayor que cero.")
     .ValidateOnStart();
 
-// Email: en Development sin credenciales se usa un sender que solo registra el token en el log.
+// Email: sin credenciales SMTP se usa un sender que solo registra el token en el log.
+// Esto permite desplegar la demo sin configurar una casilla real.
 var smtpSection = builder.Configuration.GetSection(SmtpOptions.SectionName);
+var hasSmtpPassword = !string.IsNullOrWhiteSpace(builder.Configuration["MailKit:PasswordGmail"]);
 
-if (!builder.Environment.IsDevelopment())
+if (hasSmtpPassword)
 {
     builder.Services.AddOptions<SmtpOptions>()
         .Bind(smtpSection)
         .Validate(o => !string.IsNullOrWhiteSpace(o.Email), "MailKit:Email es obligatorio.")
-        .Validate(o => !string.IsNullOrWhiteSpace(o.PasswordGmail), "MailKit:PasswordGmail es obligatorio.")
         .Validate(o => !string.IsNullOrWhiteSpace(o.Server), "MailKit:Server es obligatorio.")
         .Validate(o => o.Port > 0, "MailKit:Port debe ser mayor que cero.")
         .ValidateOnStart();
+
+    builder.Services.AddScoped<SmtpEmailSender>();
+    builder.Services.AddScoped<IEmailSenderService, BestEffortEmailSender>();
 }
 else
 {
     builder.Services.Configure<SmtpOptions>(smtpSection);
-}
-
-var hasSmtpPassword = !string.IsNullOrWhiteSpace(builder.Configuration["MailKit:PasswordGmail"]);
-
-if (builder.Environment.IsDevelopment() && !hasSmtpPassword)
-{
     builder.Services.AddScoped<IEmailSenderService, ConsoleEmailSender>();
-}
-else
-{
-    builder.Services.AddScoped<SmtpEmailSender>();
-    builder.Services.AddScoped<IEmailSenderService, BestEffortEmailSender>();
 }
 
 builder.Services.AddScoped<IUserWriteService, UserService>();
@@ -246,11 +246,15 @@ if (swaggerEnabled)
     });
 }
 
-var connectionString = builder.Configuration.GetConnectionString("DbConnectionString")
+var rawConnectionString = builder.Configuration.GetConnectionString("DbConnectionString")
     ?? throw new InvalidOperationException("ConnectionStrings:DbConnectionString no está configurada. Defínela con User Secrets o la variable de entorno ConnectionStrings__DbConnectionString.");
+
+// Acepta tanto el formato Npgsql (Host=...;Port=...) como la URI que entrega Supabase.
+var connectionString = PostgresConnectionString.Normalize(rawConnectionString);
+
 builder.Services.AddDbContext<GCContext>(options => 
 {
-    options.UseSqlServer(connectionString);
+    options.UseNpgsql(connectionString);
 });
 
 builder.Services.AddScoped<DbSeeder>();
@@ -267,14 +271,22 @@ if (swaggerEnabled)
 
 app.UseMiddleware<GlobalExceptionHandlingMiddleware>();
 
+app.UseDefaultFiles();
+app.UseStaticFiles();
+
 app.UseCors("AuthDemo");
 
 app.UseAuthentication();
 app.UseAuthorization();
 
-app.MapControllers(); 
+app.MapControllers();
 
-app.MapGet("/", () => "API de GreenCongelados en funcionamiento.");
+app.MapGet("/health", () => Results.Ok(new
+{
+    status = "ok",
+    service = "GreenCongelados API",
+    timestamp = DateTime.UtcNow
+}));
 
 // Database startup: migraciones controladas por configuración y datos demo
 // idempotentes en cada arranque.

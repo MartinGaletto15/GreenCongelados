@@ -1,8 +1,13 @@
 # 0001 — Concurrencia de stock y transiciones de estado
 
+> **Actualización (2026-11-28):** el backend se migró a PostgreSQL (Supabase) para la demo en Render.
+> El patrón de compare-and-swap se mantiene: en PostgreSQL el `UPDATE ... WHERE` reevalúa la
+> condición bajo `READ COMMITTED`, así que el comportamiento esperado es el mismo. Las referencias
+> a SQL Server/T-SQL de esta nota quedan como contexto histórico.
+
 **Fecha:** 2026-11-24
 **Dónde:** `OrderService`, `ProductRepository`, `OrderRepository`, `CartItemRepository`
-**Stack:** .NET 8 · EF Core 8 · SQL Server
+**Stack:** .NET 8 · EF Core 8 · SQL Server (original) · PostgreSQL (actual)
 
 ## Qué pasaba
 
