@@ -1,0 +1,3023 @@
+<!DOCTYPE html>
+<!--
+  Landing de GreenCongelados API para GitHub Pages (origen: rama main, carpeta /docs).
+  La API publicada en Render sirve su propia landing desde src/Web/wwwroot/index.html.
+  Esta página corre en otro origen, por eso los enlaces a Swagger usan API_BASE_URL.
+-->
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>GreenCongelados API · Demo pública</title>
+  <meta name="description" content="Demo pública de GreenCongelados API: e-commerce de congelados con entrega a domicilio en Rosario. Backend .NET 8, EF Core 8 y PostgreSQL. Probá la API desde Swagger.">
+  <meta name="theme-color" content="#287a45">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="GreenCongelados API · Demo pública">
+  <meta property="og:description" content="Catálogo, carrito, checkout, cupones, logística y roles. Sin frontend: probá todo desde Swagger.">
+  <meta property="og:url" content="https://martingaletto15.github.io/GreenCongelados/">
+  <link rel="canonical" href="https://martingaletto15.github.io/GreenCongelados/">
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <style>
+    :root {
+      --green: #287a45;
+      --green-dark: #203b2a;
+      --green-deep: #15271d;
+      --bg: #f3f7f4;
+      --text: #203b2a;
+      --muted: #5b6b60;
+      --border: #dce9df;
+      --white: #ffffff;
+      --green-soft: #e7f2ea;
+      --green-line: #bcd9c4;
+      --amber-soft: #fffaf0;
+      --amber-line: #ecd9a8;
+      --amber-text: #6b501b;
+      --max: 1160px;
+      --radius: 12px;
+      --shadow: 0 1px 2px rgba(32, 59, 42, 0.04), 0 18px 40px -30px rgba(32, 59, 42, 0.32);
+      --font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+    }
+
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+      scroll-padding-top: 92px;
+    }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font);
+      font-size: 16px;
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+      text-rendering: optimizeLegibility;
+    }
+
+    ::selection {
+      background: #c9e5d2;
+      color: var(--green-dark);
+    }
+
+    a {
+      color: var(--green);
+      text-decoration-thickness: 1px;
+      text-underline-offset: 3px;
+    }
+
+    a:hover {
+      color: #1d5c34;
+    }
+
+    img,
+    svg {
+      display: block;
+      max-width: 100%;
+    }
+
+    button,
+    input,
+    textarea {
+      font: inherit;
+    }
+
+    :focus-visible {
+      outline: 3px solid #4a9a65;
+      outline-offset: 3px;
+      border-radius: 4px;
+    }
+
+    .container {
+      width: min(100% - 40px, var(--max));
+      margin-inline: auto;
+    }
+
+    .sr-only {
+      position: absolute !important;
+      width: 1px !important;
+      height: 1px !important;
+      padding: 0 !important;
+      margin: -1px !important;
+      overflow: hidden !important;
+      clip: rect(0, 0, 0, 0) !important;
+      white-space: nowrap !important;
+      border: 0 !important;
+    }
+
+    .skip-link {
+      position: fixed;
+      top: 10px;
+      left: 10px;
+      z-index: 100;
+      padding: 10px 16px;
+      border-radius: 8px;
+      background: var(--green-dark);
+      color: #fff;
+      font-weight: 700;
+      transform: translateY(-160%);
+      transition: transform 160ms ease;
+    }
+
+    .skip-link:focus {
+      transform: translateY(0);
+      color: #fff;
+    }
+
+    /* ---------- Barra superior ---------- */
+    .site-header {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      background: rgba(243, 247, 244, 0.9);
+      border-bottom: 1px solid rgba(220, 233, 223, 0.9);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+    }
+
+    .nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+      min-height: 68px;
+    }
+
+    .brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 11px;
+      color: var(--green-dark);
+      font-weight: 750;
+      font-size: 0.98rem;
+      letter-spacing: -0.015em;
+      text-decoration: none;
+      white-space: nowrap;
+    }
+
+    .brand:hover {
+      color: var(--green-dark);
+    }
+
+    .brand-mark {
+      display: grid;
+      place-items: center;
+      width: 38px;
+      height: 38px;
+      flex: none;
+      border-radius: 10px;
+      background: var(--green-dark);
+      color: #fff;
+      font-family: var(--mono);
+      font-size: 0.8rem;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+      box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.12);
+    }
+
+    .brand-sub {
+      color: var(--muted);
+      font-weight: 600;
+    }
+
+    .site-nav {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .nav-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      min-height: 40px;
+      padding: 0 11px;
+      border-radius: 8px;
+      color: var(--green-dark);
+      font-size: 0.84rem;
+      font-weight: 650;
+      text-decoration: none;
+      transition: background-color 140ms ease, color 140ms ease;
+    }
+
+    .nav-link:hover {
+      background: var(--green-soft);
+      color: var(--green);
+    }
+
+    .nav-link svg {
+      width: 13px;
+      height: 13px;
+      opacity: 0.7;
+    }
+
+    /* ---------- Hero ---------- */
+    .hero {
+      position: relative;
+      overflow: hidden;
+      padding: 84px 0 76px;
+    }
+
+    .hero::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      background-image:
+        linear-gradient(rgba(40, 122, 69, 0.055) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(40, 122, 69, 0.055) 1px, transparent 1px);
+      background-size: 44px 44px;
+      mask-image: linear-gradient(to bottom, #000 0%, rgba(0, 0, 0, 0.55) 55%, transparent 100%);
+      -webkit-mask-image: linear-gradient(to bottom, #000 0%, rgba(0, 0, 0, 0.55) 55%, transparent 100%);
+    }
+
+    .hero::after {
+      content: "";
+      position: absolute;
+      top: -180px;
+      right: -100px;
+      width: 520px;
+      height: 520px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(40, 122, 69, 0.12), transparent 68%);
+      pointer-events: none;
+    }
+
+    .hero-grid {
+      position: relative;
+      z-index: 1;
+      display: grid;
+      grid-template-columns: minmax(0, 1.18fr) minmax(320px, 0.82fr);
+      align-items: center;
+      gap: 64px;
+    }
+
+    .hero-copy,
+    .hero-panel {
+      min-width: 0;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 9px;
+      margin: 0 0 18px;
+      color: var(--green);
+      font-family: var(--mono);
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+
+    .eyebrow::before {
+      content: "";
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--green);
+      box-shadow: 0 0 0 4px rgba(40, 122, 69, 0.12);
+    }
+
+    h1,
+    h2,
+    h3 {
+      margin-top: 0;
+      color: var(--green-dark);
+      line-height: 1.15;
+      letter-spacing: -0.03em;
+    }
+
+    h1 {
+      max-width: 15ch;
+      margin-bottom: 20px;
+      font-size: clamp(2.7rem, 5.6vw, 4.5rem);
+      line-height: 1.02;
+      letter-spacing: -0.055em;
+    }
+
+    .hero-lead {
+      max-width: 62ch;
+      margin: 0 0 28px;
+      color: #46574b;
+      font-size: clamp(1rem, 1.4vw, 1.1rem);
+      line-height: 1.7;
+    }
+
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 22px;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 9px;
+      min-height: 46px;
+      padding: 0 18px;
+      border: 1px solid transparent;
+      border-radius: 9px;
+      font-size: 0.9rem;
+      font-weight: 700;
+      line-height: 1;
+      text-decoration: none;
+      cursor: pointer;
+      transition: background-color 150ms ease, border-color 150ms ease, color 150ms ease, transform 150ms ease;
+    }
+
+    .btn:active {
+      transform: translateY(1px);
+    }
+
+    .btn-primary {
+      background: var(--green);
+      border-color: var(--green);
+      color: #fff;
+      box-shadow: 0 8px 20px -12px rgba(40, 122, 69, 0.9);
+    }
+
+    .btn-primary:hover {
+      background: #206b3b;
+      border-color: #206b3b;
+      color: #fff;
+    }
+
+    .btn-secondary {
+      background: var(--white);
+      border-color: var(--border);
+      color: var(--green-dark);
+    }
+
+    .btn-secondary:hover {
+      background: #f8fbf9;
+      border-color: var(--green-line);
+      color: var(--green);
+    }
+
+    .btn svg {
+      width: 15px;
+      height: 15px;
+    }
+
+    .demo-badge {
+      display: inline-block;
+      max-width: 100%;
+      margin-bottom: 10px;
+      padding: 7px 11px;
+      border: 1px solid var(--green-line);
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.7);
+      color: #36533f;
+      font-family: var(--mono);
+      font-size: 0.68rem;
+      font-weight: 600;
+      letter-spacing: 0.01em;
+      line-height: 1.4;
+      overflow-wrap: break-word;
+    }
+
+    .demo-badge::before {
+      content: "";
+      display: inline-block;
+      width: 6px;
+      height: 6px;
+      margin-right: 8px;
+      border-radius: 50%;
+      background: var(--green);
+      vertical-align: 1px;
+    }
+
+    .hero-note {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.78rem;
+    }
+
+    .hero-note + .hero-note {
+      margin-top: 3px;
+    }
+
+    .quick-nav {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 4px 14px;
+      margin-top: 18px;
+      padding-top: 14px;
+      border-top: 1px solid rgba(220, 233, 223, 0.85);
+    }
+
+    .quick-nav-label {
+      color: #607266;
+      font-family: var(--mono);
+      font-size: 0.62rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .quick-nav a {
+      color: var(--muted);
+      font-size: 0.75rem;
+      font-weight: 650;
+      text-decoration: none;
+      transition: color 140ms ease;
+    }
+
+    .quick-nav a:hover {
+      color: var(--green);
+    }
+
+    /* ---------- Panel del hero ---------- */
+    .hero-panel {
+      position: relative;
+      overflow: hidden;
+      padding: 22px;
+      border: 1px solid #2b4635;
+      border-radius: 16px;
+      background: var(--green-deep);
+      color: #dbeadf;
+      box-shadow: 0 24px 60px -32px rgba(21, 39, 29, 0.85);
+    }
+
+    .hero-panel::after {
+      content: "";
+      position: absolute;
+      top: -80px;
+      right: -70px;
+      width: 220px;
+      height: 220px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(89, 172, 116, 0.2), transparent 68%);
+      pointer-events: none;
+    }
+
+    .panel-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding-bottom: 14px;
+      border-bottom: 1px solid #2b4635;
+    }
+
+    .panel-label {
+      color: #a9c4b2;
+      font-family: var(--mono);
+      font-size: 0.68rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+
+    .panel-state {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      color: #b8d7c1;
+      font-family: var(--mono);
+      font-size: 0.66rem;
+    }
+
+    .panel-state::before {
+      content: "";
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #79c894;
+      box-shadow: 0 0 0 3px rgba(121, 200, 148, 0.14);
+    }
+
+    .spec-list {
+      display: grid;
+      gap: 0;
+      margin: 8px 0 16px;
+    }
+
+    .spec-row {
+      display: grid;
+      grid-template-columns: 104px minmax(0, 1fr);
+      gap: 12px;
+      padding: 10px 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+    }
+
+    .spec-row dt {
+      color: #8fab99;
+      font-size: 0.72rem;
+    }
+
+    .spec-row dd {
+      margin: 0;
+      color: #e4f0e7;
+      font-size: 0.78rem;
+      font-weight: 600;
+    }
+
+    .panel-routes {
+      display: grid;
+      gap: 7px;
+      margin-bottom: 14px;
+    }
+
+    .panel-route {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      padding: 8px 10px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.035);
+    }
+
+    .panel-route code {
+      overflow: hidden;
+      color: #d7e8dc;
+      font-family: var(--mono);
+      font-size: 0.73rem;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .panel-note {
+      margin: 0;
+      color: #8fab99;
+      font-size: 0.71rem;
+      line-height: 1.55;
+    }
+
+    /* ---------- Secciones ---------- */
+    .section {
+      padding: 76px 0;
+    }
+
+    .section--white {
+      border-block: 1px solid var(--border);
+      background: var(--white);
+    }
+
+    .section-head {
+      max-width: 720px;
+      margin-bottom: 34px;
+    }
+
+    .section-head .eyebrow {
+      margin-bottom: 12px;
+    }
+
+    .section-head h2 {
+      margin-bottom: 12px;
+      font-size: clamp(1.7rem, 3vw, 2.3rem);
+    }
+
+    .section-head p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.98rem;
+      line-height: 1.7;
+    }
+
+    /* ---------- Tarjetas de funcionalidades ---------- */
+    .feature-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 18px;
+    }
+
+    .feature-card {
+      position: relative;
+      padding: 24px 22px 22px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: var(--white);
+      box-shadow: var(--shadow);
+    }
+
+    .feature-top {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+
+    .feature-icon {
+      display: grid;
+      place-items: center;
+      width: 42px;
+      height: 42px;
+      border-radius: 10px;
+      background: var(--green-soft);
+      color: var(--green);
+    }
+
+    .feature-icon svg {
+      width: 21px;
+      height: 21px;
+    }
+
+    .feature-index {
+      color: #607266;
+      font-family: var(--mono);
+      font-size: 0.65rem;
+      letter-spacing: 0.08em;
+    }
+
+    .feature-card h3 {
+      margin-bottom: 8px;
+      font-size: 1rem;
+      letter-spacing: -0.015em;
+    }
+
+    .feature-card p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.84rem;
+      line-height: 1.65;
+    }
+
+    /* ---------- Credenciales ---------- */
+    .cred-panel {
+      overflow: hidden;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      background: var(--white);
+      box-shadow: var(--shadow);
+    }
+
+    .table-wrap {
+      overflow-x: auto;
+    }
+
+    .cred-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.86rem;
+    }
+
+    .cred-table caption {
+      text-align: left;
+    }
+
+    .cred-table thead th {
+      padding: 13px 18px;
+      border-bottom: 1px solid var(--border);
+      background: #f8fbf9;
+      color: #63766a;
+      font-family: var(--mono);
+      font-size: 0.65rem;
+      font-weight: 700;
+      letter-spacing: 0.09em;
+      text-align: left;
+      text-transform: uppercase;
+    }
+
+    .cred-table tbody tr + tr {
+      border-top: 1px solid #eaf2ec;
+    }
+
+    .cred-table tbody th,
+    .cred-table tbody td {
+      padding: 16px 18px;
+      text-align: left;
+      vertical-align: top;
+    }
+
+    .cred-table tbody th {
+      width: 116px;
+      font-weight: 400;
+    }
+
+    .cred-table tbody td {
+      color: var(--muted);
+    }
+
+    .cred-table td:nth-child(2) {
+      width: 36%;
+    }
+
+    .cred-table td:nth-child(3) {
+      width: 17%;
+    }
+
+    .role-badge {
+      display: inline-flex;
+      align-items: center;
+      min-height: 24px;
+      padding: 0 8px;
+      border: 1px solid var(--green-line);
+      border-radius: 6px;
+      background: var(--green-soft);
+      color: #1f6538;
+      font-family: var(--mono);
+      font-size: 0.68rem;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      white-space: nowrap;
+    }
+
+    .role-badge--cadet {
+      border-color: #c9dcf3;
+      background: #eaf2fd;
+      color: #1f5590;
+    }
+
+    .role-badge--admin {
+      border-color: #d8c9ec;
+      background: #f3edfb;
+      color: #5b3a86;
+    }
+
+    .cell-value {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .cell-value code {
+      color: var(--green-dark);
+      font-family: var(--mono);
+      font-size: 0.78rem;
+      overflow-wrap: anywhere;
+    }
+
+    .copy-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 5px;
+      min-width: 82px;
+      min-height: 34px;
+      padding: 0 9px;
+      border: 1px solid var(--border);
+      border-radius: 7px;
+      background: var(--white);
+      color: var(--green);
+      font-size: 0.72rem;
+      font-weight: 700;
+      line-height: 1;
+      cursor: pointer;
+      transition: background-color 140ms ease, border-color 140ms ease, color 140ms ease;
+    }
+
+    .copy-btn:hover {
+      border-color: var(--green-line);
+      background: var(--green-soft);
+    }
+
+    .copy-btn.is-copied {
+      border-color: var(--green);
+      background: var(--green);
+      color: #fff;
+    }
+
+    .copy-btn svg {
+      width: 12px;
+      height: 12px;
+    }
+
+    .cred-notes {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px 22px;
+      margin: 20px 0 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .cred-notes li {
+      position: relative;
+      padding-left: 24px;
+      color: var(--muted);
+      font-size: 0.81rem;
+      line-height: 1.55;
+    }
+
+    .cred-notes li::before {
+      content: "";
+      position: absolute;
+      top: 0.48em;
+      left: 4px;
+      width: 7px;
+      height: 7px;
+      border: 2px solid var(--green);
+      border-radius: 50%;
+    }
+
+    .cred-notes strong {
+      color: var(--green-dark);
+      font-weight: 650;
+    }
+
+    .cred-notes code {
+      padding: 1px 5px;
+      border-radius: 4px;
+      background: var(--green-soft);
+      color: #1f6538;
+      font-family: var(--mono);
+      font-size: 0.76rem;
+    }
+
+    /* ---------- Bloques de código y métodos HTTP ---------- */
+    .method {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 48px;
+      padding: 4px 6px;
+      border-radius: 5px;
+      font-family: var(--mono);
+      font-size: 0.62rem;
+      font-weight: 800;
+      letter-spacing: 0.04em;
+      line-height: 1.2;
+      white-space: nowrap;
+    }
+
+    .method--get {
+      background: #dcf3e4;
+      color: #12602f;
+    }
+
+    .method--post {
+      background: #e2eefc;
+      color: #1a5fa8;
+    }
+
+    .method--put {
+      background: #fdf0d5;
+      color: #845700;
+    }
+
+    .method--patch {
+      background: #f1e8fc;
+      color: #643b96;
+    }
+
+    .method--delete {
+      background: #fde4e4;
+      color: #9c2727;
+    }
+
+    .code-block {
+      min-width: 0;
+      overflow: hidden;
+      margin: 10px 0 0;
+      border: 1px solid #2a4334;
+      border-radius: 10px;
+      background: var(--green-deep);
+      box-shadow: 0 14px 30px -24px rgba(21, 39, 29, 0.9);
+    }
+
+    .code-head {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      min-width: 0;
+      min-height: 42px;
+      padding: 6px 8px 6px 12px;
+      border-bottom: 1px solid #2a4334;
+      background: #1b3024;
+    }
+
+    .code-path {
+      flex: 1;
+      min-width: 0;
+      overflow: hidden;
+      color: #c9ddcf;
+      font-family: var(--mono);
+      font-size: 0.7rem;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .code-meta {
+      color: #7f9d8a;
+      font-family: var(--mono);
+      font-size: 0.6rem;
+      letter-spacing: 0.04em;
+      white-space: nowrap;
+    }
+
+    .copy-btn--dark {
+      min-width: 72px;
+      min-height: 30px;
+      border-color: #3a5645;
+      background: transparent;
+      color: #cfe3d5;
+    }
+
+    .copy-btn--dark:hover {
+      border-color: #5b7d66;
+      background: rgba(255, 255, 255, 0.07);
+      color: #fff;
+    }
+
+    .copy-btn--dark.is-copied {
+      border-color: #79c894;
+      background: #2c5a3b;
+      color: #fff;
+    }
+
+    .code-block pre {
+      max-width: 100%;
+      margin: 0;
+      padding: 13px 15px 15px;
+      overflow-x: auto;
+      color: #e4f0e7;
+      font-family: var(--mono);
+      font-size: 0.74rem;
+      line-height: 1.65;
+      tab-size: 2;
+    }
+
+    .code-block pre code {
+      padding: 0;
+      background: transparent;
+      color: inherit;
+      font: inherit;
+      white-space: pre;
+    }
+
+    .code-block pre:focus-visible {
+      outline-color: #79c894;
+      outline-offset: -3px;
+    }
+
+    .endpoint {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 8px;
+      min-width: 0;
+      max-width: 100%;
+      margin: 9px 0 0;
+      padding: 7px 9px;
+      border: 1px solid var(--border);
+      border-radius: 7px;
+      background: #f8fbf9;
+    }
+
+    .endpoint code {
+      min-width: 0;
+      color: var(--green-dark);
+      font-family: var(--mono);
+      font-size: 0.73rem;
+      overflow-wrap: break-word;
+      white-space: normal;
+    }
+
+    /* ---------- Aviso de dirección ---------- */
+    .address-section {
+      padding-top: 0;
+    }
+
+    .callout {
+      position: relative;
+      overflow: hidden;
+      padding: 28px;
+      border: 1px solid var(--amber-line);
+      border-radius: 16px;
+      background: var(--amber-soft);
+    }
+
+    .callout::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 4px;
+      height: 100%;
+      background: #d7a83c;
+    }
+
+    .callout-head {
+      display: flex;
+      align-items: flex-start;
+      gap: 13px;
+      margin-bottom: 14px;
+    }
+
+    .callout-icon {
+      display: grid;
+      place-items: center;
+      width: 38px;
+      height: 38px;
+      flex: none;
+      border: 1px solid #ead8ab;
+      border-radius: 9px;
+      background: #fffdf7;
+      color: #8a6416;
+    }
+
+    .callout-icon svg {
+      width: 19px;
+      height: 19px;
+    }
+
+    .callout-kicker {
+      margin: 0 0 2px;
+      color: #8a6416;
+      font-family: var(--mono);
+      font-size: 0.65rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+
+    .callout h2 {
+      margin: 0;
+      font-size: clamp(1.35rem, 2.4vw, 1.8rem);
+    }
+
+    .callout > p {
+      max-width: 78ch;
+      margin: 0 0 14px;
+      color: var(--amber-text);
+      font-size: 0.9rem;
+      line-height: 1.7;
+    }
+
+    .callout code {
+      padding: 1px 5px;
+      border-radius: 4px;
+      background: rgba(138, 100, 22, 0.09);
+      color: #6b501b;
+      font-family: var(--mono);
+      font-size: 0.82em;
+      overflow-wrap: anywhere;
+    }
+
+    .callout .endpoint code {
+      padding: 0;
+      background: transparent;
+      color: var(--green-dark);
+      font-size: 0.73rem;
+    }
+
+    .address-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px;
+      margin-top: 16px;
+    }
+
+    .address-step h3 {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 4px 7px;
+      margin: 0 0 4px;
+      color: #5c4718;
+      font-size: 0.85rem;
+      letter-spacing: 0;
+    }
+
+    .address-step h3 code {
+      overflow-wrap: normal;
+      white-space: nowrap;
+    }
+
+    .address-step p {
+      margin: 0;
+      color: #7b622d;
+      font-size: 0.79rem;
+      line-height: 1.55;
+    }
+
+    .callout-foot {
+      margin: 18px 0 0;
+      padding-top: 14px;
+      border-top: 1px solid #eadfca;
+      color: #7b622d;
+      font-size: 0.79rem;
+      line-height: 1.6;
+    }
+
+    .callout-foot strong {
+      color: #5c4718;
+    }
+
+    /* ---------- Recorridos ---------- */
+    .tracks {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 18px;
+      align-items: stretch;
+    }
+
+    .track {
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+      padding: 22px;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      background: var(--white);
+      box-shadow: var(--shadow);
+    }
+
+    .track-head {
+      display: flex;
+      align-items: center;
+      gap: 11px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid #eaf2ec;
+    }
+
+    .track-icon {
+      display: grid;
+      place-items: center;
+      width: 38px;
+      height: 38px;
+      flex: none;
+      border-radius: 9px;
+      background: var(--green-soft);
+      color: var(--green);
+    }
+
+    .track-icon svg {
+      width: 19px;
+      height: 19px;
+    }
+
+    .track-title {
+      min-width: 0;
+      flex: 1;
+    }
+
+    .track-kicker {
+      margin: 0 0 1px;
+      color: #607266;
+      font-family: var(--mono);
+      font-size: 0.6rem;
+      font-weight: 700;
+      letter-spacing: 0.09em;
+      text-transform: uppercase;
+    }
+
+    .track h3 {
+      margin: 0;
+      font-size: 1rem;
+      letter-spacing: -0.015em;
+    }
+
+    .track .role-badge {
+      flex: none;
+    }
+
+    .track .code-meta {
+      display: none;
+    }
+
+    .track-intro {
+      margin: 14px 0 0;
+      color: var(--muted);
+      font-size: 0.79rem;
+      line-height: 1.6;
+    }
+
+    .steps {
+      display: grid;
+      gap: 17px;
+      margin: 18px 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .steps > li {
+      min-width: 0;
+      padding-top: 16px;
+      border-top: 1px dashed #e2ece5;
+    }
+
+    .steps > li:first-child {
+      padding-top: 0;
+      border-top: 0;
+    }
+
+    .step-head {
+      display: flex;
+      align-items: flex-start;
+      gap: 9px;
+    }
+
+    .step-num {
+      display: grid;
+      place-items: center;
+      width: 22px;
+      height: 22px;
+      flex: none;
+      margin-top: 1px;
+      border-radius: 50%;
+      background: var(--green-soft);
+      color: #1f6538;
+      font-family: var(--mono);
+      font-size: 0.62rem;
+      font-weight: 800;
+    }
+
+    .step-title {
+      margin: 0;
+      color: var(--green-dark);
+      font-size: 0.82rem;
+      font-weight: 700;
+      line-height: 1.45;
+    }
+
+    .step-text {
+      margin: 5px 0 0 31px;
+      color: var(--muted);
+      font-size: 0.76rem;
+      line-height: 1.55;
+    }
+
+    .step-text code {
+      color: var(--green-dark);
+      font-family: var(--mono);
+      font-size: 0.72rem;
+      overflow-wrap: anywhere;
+    }
+
+    .steps .endpoint {
+      margin-left: 31px;
+    }
+
+    .steps .code-block {
+      margin-left: 31px;
+    }
+
+    .coupon-row {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 7px;
+      margin: 8px 0 0 31px;
+      padding: 6px 8px;
+      border: 1px dashed var(--green-line);
+      border-radius: 7px;
+      background: #f8fbf9;
+      color: var(--muted);
+      font-size: 0.7rem;
+    }
+
+    .coupon-row code {
+      color: #1f6538;
+      font-family: var(--mono);
+      font-size: 0.72rem;
+      font-weight: 700;
+    }
+
+    .coupon-row .copy-btn {
+      min-width: 66px;
+      min-height: 28px;
+      margin-left: auto;
+      font-size: 0.66rem;
+    }
+
+    .track-tip {
+      margin: auto 0 0;
+      padding-top: 13px;
+      border-top: 1px solid #eaf2ec;
+      color: #63766a;
+      font-size: 0.72rem;
+      line-height: 1.55;
+    }
+
+    .track-tip strong {
+      color: var(--green-dark);
+    }
+
+    /* ---------- Qué mirar en el código ---------- */
+    .watch-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.18fr) minmax(300px, 0.82fr);
+      gap: 36px;
+      align-items: start;
+    }
+
+    .watch-list {
+      display: grid;
+      gap: 0;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+      border-top: 1px solid var(--border);
+    }
+
+    .watch-item {
+      display: grid;
+      grid-template-columns: 30px minmax(0, 1fr);
+      gap: 14px;
+      padding: 18px 0;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .watch-num {
+      padding-top: 2px;
+      color: #607266;
+      font-family: var(--mono);
+      font-size: 0.66rem;
+      font-weight: 700;
+    }
+
+    .watch-item h3 {
+      margin: 0 0 4px;
+      font-size: 0.92rem;
+      letter-spacing: -0.01em;
+    }
+
+    .watch-item p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.8rem;
+      line-height: 1.6;
+    }
+
+    .watch-item p code {
+      padding: 1px 4px;
+      border-radius: 4px;
+      background: #eaf2ec;
+      color: var(--green-dark);
+      font-family: var(--mono);
+      font-size: 0.72rem;
+    }
+
+    .watch-item a {
+      font-weight: 600;
+    }
+
+    .repo-card {
+      padding: 22px;
+      border: 1px solid #2b4635;
+      border-radius: 14px;
+      background: var(--green-deep);
+      color: #dbeadf;
+      box-shadow: 0 24px 50px -34px rgba(21, 39, 29, 0.85);
+    }
+
+    .repo-card h3 {
+      margin: 0 0 4px;
+      color: #eef7f0;
+      font-size: 0.92rem;
+      letter-spacing: -0.01em;
+    }
+
+    .repo-card > p {
+      margin: 0 0 18px;
+      color: #91ad9b;
+      font-size: 0.73rem;
+      line-height: 1.55;
+    }
+
+    .layer-map {
+      display: grid;
+      gap: 6px;
+      margin-bottom: 18px;
+    }
+
+    .layer {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      padding: 8px 10px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 7px;
+      background: rgba(255, 255, 255, 0.035);
+    }
+
+    .layer-num {
+      color: #9cb6a4;
+      font-family: var(--mono);
+      font-size: 0.6rem;
+    }
+
+    .layer strong {
+      color: #dcebe0;
+      font-family: var(--mono);
+      font-size: 0.72rem;
+      font-weight: 700;
+    }
+
+    .layer span:last-child {
+      margin-left: auto;
+      color: #8fab99;
+      font-size: 0.65rem;
+    }
+
+    .repo-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 7px;
+    }
+
+    .repo-actions .btn {
+      min-height: 38px;
+      padding: 0 12px;
+      border-color: rgba(255, 255, 255, 0.16);
+      background: rgba(255, 255, 255, 0.06);
+      color: #e4f0e7;
+      font-size: 0.72rem;
+      box-shadow: none;
+    }
+
+    .repo-actions .btn:hover {
+      border-color: rgba(255, 255, 255, 0.3);
+      background: rgba(255, 255, 255, 0.11);
+      color: #fff;
+    }
+
+    /* ---------- Limitaciones ---------- */
+    .limits-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .limit-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 11px;
+      padding: 16px 18px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: var(--white);
+    }
+
+    .limit-item:last-child:nth-child(odd) {
+      grid-column: 1 / -1;
+    }
+
+    .limit-icon {
+      display: grid;
+      place-items: center;
+      width: 26px;
+      height: 26px;
+      flex: none;
+      border-radius: 50%;
+      background: var(--green-soft);
+      color: var(--green);
+    }
+
+    .limit-icon svg {
+      width: 13px;
+      height: 13px;
+    }
+
+    .limit-item p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.55;
+    }
+
+    .limit-item strong {
+      color: var(--green-dark);
+      font-weight: 650;
+    }
+
+    /* ---------- Footer ---------- */
+    .site-footer {
+      background: var(--green-dark);
+      color: #c9ddcf;
+    }
+
+    .footer-main {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 30px;
+      align-items: start;
+      padding: 46px 0 34px;
+    }
+
+    .footer-brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 12px;
+      color: #fff;
+      font-size: 0.95rem;
+      font-weight: 700;
+    }
+
+    .footer-brand .brand-mark {
+      background: rgba(255, 255, 255, 0.1);
+      box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.14);
+    }
+
+    .footer-note {
+      max-width: 48ch;
+      margin: 0;
+      color: #9cb6a4;
+      font-size: 0.79rem;
+      line-height: 1.65;
+    }
+
+    .footer-note a {
+      color: #d8eadc;
+    }
+
+    .footer-note a:hover {
+      color: #fff;
+    }
+
+    .stack-label {
+      margin: 0 0 8px;
+      color: #9cb6a4;
+      font-family: var(--mono);
+      font-size: 0.62rem;
+      font-weight: 700;
+      letter-spacing: 0.09em;
+      text-transform: uppercase;
+    }
+
+    .stack {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      max-width: 360px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .stack-pill {
+      padding: 4px 8px;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 5px;
+      background: rgba(255, 255, 255, 0.045);
+      color: #c9ddcf;
+      font-family: var(--mono);
+      font-size: 0.64rem;
+      white-space: nowrap;
+    }
+
+    .footer-bottom {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 16px 0 22px;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+      color: #9cb6a4;
+      font-size: 0.7rem;
+    }
+
+    .footer-bottom a {
+      color: #b8d0bf;
+    }
+
+    .footer-bottom a:hover {
+      color: #fff;
+    }
+
+    @media (max-width: 1100px) {
+      .hero-grid {
+        gap: 42px;
+      }
+
+      .feature-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .tracks {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .track:last-child {
+        grid-column: 1 / -1;
+      }
+    }
+
+    @media (max-width: 960px) {
+      .hero {
+        padding: 64px 0 58px;
+      }
+
+      .hero-grid {
+        grid-template-columns: 1fr;
+        gap: 36px;
+      }
+
+      .hero-panel {
+        max-width: 620px;
+      }
+
+      .tracks {
+        grid-template-columns: 1fr;
+        max-width: 760px;
+      }
+
+      .track:last-child {
+        grid-column: auto;
+      }
+
+      .watch-grid {
+        grid-template-columns: 1fr;
+        gap: 28px;
+      }
+
+      .repo-card {
+        max-width: 620px;
+      }
+
+      .address-step .code-meta {
+        display: none;
+      }
+    }
+
+    @media (max-width: 760px) {
+      .container {
+        width: min(100% - 36px, var(--max));
+      }
+
+      .section {
+        padding: 56px 0;
+      }
+
+      .hero {
+        padding: 52px 0 48px;
+      }
+
+      .hero-lead {
+        margin-bottom: 24px;
+      }
+
+      .section-head {
+        margin-bottom: 26px;
+      }
+
+      .address-section {
+        padding-top: 0;
+      }
+
+      .callout {
+        padding: 22px 20px;
+      }
+
+      .address-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .cred-notes {
+        grid-template-columns: 1fr;
+      }
+
+      .table-wrap {
+        overflow: visible;
+      }
+
+      .cred-table,
+      .cred-table thead,
+      .cred-table tbody,
+      .cred-table tr,
+      .cred-table th,
+      .cred-table td {
+        display: block;
+        width: 100%;
+      }
+
+      .cred-table thead {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        overflow: hidden;
+        clip: rect(0, 0, 0, 0);
+        white-space: nowrap;
+      }
+
+      .cred-table tbody {
+        padding: 10px;
+      }
+
+      .cred-table tbody tr {
+        padding: 13px 14px 14px;
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        background: #fdfefd;
+      }
+
+      .cred-table tbody tr + tr {
+        margin-top: 10px;
+        border-top: 1px solid var(--border);
+      }
+
+      .cred-table tbody th {
+        width: auto;
+        padding: 0 0 9px;
+      }
+
+      .cred-table tbody td,
+      .cred-table td:nth-child(2),
+      .cred-table td:nth-child(3) {
+        display: grid;
+        grid-template-columns: 84px minmax(0, 1fr);
+        gap: 10px;
+        width: 100%;
+        padding: 8px 0 0;
+        border-top: 1px dashed #eaf2ec;
+      }
+
+      .cred-table tbody td::before {
+        content: attr(data-label);
+        color: #7b8d81;
+        font-family: var(--mono);
+        font-size: 0.6rem;
+        font-weight: 700;
+        letter-spacing: 0.06em;
+        line-height: 1.8;
+        text-transform: uppercase;
+      }
+
+      .cell-value {
+        align-items: flex-start;
+      }
+
+      .footer-main {
+        grid-template-columns: 1fr;
+        gap: 24px;
+        padding-top: 38px;
+      }
+
+      .stack {
+        max-width: none;
+      }
+
+      .footer-bottom {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 6px;
+      }
+    }
+
+    @media (max-width: 620px) {
+      .feature-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .feature-card {
+        padding: 20px;
+      }
+
+      .feature-top {
+        margin-bottom: 14px;
+      }
+
+      .limits-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .limit-item:last-child:nth-child(odd) {
+        grid-column: auto;
+      }
+
+      .actions {
+        display: grid;
+        grid-template-columns: 1fr;
+      }
+
+      .actions .btn {
+        width: 100%;
+      }
+    }
+
+    @media (max-width: 520px) {
+      .container {
+        width: min(100% - 32px, var(--max));
+      }
+
+      .nav {
+        flex-wrap: wrap;
+        min-height: 62px;
+        gap: 4px 8px;
+        padding-block: 10px;
+      }
+
+      .site-nav {
+        margin-left: auto;
+      }
+
+      .brand {
+        gap: 8px;
+        font-size: 0.87rem;
+      }
+
+      .brand-mark {
+        width: 34px;
+        height: 34px;
+        border-radius: 9px;
+        font-size: 0.72rem;
+      }
+
+      .site-nav {
+        gap: 2px;
+      }
+
+      .nav-link {
+        min-height: 38px;
+        padding: 0 7px;
+        font-size: 0.76rem;
+      }
+
+      .nav-link svg {
+        display: none;
+      }
+
+      h1 {
+        font-size: 2.3rem;
+        overflow-wrap: anywhere;
+      }
+
+      .section {
+        padding: 44px 0;
+      }
+
+      .hero {
+        padding: 44px 0 40px;
+      }
+
+      .hero-panel {
+        padding: 18px;
+      }
+
+      .spec-row {
+        grid-template-columns: 88px minmax(0, 1fr);
+      }
+
+      .callout {
+        padding: 20px 17px;
+      }
+
+      .callout-head {
+        gap: 10px;
+      }
+
+      .callout-icon {
+        width: 34px;
+        height: 34px;
+      }
+
+      .track {
+        padding: 18px;
+      }
+
+      .track-head {
+        flex-wrap: wrap;
+      }
+
+      .track .role-badge {
+        margin-left: 49px;
+      }
+
+      .steps .endpoint,
+      .steps .code-block,
+      .coupon-row {
+        margin-left: 0;
+      }
+
+      .step-text {
+        margin-left: 0;
+      }
+
+      .code-block pre {
+        padding: 12px;
+        font-size: 0.7rem;
+      }
+
+      .code-meta {
+        display: none;
+      }
+
+      .cred-table tbody td,
+      .cred-table td:nth-child(2),
+      .cred-table td:nth-child(3) {
+        grid-template-columns: 1fr;
+        gap: 2px;
+      }
+
+      .cred-table tbody td::before {
+        line-height: 1.5;
+      }
+
+      .footer-main {
+        padding: 32px 0 26px;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      html {
+        scroll-behavior: auto;
+      }
+
+      *,
+      *::before,
+      *::after {
+        transition-duration: 0.01ms !important;
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <a class="skip-link" href="#contenido">Saltar al contenido</a>
+  <header class="site-header">
+    <div class="container nav">
+      <a class="brand" href="#top" aria-label="GreenCongelados API, ir al inicio">
+        <span class="brand-mark" aria-hidden="true">GC</span>
+        <span>GreenCongelados <span class="brand-sub">API</span></span>
+      </a>
+      <nav class="site-nav" aria-label="Enlaces principales">
+        <a class="nav-link" href="#" data-api-path="/swagger" target="_blank" rel="noopener noreferrer">
+          Swagger
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+            <path d="M7 17 17 7"></path>
+            <path d="M7 7h10v10"></path>
+          </svg>
+        </a>
+        <a class="nav-link" href="https://github.com/MartinGaletto15/GreenCongelados" target="_blank" rel="noopener noreferrer">
+          GitHub
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+            <path d="M7 17 17 7"></path>
+            <path d="M7 7h10v10"></path>
+          </svg>
+        </a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="contenido">
+    <section class="hero" id="top" aria-labelledby="hero-title">
+      <div class="container hero-grid">
+        <div class="hero-copy">
+          <p class="eyebrow">Backend demo · .NET 8</p>
+          <h1 id="hero-title">GreenCongelados API</h1>
+          <p class="hero-lead">
+            E-commerce de congelados con entrega a domicilio en Rosario. Catálogo, carrito,
+            checkout, cupones, logística y roles. Sin frontend: probala desde Swagger.
+          </p>
+          <div class="actions">
+            <a class="btn btn-primary" href="#" data-api-path="/swagger" target="_blank" rel="noopener noreferrer">
+              Abrir Swagger
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+                <path d="M7 17 17 7"></path>
+                <path d="M7 7h10v10"></path>
+              </svg>
+            </a>
+            <a class="btn btn-secondary" href="https://github.com/MartinGaletto15/GreenCongelados" target="_blank" rel="noopener noreferrer">
+              Ver código
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+                <path d="m9 18-6-6 6-6"></path>
+                <path d="m15 6 6 6-6 6"></path>
+              </svg>
+            </a>
+          </div>
+          <p class="demo-badge">Demo pública · datos ficticios · sin pagos reales</p>
+          <p class="hero-note">No hay pagos ni entregas reales: el checkout solo crea la orden.</p>
+          <p class="hero-note">Si Swagger tarda en cargar, la instancia gratuita de Render puede estar iniciándose.</p>
+          <nav class="quick-nav" aria-label="Secciones de esta página">
+            <span class="quick-nav-label">En esta página</span>
+            <a href="#probar">Funcionalidades</a>
+            <a href="#credenciales">Credenciales</a>
+            <a href="#direccion">Dirección</a>
+            <a href="#recorrido">Recorrido</a>
+            <a href="#codigo">Código</a>
+          </nav>
+        </div>
+
+        <aside class="hero-panel" aria-label="Resumen técnico de la API">
+          <div class="panel-top">
+            <span class="panel-label">API / resumen</span>
+            <span class="panel-state">demo</span>
+          </div>
+          <dl class="spec-list">
+            <div class="spec-row">
+              <dt>Entorno</dt>
+              <dd>.NET 8 · ASP.NET Core</dd>
+            </div>
+            <div class="spec-row">
+              <dt>Persistencia</dt>
+              <dd>EF Core 8 · PostgreSQL</dd>
+            </div>
+            <div class="spec-row">
+              <dt>Auth</dt>
+              <dd>JWT Bearer · roles</dd>
+            </div>
+            <div class="spec-row">
+              <dt>Interfaz</dt>
+              <dd>Swagger UI</dd>
+            </div>
+          </dl>
+          <div class="panel-routes" aria-label="Endpoints de ejemplo">
+            <div class="panel-route">
+              <span class="method method--get">GET</span>
+              <code>/api/products</code>
+            </div>
+            <div class="panel-route">
+              <span class="method method--post">POST</span>
+              <code>/api/orders</code>
+            </div>
+            <div class="panel-route">
+              <span class="method method--get">GET</span>
+              <code>/api/orders/me</code>
+            </div>
+          </div>
+          <p class="panel-note">Swagger es la interfaz. No hay frontend ni llamadas desde esta página.</p>
+        </aside>
+      </div>
+    </section>
+
+    <section class="section" id="probar" aria-labelledby="probar-title">
+      <div class="container">
+        <div class="section-head">
+          <p class="eyebrow">Alcance funcional</p>
+          <h2 id="probar-title">Qué podés probar</h2>
+          <p>La API cubre el flujo completo de una tienda de congelados, desde el catálogo hasta la entrega.</p>
+        </div>
+        <div class="feature-grid">
+          <article class="feature-card">
+            <div class="feature-top">
+              <span class="feature-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" focusable="false">
+                  <path d="M21 8 12 3 3 8l9 5 9-5Z"></path>
+                  <path d="M3 8v8l9 5 9-5V8"></path>
+                  <path d="M12 13v8"></path>
+                </svg>
+              </span>
+              <span class="feature-index">01</span>
+            </div>
+            <h3>Catálogo y stock</h3>
+            <p>Productos, categorías, visibilidad y stock derivado del estado real de cada artículo.</p>
+          </article>
+
+          <article class="feature-card">
+            <div class="feature-top">
+              <span class="feature-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" focusable="false">
+                  <circle cx="9" cy="20" r="1.5"></circle>
+                  <circle cx="18" cy="20" r="1.5"></circle>
+                  <path d="M3 4h2l2.4 10.2a2 2 0 0 0 2 1.6h7.7a2 2 0 0 0 2-1.6L21 7H6"></path>
+                </svg>
+              </span>
+              <span class="feature-index">02</span>
+            </div>
+            <h3>Carrito y checkout</h3>
+            <p>Validación de stock, cupón, costo de envío y creación de la orden en una operación atómica.</p>
+          </article>
+
+          <article class="feature-card">
+            <div class="feature-top">
+              <span class="feature-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" focusable="false">
+                  <path d="M3 6h11v10H3z"></path>
+                  <path d="M14 10h4l3 3v3h-7z"></path>
+                  <circle cx="7" cy="18.5" r="2"></circle>
+                  <circle cx="17.5" cy="18.5" r="2"></circle>
+                </svg>
+              </span>
+              <span class="feature-index">03</span>
+            </div>
+            <h3>Logística</h3>
+            <p>Asignación de cadete, cambios de estado y cancelación con restitución de stock.</p>
+          </article>
+
+          <article class="feature-card">
+            <div class="feature-top">
+              <span class="feature-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" focusable="false">
+                  <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
+                  <circle cx="9" cy="7" r="4"></circle>
+                  <path d="M22 21v-2a4 4 0 0 0-3-3.87"></path>
+                  <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                </svg>
+              </span>
+              <span class="feature-index">04</span>
+            </div>
+            <h3>Cuentas y roles</h3>
+            <p>JWT, <code>SUPERADMIN</code>, <code>ADMIN</code>, <code>USER</code> y <code>CADET</code> con permisos separados.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section section--white" id="credenciales" aria-labelledby="credenciales-title">
+      <div class="container">
+        <div class="section-head">
+          <p class="eyebrow">Acceso</p>
+          <h2 id="credenciales-title">Credenciales demo</h2>
+          <p>Tres cuentas listas para probar. Copiá el email y la contraseña, y usalos en el login de Swagger.</p>
+        </div>
+
+        <div class="cred-panel">
+          <div class="table-wrap" tabindex="0" role="region" aria-label="Tabla de credenciales demo">
+            <table class="cred-table" role="table">
+              <caption class="sr-only">Credenciales demo: rol, email, contraseña y permisos</caption>
+              <thead role="rowgroup">
+                <tr role="row">
+                  <th scope="col" role="columnheader">Rol</th>
+                  <th scope="col" role="columnheader">Email</th>
+                  <th scope="col" role="columnheader">Contraseña</th>
+                  <th scope="col" role="columnheader">Permisos</th>
+                </tr>
+              </thead>
+              <tbody role="rowgroup">
+                <tr role="row">
+                  <th scope="row" role="rowheader"><span class="role-badge">USER</span></th>
+                  <td data-label="Email" role="cell">
+                    <span class="cell-value">
+                      <code>user@greencongelados.com</code>
+                      <button class="copy-btn" type="button" data-copy="user@greencongelados.com" data-copy-label="Email de USER" aria-label="Copiar email de USER">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+                          <rect x="9" y="9" width="12" height="12" rx="2"></rect>
+                          <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                        </svg>
+                        <span class="copy-label">Copiar</span>
+                      </button>
+                    </span>
+                  </td>
+                  <td data-label="Contraseña" role="cell">
+                    <span class="cell-value">
+                      <code>User1234</code>
+                      <button class="copy-btn" type="button" data-copy="User1234" data-copy-label="Contraseña de USER" aria-label="Copiar contraseña de USER">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+                          <rect x="9" y="9" width="12" height="12" rx="2"></rect>
+                          <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                        </svg>
+                        <span class="copy-label">Copiar</span>
+                      </button>
+                    </span>
+                  </td>
+                  <td data-label="Permisos" role="cell">Catálogo, carrito, checkout y sus pedidos</td>
+                </tr>
+
+                <tr role="row">
+                  <th scope="row" role="rowheader"><span class="role-badge role-badge--cadet">CADET</span></th>
+                  <td data-label="Email" role="cell">
+                    <span class="cell-value">
+                      <code>cadet@greencongelados.com</code>
+                      <button class="copy-btn" type="button" data-copy="cadet@greencongelados.com" data-copy-label="Email de CADET" aria-label="Copiar email de CADET">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+                          <rect x="9" y="9" width="12" height="12" rx="2"></rect>
+                          <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                        </svg>
+                        <span class="copy-label">Copiar</span>
+                      </button>
+                    </span>
+                  </td>
+                  <td data-label="Contraseña" role="cell">
+                    <span class="cell-value">
+                      <code>Cadet1234</code>
+                      <button class="copy-btn" type="button" data-copy="Cadet1234" data-copy-label="Contraseña de CADET" aria-label="Copiar contraseña de CADET">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+                          <rect x="9" y="9" width="12" height="12" rx="2"></rect>
+                          <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                        </svg>
+                        <span class="copy-label">Copiar</span>
+                      </button>
+                    </span>
+                  </td>
+                  <td data-label="Permisos" role="cell">Pedidos asignados y estados logísticos</td>
+                </tr>
+
+                <tr role="row">
+                  <th scope="row" role="rowheader"><span class="role-badge role-badge--admin">SUPERADMIN</span></th>
+                  <td data-label="Email" role="cell">
+                    <span class="cell-value">
+                      <code>superadmin@greencongelados.com</code>
+                      <button class="copy-btn" type="button" data-copy="superadmin@greencongelados.com" data-copy-label="Email de SUPERADMIN" aria-label="Copiar email de SUPERADMIN">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+                          <rect x="9" y="9" width="12" height="12" rx="2"></rect>
+                          <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                        </svg>
+                        <span class="copy-label">Copiar</span>
+                      </button>
+                    </span>
+                  </td>
+                  <td data-label="Contraseña" role="cell">
+                    <span class="cell-value">
+                      <code>Super1234</code>
+                      <button class="copy-btn" type="button" data-copy="Super1234" data-copy-label="Contraseña de SUPERADMIN" aria-label="Copiar contraseña de SUPERADMIN">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+                          <rect x="9" y="9" width="12" height="12" rx="2"></rect>
+                          <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                        </svg>
+                        <span class="copy-label">Copiar</span>
+                      </button>
+                    </span>
+                  </td>
+                  <td data-label="Permisos" role="cell">Usuarios, roles, productos, categorías, promociones, envío y todos los pedidos</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <ul class="cred-notes">
+          <li>Las tres cuentas ya tienen el <strong>email confirmado</strong>.</li>
+          <li>Solo <code>user@greencongelados.com</code> tiene una dirección seed: <strong>Córdoba 1234, 4A</strong>.</li>
+          <li><code>cadet</code> y <code>superadmin</code> no tienen dirección cargada.</li>
+          <li>Si registrás un usuario nuevo, primero confirmá el email y después creá una dirección.</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="section address-section" id="direccion" aria-labelledby="direccion-title">
+      <div class="container">
+        <aside class="callout" aria-labelledby="direccion-title">
+          <div class="callout-head">
+            <span class="callout-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" focusable="false">
+                <path d="M20 10c0 5-8 11-8 11S4 15 4 10a8 8 0 1 1 16 0Z"></path>
+                <circle cx="12" cy="10" r="2.5"></circle>
+              </svg>
+            </span>
+            <div>
+              <p class="callout-kicker">Paso obligatorio</p>
+              <h2 id="direccion-title">Dirección de envío</h2>
+            </div>
+          </div>
+          <p>
+            El checkout no funciona sin una dirección cargada. El usuario demo ya tiene
+            <strong>Córdoba 1234, 4A</strong>. Si usás otra cuenta, registrás un usuario nuevo
+            o borraste la dirección, creala antes de comprar.
+          </p>
+
+          <div class="endpoint">
+            <span class="method method--get">GET</span>
+            <code>/api/addresses/me</code>
+          </div>
+
+          <div class="address-grid">
+            <div class="address-step">
+              <h3>Si responde <code>404</code> con <code>ADDRESS_NOT_FOUND</code></h3>
+              <p>Creá la dirección con <code>POST /api/addresses</code>:</p>
+              <div class="code-block">
+                <div class="code-head">
+                  <span class="method method--post">POST</span>
+                  <span class="code-path">/api/addresses</span>
+                  <span class="code-meta">application/json</span>
+                  <button class="copy-btn copy-btn--dark" type="button" data-copy-target="#code-address-post" data-copy-label="Cuerpo del POST de dirección" aria-label="Copiar cuerpo del POST de dirección">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+                      <rect x="9" y="9" width="12" height="12" rx="2"></rect>
+                      <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                    </svg>
+                    <span class="copy-label">Copiar</span>
+                  </button>
+                </div>
+                <pre id="code-address-post" tabindex="0" aria-label="Cuerpo JSON para crear una dirección"><code>{
+  "street": "Córdoba 1234",
+  "dpto": "4A",
+  "references": "Timbre 4A"
+}</code></pre>
+              </div>
+            </div>
+
+            <div class="address-step">
+              <h3>Si responde <code>409</code> con <code>ADDRESS_ALREADY_EXISTS</code></h3>
+              <p>Ya existe una dirección. Actualizala con <code>PUT /api/addresses</code>:</p>
+              <div class="code-block">
+                <div class="code-head">
+                  <span class="method method--put">PUT</span>
+                  <span class="code-path">/api/addresses</span>
+                  <span class="code-meta">application/json</span>
+                  <button class="copy-btn copy-btn--dark" type="button" data-copy-target="#code-address-put" data-copy-label="Cuerpo del PUT de dirección" aria-label="Copiar cuerpo del PUT de dirección">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+                      <rect x="9" y="9" width="12" height="12" rx="2"></rect>
+                      <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                    </svg>
+                    <span class="copy-label">Copiar</span>
+                  </button>
+                </div>
+                <pre id="code-address-put" tabindex="0" aria-label="Cuerpo JSON para actualizar una dirección"><code>{
+  "street": "San Luis 456",
+  "dpto": "2B",
+  "references": "Portón negro"
+}</code></pre>
+              </div>
+            </div>
+          </div>
+
+          <p class="callout-foot">
+            <strong>Hay una sola dirección por usuario.</strong> El <code>PUT</code> es parcial:
+            los campos <code>null</code> conservan el valor actual.
+          </p>
+        </aside>
+      </div>
+    </section>
+
+    <section class="section" id="recorrido" aria-labelledby="recorrido-title">
+      <div class="container">
+        <div class="section-head">
+          <p class="eyebrow">Tres rutas</p>
+          <h2 id="recorrido-title">Recorrido sugerido</h2>
+          <p>
+            Tres recorridos independientes para probar la API de punta a punta. Cada uno empieza
+            con un login distinto; usá el token en <strong>Authorize</strong> antes de seguir.
+          </p>
+        </div>
+
+        <div class="tracks">
+          <article class="track" aria-labelledby="track-user">
+            <header class="track-head">
+              <span class="track-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" focusable="false">
+                  <circle cx="12" cy="8" r="4"></circle>
+                  <path d="M4 21a8 8 0 0 1 16 0"></path>
+                </svg>
+              </span>
+              <div class="track-title">
+                <p class="track-kicker">Ruta 01</p>
+                <h3 id="track-user">Como cliente</h3>
+              </div>
+              <span class="role-badge">USER</span>
+            </header>
+            <p class="track-intro">Catálogo, carrito, dirección y checkout con el usuario demo.</p>
+
+            <ol class="steps">
+              <li>
+                <div class="step-head">
+                  <span class="step-num" aria-hidden="true">1</span>
+                  <p class="step-title">Login y copiar el token</p>
+                </div>
+                <p class="step-text">Autenticate con <code>user@greencongelados.com</code> / <code>User1234</code>.</p>
+                <div class="code-block">
+                  <div class="code-head">
+                    <span class="method method--post">POST</span>
+                    <span class="code-path">/api/auth/login</span>
+                    <span class="code-meta">application/json</span>
+                    <button class="copy-btn copy-btn--dark" type="button" data-copy-target="#code-login-user" data-copy-label="Body de login de USER" aria-label="Copiar body de login de USER">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+                        <rect x="9" y="9" width="12" height="12" rx="2"></rect>
+                        <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                      </svg>
+                      <span class="copy-label">Copiar</span>
+                    </button>
+                  </div>
+                  <pre id="code-login-user" tabindex="0" aria-label="Body JSON de login de USER"><code>{
+  "email": "user@greencongelados.com",
+  "password": "User1234"
+}</code></pre>
+                </div>
+              </li>
+
+              <li>
+                <div class="step-head">
+                  <span class="step-num" aria-hidden="true">2</span>
+                  <p class="step-title">Autorizar Swagger</p>
+                </div>
+                <p class="step-text">
+                  Copiá el <code>token</code> de la respuesta y pegalo en <strong>Authorize</strong>,
+                  sin la palabra <code>Bearer</code>. Swagger agrega el prefijo.
+                </p>
+              </li>
+
+              <li>
+                <div class="step-head">
+                  <span class="step-num" aria-hidden="true">3</span>
+                  <p class="step-title">Verificar la dirección</p>
+                </div>
+                <p class="step-text">Si no existe, seguí el aviso de arriba: <code>POST /api/addresses</code>.</p>
+                <div class="endpoint">
+                  <span class="method method--get">GET</span>
+                  <code>/api/addresses/me</code>
+                </div>
+              </li>
+
+              <li>
+                <div class="step-head">
+                  <span class="step-num" aria-hidden="true">4</span>
+                  <p class="step-title">Explorar el catálogo</p>
+                </div>
+                <p class="step-text">Productos y categorías son públicos.</p>
+                <div class="endpoint">
+                  <span class="method method--get">GET</span>
+                  <code>/api/products</code>
+                </div>
+                <div class="endpoint">
+                  <span class="method method--get">GET</span>
+                  <code>/api/categories</code>
+                </div>
+              </li>
+
+              <li>
+                <div class="step-head">
+                  <span class="step-num" aria-hidden="true">5</span>
+                  <p class="step-title">Agregar un producto al carrito</p>
+                </div>
+                <div class="code-block">
+                  <div class="code-head">
+                    <span class="method method--post">POST</span>
+                    <span class="code-path">/api/cart/items</span>
+                    <span class="code-meta">application/json</span>
+                    <button class="copy-btn copy-btn--dark" type="button" data-copy-target="#code-cart-item" data-copy-label="Body de carrito" aria-label="Copiar body para agregar al carrito">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+                        <rect x="9" y="9" width="12" height="12" rx="2"></rect>
+                        <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                      </svg>
+                      <span class="copy-label">Copiar</span>
+                    </button>
+                  </div>
+                  <pre id="code-cart-item" tabindex="0" aria-label="Body JSON para agregar un producto al carrito"><code>{ "idProduct": 1, "quantity": 2 }</code></pre>
+                </div>
+              </li>
+
+              <li>
+                <div class="step-head">
+                  <span class="step-num" aria-hidden="true">6</span>
+                  <p class="step-title">Revisar el carrito</p>
+                </div>
+                <div class="endpoint">
+                  <span class="method method--get">GET</span>
+                  <code>/api/cart/items</code>
+                </div>
+              </li>
+
+              <li>
+                <div class="step-head">
+                  <span class="step-num" aria-hidden="true">7</span>
+                  <p class="step-title">Crear la orden</p>
+                </div>
+                <div class="code-block">
+                  <div class="code-head">
+                    <span class="method method--post">POST</span>
+                    <span class="code-path">/api/orders</span>
+                    <span class="code-meta">application/json</span>
+                    <button class="copy-btn copy-btn--dark" type="button" data-copy-target="#code-order-create" data-copy-label="Body de checkout" aria-label="Copiar body de checkout">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+                        <rect x="9" y="9" width="12" height="12" rx="2"></rect>
+                        <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                      </svg>
+                      <span class="copy-label">Copiar</span>
+                    </button>
+                  </div>
+                  <pre id="code-order-create" tabindex="0" aria-label="Body JSON para crear una orden"><code>{ "couponCode": "BIENVENIDO10" }</code></pre>
+                </div>
+                <div class="coupon-row">
+                  <span>Cupón demo</span>
+                  <code>BIENVENIDO10</code>
+                  <button class="copy-btn" type="button" data-copy="BIENVENIDO10" data-copy-label="Cupón BIENVENIDO10" aria-label="Copiar cupón BIENVENIDO10">
+                    <span class="copy-label">Copiar</span>
+                  </button>
+                </div>
+              </li>
+
+              <li>
+                <div class="step-head">
+                  <span class="step-num" aria-hidden="true">8</span>
+                  <p class="step-title">Consultar tus pedidos</p>
+                </div>
+                <div class="endpoint">
+                  <span class="method method--get">GET</span>
+                  <code>/api/orders/me</code>
+                </div>
+              </li>
+            </ol>
+
+            <p class="track-tip">
+              <strong>El checkout no cobra:</strong> crea la orden y descuenta stock. El cupón
+              <code>BIENVENIDO10</code> aplica 10% con un mínimo de $5.000.
+            </p>
+          </article>
+
+          <article class="track" aria-labelledby="track-cadet">
+            <header class="track-head">
+              <span class="track-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" focusable="false">
+                  <path d="M3 6h11v10H3z"></path>
+                  <path d="M14 10h4l3 3v3h-7z"></path>
+                  <circle cx="7" cy="18.5" r="2"></circle>
+                  <circle cx="17.5" cy="18.5" r="2"></circle>
+                </svg>
+              </span>
+              <div class="track-title">
+                <p class="track-kicker">Ruta 02</p>
+                <h3 id="track-cadet">Como cadete</h3>
+              </div>
+              <span class="role-badge role-badge--cadet">CADET</span>
+            </header>
+            <p class="track-intro">Pedidos asignados y transiciones logísticas del cadete demo.</p>
+
+            <ol class="steps">
+              <li>
+                <div class="step-head">
+                  <span class="step-num" aria-hidden="true">1</span>
+                  <p class="step-title">Login como cadete</p>
+                </div>
+                <div class="code-block">
+                  <div class="code-head">
+                    <span class="method method--post">POST</span>
+                    <span class="code-path">/api/auth/login</span>
+                    <span class="code-meta">application/json</span>
+                    <button class="copy-btn copy-btn--dark" type="button" data-copy-target="#code-login-cadet" data-copy-label="Body de login de CADET" aria-label="Copiar body de login de CADET">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+                        <rect x="9" y="9" width="12" height="12" rx="2"></rect>
+                        <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                      </svg>
+                      <span class="copy-label">Copiar</span>
+                    </button>
+                  </div>
+                  <pre id="code-login-cadet" tabindex="0" aria-label="Body JSON de login de CADET"><code>{
+  "email": "cadet@greencongelados.com",
+  "password": "Cadet1234"
+}</code></pre>
+                </div>
+              </li>
+
+              <li>
+                <div class="step-head">
+                  <span class="step-num" aria-hidden="true">2</span>
+                  <p class="step-title">Ver los pedidos asignados</p>
+                </div>
+                <p class="step-text">El cadete solo ve los pedidos que tiene asignados.</p>
+                <div class="endpoint">
+                  <span class="method method--get">GET</span>
+                  <code>/api/users/cadets/<wbr>me/orders</code>
+                </div>
+              </li>
+
+              <li>
+                <div class="step-head">
+                  <span class="step-num" aria-hidden="true">3</span>
+                  <p class="step-title">Marcar el pedido en camino</p>
+                </div>
+                <p class="step-text">El body es un string JSON, no un objeto.</p>
+                <div class="endpoint">
+                  <span class="method method--patch">PATCH</span>
+                  <code>/api/users/cadets/<wbr>me/orders/<wbr>{idOrder}/<wbr>status</code>
+                </div>
+                <div class="code-block">
+                  <div class="code-head">
+                    <span class="method method--patch">PATCH</span>
+                    <span class="code-path">/api/users/cadets/me/orders/{idOrder}/status</span>
+                    <span class="code-meta">application/json</span>
+                    <button class="copy-btn copy-btn--dark" type="button" data-copy-target="#code-status-delivery" data-copy-label="Body InDelivery" aria-label="Copiar body de estado InDelivery">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+                        <rect x="9" y="9" width="12" height="12" rx="2"></rect>
+                        <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                      </svg>
+                      <span class="copy-label">Copiar</span>
+                    </button>
+                  </div>
+                  <pre id="code-status-delivery" tabindex="0" aria-label="Body JSON para marcar un pedido en camino"><code>"InDelivery"</code></pre>
+                </div>
+              </li>
+
+              <li>
+                <div class="step-head">
+                  <span class="step-num" aria-hidden="true">4</span>
+                  <p class="step-title">Confirmar la entrega</p>
+                </div>
+                <p class="step-text">Repetí el <code>PATCH</code> con el estado <code>"Delivered"</code>.</p>
+                <div class="endpoint">
+                  <span class="method method--patch">PATCH</span>
+                  <code>/api/users/cadets/<wbr>me/orders/<wbr>{idOrder}/<wbr>status</code>
+                </div>
+                <div class="code-block">
+                  <div class="code-head">
+                    <span class="method method--patch">PATCH</span>
+                    <span class="code-path">/api/users/cadets/me/orders/{idOrder}/status</span>
+                    <span class="code-meta">application/json</span>
+                    <button class="copy-btn copy-btn--dark" type="button" data-copy-target="#code-status-delivered" data-copy-label="Body Delivered" aria-label="Copiar body de estado Delivered">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+                        <rect x="9" y="9" width="12" height="12" rx="2"></rect>
+                        <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                      </svg>
+                      <span class="copy-label">Copiar</span>
+                    </button>
+                  </div>
+                  <pre id="code-status-delivered" tabindex="0" aria-label="Body JSON para confirmar una entrega"><code>"Delivered"</code></pre>
+                </div>
+              </li>
+            </ol>
+
+            <p class="track-tip">
+              <strong>Flujo logístico:</strong> el pedido pasa de <code>LogisticsPending</code> a
+              <code>InDelivery</code> y luego a <code>Delivered</code>. La cancelación restituye stock.
+            </p>
+          </article>
+
+          <article class="track" aria-labelledby="track-admin">
+            <header class="track-head">
+              <span class="track-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" focusable="false">
+                  <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z"></path>
+                  <path d="m9 12 2 2 4-4"></path>
+                </svg>
+              </span>
+              <div class="track-title">
+                <p class="track-kicker">Ruta 03</p>
+                <h3 id="track-admin">Como admin</h3>
+              </div>
+              <span class="role-badge role-badge--admin">SUPERADMIN</span>
+            </header>
+            <p class="track-intro">Asignación de cadetes, vista global de pedidos y gestión de catálogo.</p>
+
+            <ol class="steps">
+              <li>
+                <div class="step-head">
+                  <span class="step-num" aria-hidden="true">1</span>
+                  <p class="step-title">Login como superadmin</p>
+                </div>
+                <div class="code-block">
+                  <div class="code-head">
+                    <span class="method method--post">POST</span>
+                    <span class="code-path">/api/auth/login</span>
+                    <span class="code-meta">application/json</span>
+                    <button class="copy-btn copy-btn--dark" type="button" data-copy-target="#code-login-admin" data-copy-label="Body de login de SUPERADMIN" aria-label="Copiar body de login de SUPERADMIN">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+                        <rect x="9" y="9" width="12" height="12" rx="2"></rect>
+                        <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                      </svg>
+                      <span class="copy-label">Copiar</span>
+                    </button>
+                  </div>
+                  <pre id="code-login-admin" tabindex="0" aria-label="Body JSON de login de SUPERADMIN"><code>{
+  "email": "superadmin@greencongelados.com",
+  "password": "Super1234"
+}</code></pre>
+                </div>
+              </li>
+
+              <li>
+                <div class="step-head">
+                  <span class="step-num" aria-hidden="true">2</span>
+                  <p class="step-title">Obtener el ID del cadete</p>
+                </div>
+                <div class="endpoint">
+                  <span class="method method--get">GET</span>
+                  <code>/api/users/cadets</code>
+                </div>
+              </li>
+
+              <li>
+                <div class="step-head">
+                  <span class="step-num" aria-hidden="true">3</span>
+                  <p class="step-title">Asignar un pedido</p>
+                </div>
+                <p class="step-text">Usá el <code>id</code> del cadete y el <code>idOrder</code> de un pedido.</p>
+                <div class="endpoint">
+                  <span class="method method--put">PUT</span>
+                  <code>/api/users/cadets/<wbr>{id}/orders/<wbr>{idOrder}</code>
+                </div>
+              </li>
+
+              <li>
+                <div class="step-head">
+                  <span class="step-num" aria-hidden="true">4</span>
+                  <p class="step-title">Ver todos los pedidos</p>
+                </div>
+                <div class="endpoint">
+                  <span class="method method--get">GET</span>
+                  <code>/api/orders</code>
+                </div>
+              </li>
+
+              <li>
+                <div class="step-head">
+                  <span class="step-num" aria-hidden="true">5</span>
+                  <p class="step-title">Crear un producto</p>
+                </div>
+                <div class="code-block">
+                  <div class="code-head">
+                    <span class="method method--post">POST</span>
+                    <span class="code-path">/api/products</span>
+                    <span class="code-meta">application/json</span>
+                    <button class="copy-btn copy-btn--dark" type="button" data-copy-target="#code-product-create" data-copy-label="Body de creación de producto" aria-label="Copiar body para crear un producto">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+                        <rect x="9" y="9" width="12" height="12" rx="2"></rect>
+                        <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                      </svg>
+                      <span class="copy-label">Copiar</span>
+                    </button>
+                  </div>
+                  <pre id="code-product-create" tabindex="0" aria-label="Body JSON para crear un producto"><code>{
+  "name": "Mango demo",
+  "descriptionShort": "Mango en cubos.",
+  "price": 4200,
+  "currentStock": 20
+}</code></pre>
+                </div>
+              </li>
+
+              <li>
+                <div class="step-head">
+                  <span class="step-num" aria-hidden="true">6</span>
+                  <p class="step-title">Ocultar el producto</p>
+                </div>
+                <p class="step-text">Ocultalo sin borrar el historial de pedidos.</p>
+                <div class="endpoint">
+                  <span class="method method--patch">PATCH</span>
+                  <code>/api/products/{id}/hide</code>
+                </div>
+              </li>
+            </ol>
+
+            <p class="track-tip">
+              <strong>Rol SUPERADMIN:</strong> además de la logística, administra usuarios, roles,
+              productos, categorías, promociones y envío.
+            </p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section section--white" id="codigo" aria-labelledby="codigo-title">
+      <div class="container">
+        <div class="section-head">
+          <p class="eyebrow">Bajo el capó</p>
+          <h2 id="codigo-title">Qué mirar en el código</h2>
+          <p>Decisiones de diseño pensadas para que el stock, las sesiones y los errores sean confiables.</p>
+        </div>
+
+        <div class="watch-grid">
+          <ol class="watch-list">
+            <li class="watch-item">
+              <span class="watch-num" aria-hidden="true">01</span>
+              <div>
+                <h3>Clean Architecture</h3>
+                <p>
+                  <a href="https://github.com/MartinGaletto15/GreenCongelados/tree/main/src" target="_blank" rel="noopener noreferrer">Domain, Application, Infrastructure y Web</a>.
+                  La dirección de dependencias va hacia el dominio; las reglas de negocio no conocen EF Core ni ASP.NET.
+                </p>
+              </div>
+            </li>
+            <li class="watch-item">
+              <span class="watch-num" aria-hidden="true">02</span>
+              <div>
+                <h3>Stock atómico</h3>
+                <p>
+                  <code>ExecuteUpdateAsync</code> con <code>WHERE CurrentStock &gt;= cantidad</code> para no vender
+                  dos veces la última unidad. <a href="https://github.com/MartinGaletto15/GreenCongelados/blob/main/docs/adr/0001-concurrencia-de-stock.md" target="_blank" rel="noopener noreferrer">Ver&nbsp;ADR&nbsp;0001</a>.
+                </p>
+              </div>
+            </li>
+            <li class="watch-item">
+              <span class="watch-num" aria-hidden="true">03</span>
+              <div>
+                <h3>Sesiones JWT con <code>security_stamp</code></h3>
+                <p>
+                  Cambiar el rol o la contraseña invalida los tokens al instante.
+                  <a href="https://github.com/MartinGaletto15/GreenCongelados/blob/main/docs/adr/0002-sesiones-jwt-security-stamp.md" target="_blank" rel="noopener noreferrer">Ver&nbsp;ADR&nbsp;0002</a>.
+                </p>
+              </div>
+            </li>
+            <li class="watch-item">
+              <span class="watch-num" aria-hidden="true">04</span>
+              <div>
+                <h3>Estado de producto derivado del stock</h3>
+                <p>
+                  <code>Available</code> y <code>OutOfStock</code> se calculan desde el stock; <code>Hidden</code> y
+                  <code>Deleted</code> son decisiones explícitas.
+                  <a href="https://github.com/MartinGaletto15/GreenCongelados/blob/main/docs/adr/0003-estado-de-producto.md" target="_blank" rel="noopener noreferrer">Ver&nbsp;ADR&nbsp;0003</a>.
+                </p>
+              </div>
+            </li>
+            <li class="watch-item">
+              <span class="watch-num" aria-hidden="true">05</span>
+              <div>
+                <h3>Errores uniformes y seeder idempotente</h3>
+                <p>
+                  Todas las respuestas de error siguen el contrato <code>{ error, code }</code>. El
+                  <a href="https://github.com/MartinGaletto15/GreenCongelados/blob/main/src/Infrastructure/Persistence/DbSeeder.cs" target="_blank" rel="noopener noreferrer">seeder</a>
+                  carga datos demo sin duplicar si la base ya tiene usuarios.
+                </p>
+              </div>
+            </li>
+          </ol>
+
+          <aside class="repo-card" aria-label="Mapa del repositorio">
+            <h3>Mapa del repositorio</h3>
+            <p>Cuatro proyectos, una sola dirección de dependencias.</p>
+            <div class="layer-map">
+              <div class="layer">
+                <span class="layer-num">01</span>
+                <strong>Domain</strong>
+                <span>entidades y reglas</span>
+              </div>
+              <div class="layer">
+                <span class="layer-num">02</span>
+                <strong>Application</strong>
+                <span>casos de uso</span>
+              </div>
+              <div class="layer">
+                <span class="layer-num">03</span>
+                <strong>Infrastructure</strong>
+                <span>EF Core y servicios</span>
+              </div>
+              <div class="layer">
+                <span class="layer-num">04</span>
+                <strong>Web</strong>
+                <span>API y middleware</span>
+              </div>
+            </div>
+            <div class="repo-actions">
+              <a class="btn" href="https://github.com/MartinGaletto15/GreenCongelados/blob/main/README.md" target="_blank" rel="noopener noreferrer">Ver README</a>
+              <a class="btn" href="https://github.com/MartinGaletto15/GreenCongelados/tree/main/docs/adr" target="_blank" rel="noopener noreferrer">Ver ADRs</a>
+              <a class="btn" href="https://github.com/MartinGaletto15/GreenCongelados" target="_blank" rel="noopener noreferrer">Ver repo</a>
+            </div>
+          </aside>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="limitaciones" aria-labelledby="limitaciones-title">
+      <div class="container">
+        <div class="section-head">
+          <p class="eyebrow">Alcance de la demo</p>
+          <h2 id="limitaciones-title">Limitaciones de la demo</h2>
+          <p>Es un entorno de prueba técnica: está pensado para evaluar la API, no para operar una tienda real.</p>
+        </div>
+        <div class="limits-grid">
+          <div class="limit-item">
+            <span class="limit-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" focusable="false">
+                <path d="M20 11a8.1 8.1 0 0 0-15.5-2M4 4v5h5"></path>
+                <path d="M4 13a8.1 8.1 0 0 0 15.5 2M20 20v-5h-5"></path>
+              </svg>
+            </span>
+            <p><strong>Datos ficticios y persistentes.</strong> No hay reset automático: la base demo se comparte entre visitantes.</p>
+          </div>
+          <div class="limit-item">
+            <span class="limit-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" focusable="false">
+                <rect x="2" y="5" width="20" height="14" rx="2"></rect>
+                <path d="M2 10h20"></path>
+              </svg>
+            </span>
+            <p><strong>Sin pasarela de pagos:</strong> el checkout crea la orden, no cobra.</p>
+          </div>
+          <div class="limit-item">
+            <span class="limit-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" focusable="false">
+                <rect x="3" y="4" width="18" height="16" rx="2"></rect>
+                <path d="M3 9h18"></path>
+                <path d="M9 20V9"></path>
+              </svg>
+            </span>
+            <p><strong>Sin frontend:</strong> Swagger es la interfaz para probar todos los endpoints.</p>
+          </div>
+          <div class="limit-item">
+            <span class="limit-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" focusable="false">
+                <rect x="3" y="5" width="18" height="14" rx="2"></rect>
+                <path d="m3 7 9 6 9-6"></path>
+              </svg>
+            </span>
+            <p><strong>El envío de correos depende de la configuración SMTP.</strong> Sin credenciales, algunos mails no salen.</p>
+          </div>
+          <div class="limit-item">
+            <span class="limit-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" focusable="false">
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z"></path>
+                <path d="m9 12 2 2 4-4"></path>
+              </svg>
+            </span>
+            <p><strong>No uses datos personales reales.</strong> La demo es pública y las cuentas son compartidas.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <div class="footer-main">
+        <div>
+          <div class="footer-brand">
+            <span class="brand-mark" aria-hidden="true">GC</span>
+            GreenCongelados API
+          </div>
+          <p class="footer-note">
+            Hecho por <strong>Martín Galetto</strong>. Backend de e-commerce de congelados para
+            demostración técnica. <a href="https://github.com/MartinGaletto15/GreenCongelados" target="_blank" rel="noopener noreferrer">Ver repositorio en GitHub</a>.
+          </p>
+        </div>
+        <div>
+          <p class="stack-label">Stack</p>
+          <ul class="stack" aria-label="Tecnologías utilizadas">
+            <li class="stack-pill">.NET 8</li>
+            <li class="stack-pill">EF Core 8</li>
+            <li class="stack-pill">PostgreSQL</li>
+            <li class="stack-pill">JWT</li>
+            <li class="stack-pill">Swagger</li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <span>Demo técnica · datos ficticios · sin pagos reales</span>
+        <a href="https://github.com/MartinGaletto15/GreenCongelados" target="_blank" rel="noopener noreferrer">github.com/MartinGaletto15/GreenCongelados</a>
+      </div>
+    </div>
+  </footer>
+  <div class="sr-only" id="copy-feedback" aria-live="polite" aria-atomic="true"></div>
+  <script>
+    // GitHub Pages sirve esta página en otro origen que la API.
+    // Todos los enlaces con data-api-path apuntan al deploy de Render.
+    const API_BASE_URL = "https://greencongelados.onrender.com";
+
+    document.querySelectorAll("[data-api-path]").forEach((link) => {
+      link.href = API_BASE_URL + link.dataset.apiPath;
+    });
+
+    const liveRegion = document.getElementById("copy-feedback");
+    const copyTimers = new WeakMap();
+
+    async function copyToClipboard(text) {
+      if (navigator.clipboard && window.isSecureContext) {
+        try {
+          await navigator.clipboard.writeText(text);
+          return true;
+        } catch (error) {
+          // En file:// o sin permisos se usa el fallback.
+        }
+      }
+
+      const textarea = document.createElement("textarea");
+      textarea.value = text;
+      textarea.setAttribute("readonly", "");
+      textarea.style.position = "fixed";
+      textarea.style.top = "0";
+      textarea.style.left = "-9999px";
+      textarea.style.opacity = "0";
+      document.body.appendChild(textarea);
+
+      const selection = document.getSelection();
+      const previousRange = selection && selection.rangeCount > 0 ? selection.getRangeAt(0) : null;
+
+      textarea.select();
+      textarea.setSelectionRange(0, textarea.value.length);
+
+      let copied = false;
+      try {
+        copied = document.execCommand("copy");
+      } catch (error) {
+        copied = false;
+      }
+
+      textarea.remove();
+      if (previousRange && selection) {
+        selection.removeAllRanges();
+        selection.addRange(previousRange);
+      }
+
+      return copied;
+    }
+
+    document.addEventListener("click", async (event) => {
+      const button = event.target.closest("[data-copy], [data-copy-target]");
+      if (!button) return;
+
+      let text = button.dataset.copy || "";
+      if (button.dataset.copyTarget) {
+        const target = document.querySelector(button.dataset.copyTarget);
+        if (target) text = target.textContent.trim().replace(/\r\n/g, "\n");
+      }
+      if (!text) return;
+
+      const copied = await copyToClipboard(text);
+      if (!copied) {
+        if (liveRegion) {
+          liveRegion.textContent = "No se pudo copiar. Seleccioná el texto manualmente.";
+        }
+        return;
+      }
+
+      const label = button.querySelector(".copy-label");
+      const originalLabel = label ? (label.dataset.originalLabel || label.textContent) : "";
+      const originalAriaLabel = button.getAttribute("aria-label") || "";
+
+      if (label) {
+        label.dataset.originalLabel = originalLabel;
+        label.textContent = "Copiado";
+      }
+      button.classList.add("is-copied");
+      button.setAttribute("aria-label", (button.dataset.copyLabel || "Texto") + " copiado");
+
+      if (liveRegion) {
+        liveRegion.textContent = (button.dataset.copyLabel || "Texto") + " copiado al portapapeles.";
+      }
+
+      const previousTimer = copyTimers.get(button);
+      if (previousTimer) clearTimeout(previousTimer);
+
+      const timer = setTimeout(() => {
+        button.classList.remove("is-copied");
+        if (label) label.textContent = originalLabel;
+        button.setAttribute("aria-label", originalAriaLabel);
+      }, 1600);
+
+      copyTimers.set(button, timer);
+    });
+  </script>
+</body>
+</html>
