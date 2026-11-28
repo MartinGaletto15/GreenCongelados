@@ -76,29 +76,6 @@ GEMINI.md
 *.db-wal
 
 #-------------------------------------------------
-# Frontend (React, Vite, Node) Rules
-#-------------------------------------------------
-
-# Dependencias
-node_modules/
-**/.yarn/**
-
-# Archivos de build y artefactos
-dist/
-.vite/
-
-# Archivos de Log y caché
-npm-debug.log*
-yarn-error.log*
-yarn-debug.log*
-pnpm-debug.log*
-
-# Variables de entorno
-.env
-.env.local
-.env.*.local
-
-#-------------------------------------------------
 # IDE and OS Specific
 #-------------------------------------------------
 .vs/
